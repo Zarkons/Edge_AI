@@ -1,0 +1,8 @@
+# /BUILD.bazel
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+
+compile_pip_requirements(
+    name = "requirements_tfcore",
+    src = "python_requirements_3_11.txt",
+    requirements_txt = "python_requirements_3_11_lock.txt",
+)

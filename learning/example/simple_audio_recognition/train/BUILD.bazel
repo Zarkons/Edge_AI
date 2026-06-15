@@ -1,0 +1,17 @@
+# 1. Load the standard py_binary from rules_python
+load("@rules_python//python:defs.bzl", "py_binary")
+# 2. Load the requirement macro separately from your pip hub
+load("@pip_deps_tfcore//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "train",
+    srcs = ["train.py"],
+    deps = [
+        requirement("numpy"),
+        requirement("tensorflow"),
+        requirement("matplotlib"),
+        requirement("seaborn"),
+        requirement("IPython"),
+    ],
+)
+

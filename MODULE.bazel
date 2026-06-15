@@ -26,13 +26,20 @@ python.toolchain(
 )
 
 # 4. FIX: Point directly to the sub-repo's compiled lockfile
-# Replace "third_party:python_requirements_lock.txt" with the actual path you found in Step 1
 pip.parse(
-    hub_name = "pip_deps",
+    hub_name = "pip_deps_tflm",
     python_version = "3.11",
     requirements_lock = "@tflm//python:python_requirements_3_11.txt", 
 )
 
+# Local requirements_lock to handle modules needed for projects with tensorflow
+pip.parse(
+    hub_name = "pip_deps_tfcore",
+    python_version = "3.11",
+    requirements_lock = "//:python_requirements_3_11_lock.txt", 
+)
+
 # 5. Expose the populated repositories to your root workspace
 use_repo(python, "python_3_11")
-use_repo(pip, "pip_deps")
+use_repo(pip, "pip_deps_tflm")
+use_repo(pip, "pip_deps_tfcore")
