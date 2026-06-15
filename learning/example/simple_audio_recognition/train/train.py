@@ -21,14 +21,14 @@ def get_secure_save_dir():
     workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
     
     if workspace_dir:
-        actual_save_dir = os.path.join(workspace_dir, "learning/example/simple_audio_recognition/train/build/data")
+        actual_save_dir = os.path.join(workspace_dir, "learning/example/simple_audio_recognition/train/build_dir/data")
     else:
         # 2. Universal Fallback: Calculate path dynamically relative to this file's position
         # (This handles standard python runs, VS Code debugging, or bazel tests)
         current_file_path = os.path.abspath(__file__)
         # Adjust the number of parents based on your folder depth to reach the root
         repo_root = pathlib.Path(current_file_path).parents[2] 
-        actual_save_dir = os.path.join(repo_root, "learning/example/simple_audio_recognition/train/build/data")
+        actual_save_dir = os.path.join(repo_root, "learning/example/simple_audio_recognition/train/build_dir/data")
         
     # Ensure the directory actually exists on your Mac before saving files to it
     os.makedirs(actual_save_dir, exist_ok=True)
