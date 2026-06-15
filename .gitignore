@@ -1,4 +1,5 @@
-bazel-bin/
-bazel-out/
-bazel-testlogs/
-bazel-Edge AI/
+bazel-bin
+bazel-out
+bazel-testlogs
+bazel-Edge_AI
+.DS_Store
