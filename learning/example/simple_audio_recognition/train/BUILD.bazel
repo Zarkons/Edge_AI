@@ -15,3 +15,29 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "convert_to_tflite",
+    srcs = ["convert_to_tflite.py"],
+    deps = [
+        requirement("numpy"),
+        requirement("tensorflow"),
+    ],
+)
+
+py_binary(
+    name = "inspect_tflite",
+    srcs = ["inspect_tflite.py"],
+    deps = [
+        requirement("tensorflow"),
+    ],
+)
+
+py_binary(
+    name = "run_inference_tflite",
+    srcs = ["run_inference_tflite.py"],
+    deps = [
+        requirement("ai-edge-litert"),
+        requirement("numpy"),
+        requirement("tensorflow"),
+    ],
+)

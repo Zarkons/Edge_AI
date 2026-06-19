@@ -10,6 +10,28 @@ absl-py==2.4.0 \
     # via
     #   keras
     #   tensorflow
+ai-edge-litert==2.1.5 \
+    --hash=sha256:06b9c2ea2a6c9c54a0f1f14825e26511c75ddfc140da81f264151d94bea0c845 \
+    --hash=sha256:14b35558bfce76146046cc2fc647f3fde97146e8b7622ea7fb02e85ac16cd906 \
+    --hash=sha256:1d282722cdfb70bb42d457f4bfe7789f88187ccadd73fea9f0107dce6e98fe45 \
+    --hash=sha256:1edf83d132919b0b95bb5ded64e79bfed018168d3584c28fa30a8eb0d3bfca6b \
+    --hash=sha256:2af16685a4cc8923d9a89ee5c732b8c66ae2c4d0cb538dbcebba3b93afb662ca \
+    --hash=sha256:41d2e8267f047ed14f14a5ff4e0f677a9c5143dd17a36991513f8cc5ef580a3b \
+    --hash=sha256:4fa10d99b2f8647678850684d31075fbb304f50535d5788c2ca93e273ce727a8 \
+    --hash=sha256:57506e9e9b91ee04e4cf3e986d184b0c92f1aa9f510c32841835c0d719a7fbb5 \
+    --hash=sha256:597ea79f947452c79ca7e9dd7abfedad6179302851df4a4bb4c755069a2f5ffe \
+    --hash=sha256:602fc90f6baf396df0fe4b0317b35627305c2233beb48db194b79e7e420bafa7 \
+    --hash=sha256:6d2db6759188b12be9fd095468c3c7069c1bc7c128de78f42f862fb654d247ea \
+    --hash=sha256:7c54e45589831fbaeec1481df530e336d0112002a6193bc28f7aafa5f4898a3a \
+    --hash=sha256:90af4d726e34458f50f01118fe7bf8a6b223a820e6981c9d741f08d8f8489706 \
+    --hash=sha256:9e70304490274992be0a03b29faf819f76dc7dd2754a3ddcfed25e689dab150c \
+    --hash=sha256:ad7844c7c2431dfe36debf6d4541f27af198848ed3090cbaacbdf2bb2cd377c7 \
+    --hash=sha256:b62fd3d90e643bcc3e3a31885a7636b5662527d48c27154cf07793f26896f018 \
+    --hash=sha256:b7825e13454a90e7a4782ecdb6f6d987a2bcc9147aa90eb181193867bf696f24 \
+    --hash=sha256:c1d558d801ec783fa29730f87c73c66ee609e66b556b83675f81c5be72bf4167 \
+    --hash=sha256:cf9a6e98677d26fd900ec9459a19cf5cce9f94c64132d728485eeb9accd5c162 \
+    --hash=sha256:f1c6d8db4382890881baeb8ed13c0802ada022e0b104b0db8fccf31353899ee0
+    # via -r python_requirements_3_11.txt
 asttokens==3.0.1 \
     --hash=sha256:15a3ebc0f43c2d0a50eeafea25e19046c68398e487b9f1f5b517f7c0f40f976a \
     --hash=sha256:71a4ee5de0bde6a31d64f6b13f2293ac190344478f081c3d1bccfcf5eacb0cb7
@@ -18,6 +40,10 @@ astunparse==1.6.3 \
     --hash=sha256:5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872 \
     --hash=sha256:c2652417f2c8b5bb325c885ae329bdf3f86424075c4fd1a128674bc6fba4b8e8
     # via tensorflow
+backports-strenum==1.2.8 \
+    --hash=sha256:4dd47365fd427ac8028aeb1ad3628ea38e67c4d0336ceebd5c0f113e0c487ce9 \
+    --hash=sha256:fc297cb26971f7d5e15a478a06a78575197f81daea47975771b1aae996dcccf4
+    # via ai-edge-litert
 certifi==2026.5.20 \
     --hash=sha256:3c52e209ba0a4ad7aebe60436a4ab349c39e1e602e8c134221e546902ad25897 \
     --hash=sha256:69dea482ab64caa7b9f6aba1c6bf48bb6a5448d1c0f1b17ab42ad8c763a5344d
@@ -241,7 +267,9 @@ executing==2.2.1 \
     # via stack-data
 flatbuffers==25.12.19 \
     --hash=sha256:7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4
-    # via tensorflow
+    # via
+    #   ai-edge-litert
+    #   tensorflow
 fonttools==4.63.0 \
     --hash=sha256:032038247a96c1690f9f31e377c389383c902531b085aa4e4dabd6f57f870e69 \
     --hash=sha256:063e08bd17bd5a90127a14123de0d6a952dbc847695fd98b63c043d58057f90c \
@@ -721,6 +749,7 @@ numpy==2.4.6 \
     --hash=sha256:f74a575920ab21fe304421a3fc28793d82e299cae9eccb37084e9fc7f3617c20
     # via
     #   -r python_requirements_3_11.txt
+    #   ai-edge-litert
     #   contourpy
     #   h5py
     #   keras
@@ -1005,7 +1034,9 @@ protobuf==7.35.1 \
     --hash=sha256:74758715c53d7158fb76caf4f0cfdacc5329a4b1bb994f865d6cf302d413a1c4 \
     --hash=sha256:b73f9489a4b8b1c9cb1f8ed951c736392592edb24b9d6819f36d2e10b171d5b4 \
     --hash=sha256:ce115a26fe0c39a2c29973d914d327e516a6455464489fe3cd1e51a1b354f81a
-    # via tensorflow
+    # via
+    #   ai-edge-litert
+    #   tensorflow
 psutil==7.2.2 \
     --hash=sha256:0746f5f8d406af344fd547f1c8daa5f5c33dbc293bb8d6a16d80b4bb88f59372 \
     --hash=sha256:076a2d2f923fd4821644f5ba89f059523da90dc9014e85f8e45a5774ca5bc6f9 \
@@ -1100,6 +1131,10 @@ termcolor==3.3.0 \
     --hash=sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5 \
     --hash=sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5
     # via tensorflow
+tqdm==4.68.3 \
+    --hash=sha256:00dfa48452b6b6cfae3dd9885636c23d3422d1ec97c66d96818cbd5e0821d482 \
+    --hash=sha256:39832cc2def2789a6f29df83f172db7416cea70052c0907a57801c5f2fdccb03
+    # via ai-edge-litert
 traitlets==5.15.1 \
     --hash=sha256:770a53705f84b81ac107e83a1b3328ff2dae16094d8fc3cfc004e4b22dfd8e92 \
     --hash=sha256:7b1c07854fe25acb39e009bae49f11b79ff6cbb2f27999104e9110e7a6b53722
@@ -1110,6 +1145,7 @@ typing-extensions==4.15.0 \
     --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \
     --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
     # via
+    #   ai-edge-litert
     #   grpcio
     #   ipython
     #   optree

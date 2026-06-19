@@ -4,3 +4,4 @@ seaborn
 numpy
 tensorflow
 IPython
+ai_edge_litert
