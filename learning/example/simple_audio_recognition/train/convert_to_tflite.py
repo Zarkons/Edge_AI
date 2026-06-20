@@ -1,10 +1,12 @@
 import os
 import pathlib
 import tensorflow as tf
-import numpy as np
 from absl import app
 import random 
 from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
+
+from learning.example.simple_audio_recognition.train import audio_processing
+from learning.example.simple_audio_recognition.train import sample_processing
 
 random.seed(42)
 LABEL_NAMES = ["down", "go", "left", "no", "off", "on", "right", "stop", "up", "yes"]
@@ -23,8 +25,6 @@ class ConvertToTFLite:
         audio_dir = pathlib.Path(inputs_path)
         wav_paths = list(audio_dir.glob("**/*.wav"))
         
-        import random
-        random.seed(42)
         random.shuffle(wav_paths)
         wav_paths = wav_paths[:100]
         
@@ -37,7 +37,7 @@ class ConvertToTFLite:
                     desired_samples=16000,
                 )
                 audio = tf.squeeze(audio, axis=-1)
-                spectrogram = get_spectrogram(audio)
+                spectrogram = audio_processing.get_spectrogram_3D(audio)
                 spectrogram = spectrogram[tf.newaxis, ...]
 
                 # For a single-input signature, representative samples should be yielded
@@ -75,45 +75,15 @@ class ConvertToTFLite:
         with open(file_path, 'wb') as f:
             f.write(self.tflite_model) # Pass and write the actual converted bytes
 
-
-def get_spectrogram(waveform):
-    # Convert the waveform to a spectrogram via a STFT.
-    spectrogram = tf.signal.stft(
-        waveform, frame_length=255, frame_step=128)
-    # Obtain the magnitude of the STFT.
-    spectrogram = tf.abs(spectrogram)
-    # Add a `channels` dimension, so that the spectrogram can be used
-    # as image-like input data with convolution layers (which expect
-    # shape (`batch_size`, `height`, `width`, `channels`).
-    spectrogram = spectrogram[..., tf.newaxis]
-    return spectrogram
-
-def get_build_dir():
-    workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
-    
-    if workspace_dir:
-        actual_save_dir = os.path.join(workspace_dir, "learning/example/simple_audio_recognition/train/build_dir/")
-    else:
-        # 2. Universal Fallback: Calculate path dynamically relative to this file's position
-        # (This handles standard python runs, VS Code debugging, or bazel tests)
-        current_file_path = os.path.abspath(__file__)
-        # Adjust the number of parents based on your folder depth to reach the root
-        repo_root = pathlib.Path(current_file_path).parents[2] 
-        actual_save_dir = os.path.join(repo_root, "learning/example/simple_audio_recognition/train/build_dir/")
-        
-    # Ensure the directory actually exists on your Mac before saving files to it
-    os.makedirs(actual_save_dir, exist_ok=True)
-    return pathlib.Path(actual_save_dir)
-
-
 def main(_):
-    build_dir = get_build_dir()
+    build_dir = sample_processing.get_build_dir()
     model_path = build_dir / "exported_trained_keras_model"
     converter = ConvertToTFLite(model_path)
     inputs_path = build_dir / "data/mini_speech_commands_extracted/mini_speech_commands"
     tflite_model = converter.convert_to_tflite(inputs_path)
     tflite_save_path = build_dir / "converted_audio_model/converted_model.tflite"
     converter.save_tflite_model(tflite_save_path)
+
 
 if __name__ == "__main__":
     app.run(main)   

@@ -2,22 +2,7 @@ import pathlib
 import tensorflow as tf
 import os
 
-def get_build_dir():
-    workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
-    
-    if workspace_dir:
-        actual_save_dir = os.path.join(workspace_dir, "learning/example/simple_audio_recognition/train/build_dir/")
-    else:
-        # 2. Universal Fallback: Calculate path dynamically relative to this file's position
-        # (This handles standard python runs, VS Code debugging, or bazel tests)
-        current_file_path = os.path.abspath(__file__)
-        # Adjust the number of parents based on your folder depth to reach the root
-        repo_root = pathlib.Path(current_file_path).parents[2] 
-        actual_save_dir = os.path.join(repo_root, "learning/example/simple_audio_recognition/train/build_dir/")
-        
-    # Ensure the directory actually exists on your Mac before saving files to it
-    os.makedirs(actual_save_dir, exist_ok=True)
-    return pathlib.Path(actual_save_dir)
+from learning.example.simple_audio_recognition.train import sample_processing
 
 def inspect_tflite_datatypes(tflite_path: str):
     # 1. Load the converted binary model
@@ -63,7 +48,7 @@ def inspect_tflite_datatypes(tflite_path: str):
         print("❌ WARNING: No internal INT8 neural network layers found. The model might still be using float32.")
 
 if __name__ == "__main__":
-    build_dir = get_build_dir()
+    build_dir = sample_processing.get_build_dir()
     tflite_model_path = build_dir / "converted_audio_model/converted_model.tflite"
     
     inspect_tflite_datatypes(tflite_model_path)

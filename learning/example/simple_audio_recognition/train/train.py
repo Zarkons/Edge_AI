@@ -11,56 +11,18 @@ from tensorflow.keras import layers
 from tensorflow.keras import models
 from IPython import display
 
+from learning.example.simple_audio_recognition.train import audio_processing
+from learning.example.simple_audio_recognition.train import sample_processing
+
 # Set the seed value for experiment reproducibility.
 seed = 42
 tf.random.set_seed(seed)
 np.random.seed(seed)
 
-class ExportModel(tf.Module):
-    def __init__(self, model, label_names):
-        super().__init__(name="audio_recognition_model")
-        self.model = model
-        self.label_names = tf.convert_to_tensor(label_names, dtype=tf.string)
-
-    def _process_and_predict(self, x):
-        """Internal shared processing pipeline."""
-        x = get_spectrogram(x)  
-        result = self.model(x, training=False)
-
-        class_ids = tf.argmax(result, axis=-1)
-        class_names = tf.gather(self.label_names, class_ids)
-        return {
-            'predictions': result,
-            'class_ids': class_ids,
-            'class_names': class_names
-        }
-
-    @tf.function
-    def serve_waveform(self, x):
-        """Signature 1: Processes raw floating point audio tensor."""
-        return self._process_and_predict(x)
-
-def get_secure_save_dir():
-    # 1. Primary choice: Check if executed via 'bazel run'
-    workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
-    
-    if workspace_dir:
-        actual_save_dir = os.path.join(workspace_dir, "learning/example/simple_audio_recognition/train/build_dir/data")
-    else:
-        # 2. Universal Fallback: Calculate path dynamically relative to this file's position
-        # (This handles standard python runs, VS Code debugging, or bazel tests)
-        current_file_path = os.path.abspath(__file__)
-        # Adjust the number of parents based on your folder depth to reach the root
-        repo_root = pathlib.Path(current_file_path).parents[2] 
-        actual_save_dir = os.path.join(repo_root, "learning/example/simple_audio_recognition/train/build_dir/data")
-        
-    # Ensure the directory actually exists on your Mac before saving files to it
-    os.makedirs(actual_save_dir, exist_ok=True)
-    return pathlib.Path(actual_save_dir)
 
 def load_data():
     """Load the dataset and split it into training, validation, and test sets."""
-    data_dir = get_secure_save_dir()
+    data_dir = sample_processing.get_build_dir() / "data"
     
     # 🟢 FIX: Check if the directory is empty by looking for any files inside it
     # True if the folder is empty or doesn't exist
@@ -122,27 +84,15 @@ def plot_waveform(audio_batch, label_batch, label_names):
         plt.yticks(np.arange(-1.2, 1.2, 0.2))
         plt.ylim([-1.1, 1.1])
 
-    workspace_dir = get_secure_save_dir()
+    workspace_dir = sample_processing.get_build_dir()
     
     if workspace_dir:
         # Save it directly into your physical project root directory folder
-        save_destination = os.path.join(workspace_dir.parent, "audio_waveforms_grid.png")
+        save_destination = os.path.join(workspace_dir, "audio_waveforms_grid.png")
     else:
         save_destination = "audio_waveforms_grid.png"
 
     plt.savefig(save_destination)
-
-def get_spectrogram(waveform):
-    # Convert the waveform to a spectrogram via a STFT.
-    spectrogram = tf.signal.stft(
-        waveform, frame_length=255, frame_step=128)
-    # Obtain the magnitude of the STFT.
-    spectrogram = tf.abs(spectrogram)
-    # Add a `channels` dimension, so that the spectrogram can be used
-    # as image-like input data with convolution layers (which expect
-    # shape (`batch_size`, `height`, `width`, `channels`).
-    spectrogram = tf.expand_dims(spectrogram, axis=-1)
-    return spectrogram
 
 def plot_spectrogram(spectrogram_batch, label_batch, label_names):
     plt.figure(figsize=(16, 10))
@@ -175,11 +125,11 @@ def plot_spectrogram(spectrogram_batch, label_batch, label_names):
         plt.title(label_names[label_batch[i]])
 
     # Coordinate workspace saving logic
-    workspace_dir = get_secure_save_dir()
+    workspace_dir = sample_processing.get_build_dir()
     
     if workspace_dir:
         # Save it directly into your physical project root directory folder
-        save_destination = os.path.join(workspace_dir.parent, "audio_spectrograms_grid.png")
+        save_destination = os.path.join(workspace_dir, "audio_spectrograms_grid.png")
     else:
         save_destination = "audio_spectrograms_grid.png"
 
@@ -188,7 +138,7 @@ def plot_spectrogram(spectrogram_batch, label_batch, label_names):
 
 def make_spec_ds(ds):
     return ds.map(
-        map_func=lambda audio,label: (get_spectrogram(audio), label),
+        map_func=lambda audio,label: (audio_processing.get_spectrogram_3D(audio), label),
         num_parallel_calls=tf.data.AUTOTUNE)
 
 def get_model(input_shape, num_labels, dataset):
@@ -216,11 +166,11 @@ def get_model(input_shape, num_labels, dataset):
     return model
 
 def save_model(model):
-    model_save_path = get_secure_save_dir()
+    model_save_path = sample_processing.get_build_dir()
 
     if model_save_path:
         # Save it directly into your physical project root directory folder
-        save_destination = os.path.join(model_save_path.parent, "audio_classification_model.keras")
+        save_destination = os.path.join(model_save_path, "audio_classification_model.keras")
     else:
         save_destination = "audio_classification_model.keras"
     
@@ -243,50 +193,43 @@ def plot_history(history):
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy [%]')
 
-def export_model(model, label_names):
-    export = ExportModel(model, label_names)
-    export_save_path = get_secure_save_dir()
-
-    if export_save_path:
-        save_destination = os.path.join(export_save_path.parent, "exported_audio_model")
-    else:
-        save_destination = "exported_audio_model"
-
-    tf.saved_model.save(
-        export, 
-        save_destination,
-        signatures={
-            'serving_default': export.serve_waveform.get_concrete_function(
-                x=tf.TensorSpec(shape=[1, 16000], dtype=tf.float32, name="x")
-            )
-        }
-    )
-
-    return str(save_destination)
-
 def export_trained_keras_model(model):
-    """Export only the trained Keras model (no preprocessing in graph)."""
-    export_save_path = get_secure_save_dir()
+    """Export only the trained Keras classifier graph.
+
+    Keep waveform-to-spectrogram preprocessing outside the exported model so
+    the classifier graph stays quantization-friendly for TFLite conversion.
+    """
+    export_save_path = sample_processing.get_build_dir()
 
     if export_save_path:
-        save_destination = os.path.join(export_save_path.parent, "exported_trained_keras_model")
+        save_destination = os.path.join(export_save_path, "exported_trained_keras_model")
     else:
         save_destination = "exported_trained_keras_model"
 
-    # This export keeps only the classifier graph (spectrogram -> logits).
     tf.saved_model.save(model, str(save_destination))
     return str(save_destination)
+
+def run_inference(model, waveform):
+    """Run inference on a single waveform input."""
+    spectrogram = audio_processing.get_spectrogram_4D(waveform)
+    
+    logits = model(spectrogram, training=False)
+    
+    probabilities = tf.nn.softmax(logits)
+    
+    return probabilities
 
 def main(_):
     data_dir = load_data()
 
-    commands = np.array(tf.io.gfile.listdir(str(data_dir)))
-    commands = commands[(commands != 'README.md') & (commands != '.DS_Store')]
-    print('Commands:', commands)
-
     train_ds, val_ds = get_datasets(data_dir)
 
     label_names = np.array(train_ds.class_names)
+    sample_processing.save_label_names(label_names.tolist())
+
+    commands = label_names
+    print('Commands:', commands)
+
     print()
     print("label names:", label_names)
     audio_batch, label_batch = get_batch_from_dataset(train_ds)
@@ -299,7 +242,7 @@ def main(_):
 
     # plot_waveform(audio_batch, label_batch, label_names)
 
-    spectrogram = get_spectrogram(audio_batch)
+    spectrogram = audio_processing.get_spectrogram_3D(audio_batch)
 
     for i in range(3):
         label = label_names[label_batch[i]]
@@ -322,7 +265,7 @@ def main(_):
     test_spectrogram_ds = test_spectrogram_ds.cache().prefetch(tf.data.AUTOTUNE)
 
     input_shape = spectrogram.shape[1:]
-    num_labels = len(commands)
+    num_labels = len(label_names)
 
     model = get_model(input_shape, num_labels, train_spectrogram_ds)
     #save_model(model)
@@ -359,7 +302,7 @@ def main(_):
     # x, sample_rate = tf.audio.decode_wav(x, desired_channels=1, desired_samples=16000,)
     # x = tf.squeeze(x, axis=-1)
     # waveform = x
-    # x = get_spectrogram(x)
+    # x = audio_processing.get_spectrogram_3D(x)
     # x = x[tf.newaxis,...]
 
     # prediction = model(x)
@@ -369,18 +312,7 @@ def main(_):
     # plt.show()
 
     exported_model_path = export_trained_keras_model(model)
-    # imported = tf.saved_model.load(exported_model_path)
-    # inference_fn = imported.signatures['serving_filename']
-    # output = inference_fn(audio_filename=tf.constant(str(x)))
 
-    # probabilities = tf.nn.softmax(output['predictions'])[0].numpy()
-
-    # 2. Pair each label name with its corresponding percentage and print them
-    # print("\n--- Prediction Confidence Breakdown ---")
-    # for label, prob in zip(label_names, probabilities):
-    #     most_likely = " (Most Likely)" if prob == np.max(probabilities) else ""
-    #     percentage = prob * 100
-    #     print(f"{label}: {percentage:.2f}%{most_likely}")
 
 if __name__ == "__main__":
     app.run(main)   

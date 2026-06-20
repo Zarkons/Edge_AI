@@ -5,7 +5,11 @@ load("@pip_deps_tfcore//:requirements.bzl", "requirement")
 
 py_binary(
     name = "train",
-    srcs = ["train.py"],
+    srcs = [
+        "train.py",
+        "audio_processing.py",
+        "sample_processing.py",
+    ],
     deps = [
         requirement("numpy"),
         requirement("tensorflow"),
@@ -17,7 +21,11 @@ py_binary(
 
 py_binary(
     name = "convert_to_tflite",
-    srcs = ["convert_to_tflite.py"],
+    srcs = [
+        "convert_to_tflite.py",
+        "audio_processing.py",
+        "sample_processing.py",
+    ],
     deps = [
         requirement("numpy"),
         requirement("tensorflow"),
@@ -34,7 +42,25 @@ py_binary(
 
 py_binary(
     name = "run_inference_tflite",
-    srcs = ["run_inference_tflite.py"],
+    srcs = [
+        "run_inference_tflite.py",
+        "audio_processing.py",
+        "sample_processing.py",
+    ],
+    deps = [
+        requirement("ai-edge-litert"),
+        requirement("numpy"),
+        requirement("tensorflow"),
+    ],
+)
+
+py_binary(
+    name = "run_inference_keras",
+    srcs = [
+        "run_inference_keras.py",
+        "audio_processing.py",
+        "sample_processing.py",
+    ],
     deps = [
         requirement("ai-edge-litert"),
         requirement("numpy"),
