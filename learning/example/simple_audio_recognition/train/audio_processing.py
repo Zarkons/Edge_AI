@@ -37,34 +37,34 @@ def get_spectrogram_4D(waveform):
     """
     # 1. Ensure the waveform is floating-point data
     waveform = tf.cast(waveform, tf.float32)
-    
+
     # 2. If it doesn't have a batch dimension, flatten it and squeeze to 1D
     # tf.signal.stft natively expects a 1D vector or [Batch, Samples]
-    waveform = tf.squeeze(waveform) 
-    
+    waveform = tf.squeeze(waveform)
+
     spectrogram = short_time_fourier_transform(waveform)
-    
+
     # 5. Add the mandatory Batch dimension and Channel dimension to make it 4D
     # [124, 129] -> [1, 124, 129, 1]
     spectrogram = spectrogram[tf.newaxis, ...]   # Add Batch dimension at front
     spectrogram = spectrogram[..., tf.newaxis]  # Add Channel dimension at back
-    
+
     return spectrogram
 
 def prepare_waveform_input(wav_path: str) -> np.ndarray:
     """Loads a .wav file and preprocesses it into a 1D numpy array of shape [1, 16000]."""
     # Read the binary file directly from disk using native TF
     audio_binary = tf.io.read_file(str(wav_path))
-    
+
     # Decode wav directly (this handles float32 normalization between -1.0 and 1.0 automatically)
     audio, _ = tf.audio.decode_wav(audio_binary, desired_channels=1, desired_samples=16000)
-    audio = tf.squeeze(audio, axis=-1) # Drop channel dimension -> shape 
-    
+    audio = tf.squeeze(audio, axis=-1) # Drop channel dimension -> shape
+
     # Explicit padding guarantee (in case the file was shorter than 16000)
     audio = audio[:16000]
     if tf.shape(audio)[0] < 16000:
         zero_padding = tf.zeros([16000] - tf.shape(audio), dtype=tf.float32)
         audio = tf.concat([audio, zero_padding], axis=0)
-        
+
     # Convert back to numpy array and add batch dimension -> shape [1, 16000]
     return audio.numpy()[np.newaxis, :]

@@ -2,7 +2,7 @@ import os
 import pathlib
 import tensorflow as tf
 from absl import app
-import random 
+import random
 from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
 
 from learning.example.simple_audio_recognition.train import audio_processing
@@ -24,10 +24,10 @@ class ConvertToTFLite:
     def representative_data_gen(self, inputs_path: str):
         audio_dir = pathlib.Path(inputs_path)
         wav_paths = list(audio_dir.glob("**/*.wav"))
-        
+
         random.shuffle(wav_paths)
         wav_paths = wav_paths[:100]
-        
+
         for wav_path in wav_paths:
             try:
                 audio_bytes = tf.io.read_file(str(wav_path))
@@ -43,7 +43,7 @@ class ConvertToTFLite:
                 # For a single-input signature, representative samples should be yielded
                 # as a positional list with one tensor.
                 yield [tf.cast(spectrogram, tf.float32)]
-                
+
             except Exception as e:
                 # Skip any corrupt audio files safely
                 continue
@@ -51,11 +51,11 @@ class ConvertToTFLite:
 
     def convert_to_tflite(self, inputs_path: str) -> bytes:
         """Convert the Keras model to TFLite format."""
-        
+
         # Enable full integer quantization for Edge AI hardware optimization
         self.converter.optimizations = [tf.lite.Optimize.DEFAULT]
         self.converter.representative_dataset = lambda: self.representative_data_gen(inputs_path)
-        
+
         # Enforce integer execution if your edge hardware requires it
         self.converter.target_spec.supported_ops = [
             tf.lite.OpsSet.TFLITE_BUILTINS_INT8,
@@ -64,7 +64,7 @@ class ConvertToTFLite:
 
         self.converter.inference_input_type = tf.int8
         self.converter.inference_output_type = tf.int8
-        
+
         self.tflite_model = self.converter.convert()
         return self.tflite_model
 
@@ -86,4 +86,4 @@ def main(_):
 
 
 if __name__ == "__main__":
-    app.run(main)   
+    app.run(main)

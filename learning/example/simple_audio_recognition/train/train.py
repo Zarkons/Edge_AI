@@ -23,11 +23,11 @@ np.random.seed(seed)
 def load_data():
     """Load the dataset and split it into training, validation, and test sets."""
     data_dir = sample_processing.get_build_dir() / "data"
-    
+
     # 🟢 FIX: Check if the directory is empty by looking for any files inside it
     # True if the folder is empty or doesn't exist
     is_folder_empty = not any(data_dir.iterdir()) if data_dir.exists() else True
-    
+
     if is_folder_empty:
         print(f"Dataset folder is empty. Downloading straight to: {data_dir}")
         tf.keras.utils.get_file(
@@ -40,7 +40,7 @@ def load_data():
         )
     else:
         print(f"🟢 Success! Existing dataset found with files at: {data_dir.absolute()}")
-        
+
     nested_data_dir = data_dir / 'mini_speech_commands_extracted' / 'mini_speech_commands'
     if nested_data_dir.exists():
         print(f"🟢 Success! Pointing to nested data directory at: {nested_data_dir.absolute()}")
@@ -85,7 +85,7 @@ def plot_waveform(audio_batch, label_batch, label_names):
         plt.ylim([-1.1, 1.1])
 
     workspace_dir = sample_processing.get_build_dir()
-    
+
     if workspace_dir:
         # Save it directly into your physical project root directory folder
         save_destination = os.path.join(workspace_dir, "audio_waveforms_grid.png")
@@ -99,34 +99,34 @@ def plot_spectrogram(spectrogram_batch, label_batch, label_names):
     rows = 3
     cols = 3
     n = rows * cols
-    
+
     for i in range(n):
         plt.subplot(rows, cols, i+1)
-        
+
         # Extract individual spectrogram
         spectrogram = spectrogram_batch[i]
-        
+
         # Handle channel dimension if present (e.g., shape becomes 2D)
         if len(spectrogram.shape) > 2:
             assert len(spectrogram.shape) == 3
             spectrogram = np.squeeze(spectrogram, axis=-1)
-            
+
         # Convert frequencies to log scale and transpose for correct time x-axis
         log_spec = np.log(spectrogram.T + np.finfo(float).eps)
-        
+
         height = log_spec.shape[0]
         width = log_spec.shape[1]
-        
+
         X = np.linspace(0, np.size(spectrogram), num=width, dtype=int)
         Y = range(height)
-        
+
         # Plot the spectrogram heat map
         plt.pcolormesh(X, Y, log_spec)
         plt.title(label_names[label_batch[i]])
 
     # Coordinate workspace saving logic
     workspace_dir = sample_processing.get_build_dir()
-    
+
     if workspace_dir:
         # Save it directly into your physical project root directory folder
         save_destination = os.path.join(workspace_dir, "audio_spectrograms_grid.png")
@@ -173,7 +173,7 @@ def save_model(model):
         save_destination = os.path.join(model_save_path, "audio_classification_model.keras")
     else:
         save_destination = "audio_classification_model.keras"
-    
+
     model.save(save_destination)
 
 def plot_history(history):
@@ -212,11 +212,11 @@ def export_trained_keras_model(model):
 def run_inference(model, waveform):
     """Run inference on a single waveform input."""
     spectrogram = audio_processing.get_spectrogram_4D(waveform)
-    
+
     logits = model(spectrogram, training=False)
-    
+
     probabilities = tf.nn.softmax(logits)
-    
+
     return probabilities
 
 def main(_):
@@ -283,7 +283,7 @@ def main(_):
         epochs=EPOCHS,
         callbacks=tf.keras.callbacks.EarlyStopping(verbose=1, patience=2),
         )
-    
+
     plot_history(history)
     model.evaluate(test_spectrogram_ds, return_dict=True)
     # y_pred = model.predict(test_spectrogram_ds)
@@ -315,4 +315,4 @@ def main(_):
 
 
 if __name__ == "__main__":
-    app.run(main)   
+    app.run(main)
