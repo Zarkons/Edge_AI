@@ -1,14 +1,15 @@
-# 1. Load the standard py_binary from rules_python
-load("@rules_python//python:defs.bzl", "py_binary")
 # 2. Load the requirement macro separately from your pip hub
 load("@pip_deps_tfcore//:requirements.bzl", "requirement")
+
+# 1. Load the standard py_binary from rules_python
+load("@rules_python//python:defs.bzl", "py_binary")
 
 py_binary(
     name = "train",
     srcs = [
-        "train.py",
         "audio_processing.py",
         "sample_processing.py",
+        "train.py",
     ],
     deps = [
         requirement("numpy"),
@@ -22,8 +23,8 @@ py_binary(
 py_binary(
     name = "convert_to_tflite",
     srcs = [
-        "convert_to_tflite.py",
         "audio_processing.py",
+        "convert_to_tflite.py",
         "sample_processing.py",
     ],
     deps = [
@@ -43,8 +44,8 @@ py_binary(
 py_binary(
     name = "run_inference_tflite",
     srcs = [
-        "run_inference_tflite.py",
         "audio_processing.py",
+        "run_inference_tflite.py",
         "sample_processing.py",
     ],
     deps = [
@@ -57,8 +58,8 @@ py_binary(
 py_binary(
     name = "run_inference_keras",
     srcs = [
-        "run_inference_keras.py",
         "audio_processing.py",
+        "run_inference_keras.py",
         "sample_processing.py",
     ],
     deps = [
@@ -66,4 +67,11 @@ py_binary(
         requirement("numpy"),
         requirement("tensorflow"),
     ],
+)
+
+filegroup(
+    name = "audio_samples_dir",
+    srcs = [],
+    data = ["build_dir/data/mini_speech_commands_extracted/mini_speech_commands"],
+    visibility = ["//visibility:public"],
 )

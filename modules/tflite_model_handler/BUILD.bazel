@@ -1,0 +1,32 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "tflite_model_handler",
+    srcs = [
+        "api/tflite_model_handler.h",
+    ],
+    hdrs = [
+        "api/tflite_model_handler.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@tflm//tensorflow/lite/micro:micro_framework",
+    ],
+)
+
+cc_library(
+    name = "ml_types",
+    srcs = [
+        "api/ml_types.h",
+    ],
+    hdrs = [
+        "api/ml_types.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+)
