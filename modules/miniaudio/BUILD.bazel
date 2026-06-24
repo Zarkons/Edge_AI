@@ -1,0 +1,17 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "miniaudio",
+    srcs = [
+        "src/miniaudio.c",
+    ],
+    hdrs = [
+        "api/miniaudio.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)

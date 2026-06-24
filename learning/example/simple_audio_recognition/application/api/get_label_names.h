@@ -7,15 +7,7 @@
 
 namespace AudioSampleProcessing
 {
-    using namespace MlTypesDynamic;
-
-    struct AudioSample
-    {
-        std::string path;
-        RawSignalFloatVec raw_waveform;
-    };
-
-    AudioSample GetSample();
+    std::vector<std::string> GetLabelNamesList();
 
 } // namespace AudioSampleProcessing
 

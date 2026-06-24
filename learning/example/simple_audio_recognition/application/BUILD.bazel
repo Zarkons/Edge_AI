@@ -28,6 +28,38 @@ cc_library(
     includes = ["api"],
     visibility = ["//visibility:public"],
     deps = [
+        ":get_label_names",
+        "//modules/common_types",
+    ],
+)
+
+cc_library(
+    name = "sample_processing_from_mic",
+    srcs = [
+        "src/sample_processing_from_mic.cc",
+    ],
+    hdrs = [
+        "api/sample_processing_from_mic.h",
+    ],
+    includes = ["api"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//modules/common_types",
+        "//modules/miniaudio",
+    ],
+)
+
+cc_library(
+    name = "get_label_names",
+    srcs = [
+        "src/get_label_names.cc",
+    ],
+    hdrs = [
+        "api/get_label_names.h",
+    ],
+    includes = ["api"],
+    visibility = ["//visibility:public"],
+    deps = [
         "//modules/common_types",
     ],
 )
@@ -55,7 +87,7 @@ cc_binary(
     name = "simple_audio_recognition",
     srcs = [
         "src/audio_model_pipeline.cc",
-        "src/main.cc",
+        "src/main_file_input.cc",
         "tflite_model/audio_recognition_model.cc",
         "tflite_model/audio_recognition_model.h",
     ],
@@ -67,6 +99,29 @@ cc_binary(
         ":audio_model_pipeline",
         ":sample_processing_from_file",
         "//modules/common_types",
+        "//modules/tflite_model_handler",
+        "@tflm//tensorflow/lite/micro:micro_framework",
+    ],
+)
+
+cc_binary(
+    name = "simple_audio_recognition_with_miniaudio",
+    srcs = [
+        "src/audio_model_pipeline.cc",
+        "src/main_mic_input.cc",
+        "tflite_model/audio_recognition_model.cc",
+        "tflite_model/audio_recognition_model.h",
+    ],
+    data = [
+        "//learning/example/simple_audio_recognition/train:audio_samples_dir",
+    ],
+    includes = ["tflite_model"],
+    deps = [
+        ":audio_model_pipeline",
+        ":get_label_names",
+        ":sample_processing_from_mic",
+        "//modules/common_types",
+        "//modules/miniaudio",
         "//modules/tflite_model_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],

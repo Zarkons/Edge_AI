@@ -127,12 +127,14 @@ public:
         }
 
         // Process output dynamically based on tensor type (Float vs Int8)
-        size_t output_elements = output_tensor_->bytes;
+        size_t output_elements = (output_tensor_->type == kTfLiteFloat32)
+                                     ? (output_tensor_->bytes / sizeof(float))
+                                     : output_tensor_->bytes;
         PredictionFloatVec predictions;
 
+        predictions.resize(output_elements);
         if (dequantize_output && output_tensor_->type == kTfLiteInt8)
         {
-            predictions.resize(output_elements);
             for (size_t i = 0; i < output_elements; ++i)
             {
                 predictions[i] = (output_tensor_->data.int8[i] - output_quant_params.zero_point) * output_quant_params.scale;
@@ -140,7 +142,6 @@ public:
         }
         else if (output_tensor_->type == kTfLiteFloat32)
         {
-            predictions.resize(output_elements / sizeof(float));
             std::memcpy(predictions.data(), output_tensor_->data.f, output_tensor_->bytes);
         }
 

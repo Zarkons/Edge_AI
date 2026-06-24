@@ -8,6 +8,7 @@
 
 using namespace AudioModelPipeline;
 using namespace QuantizationTypes;
+using namespace AudioSampleProcessing;
 
 int main()
 {
