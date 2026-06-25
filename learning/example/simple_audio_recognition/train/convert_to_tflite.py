@@ -5,8 +5,8 @@ from absl import app
 import random
 from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
 
-from learning.example.simple_audio_recognition.train import audio_processing
-from learning.example.simple_audio_recognition.train import sample_processing
+import audio_processing
+import sample_processing
 
 random.seed(42)
 LABEL_NAMES = ["down", "go", "left", "no", "off", "on", "right", "stop", "up", "yes"]

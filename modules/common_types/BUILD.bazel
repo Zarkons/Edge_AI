@@ -1,4 +1,10 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+############################ Library Definitions #################################
 
 cc_library(
     name = "common_types",
@@ -12,4 +18,22 @@ cc_library(
         ".",
     ],
     visibility = ["//visibility:public"],
+)
+
+############################ Documentation Definitions ###########################
+
+filegroup(
+    name = "common_types_doxygen_srcs",
+    srcs = glob(
+        [
+            "*.h",
+        ],
+    ),
+    visibility = ["//docs:__subpackages__"],
+)
+
+sphinx_docs_library(
+    name = "common_types_docs",
+    srcs = glob(["docs/*.rst"]),
+    visibility = ["//docs:__subpackages__"],
 )

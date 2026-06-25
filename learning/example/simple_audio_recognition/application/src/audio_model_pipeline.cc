@@ -3,8 +3,12 @@
 #include <algorithm>
 #include <cstring>
 
-namespace AudioModelPipeline
+namespace audio_model_pipeline
 {
+    using namespace quantization_types;
+    using namespace ml_types_dynamic;
+    using namespace tflite_model_handler;
+
     constexpr size_t FRAME_LENGTH = 256;
     constexpr size_t FRAME_STEP = 127;
 
@@ -114,4 +118,4 @@ namespace AudioModelPipeline
         return engine->Predict(quantized_buffer.data(), quantized_buffer.size() * sizeof(QuantizedInt8Type), true);
     }
 
-} // namespace AudioModelPipeline
+} // namespace audio_model_pipeline

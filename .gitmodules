@@ -1,6 +1,8 @@
 [submodule "tflite-micro"]
 	path = tflite-micro
 	url = https://github.com/tensorflow/tflite-micro.git
+    ignore = dirty
 [submodule "tensorflow-core"]
 	path = tensorflow-core
 	url = https://github.com/tensorflow/tensorflow
+    ignore = dirty

@@ -5,7 +5,7 @@
 #include <vector>
 #include <mutex>
 
-namespace AudioSampleProcessing
+namespace audio_sample_processing
 {
 
     class MicrophoneInput

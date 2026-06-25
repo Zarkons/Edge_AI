@@ -1,7 +1,7 @@
 #include "sample_processing_from_mic.h"
 #include <iostream>
 
-namespace AudioSampleProcessing
+namespace audio_sample_processing
 {
     MicrophoneInput::MicrophoneInput()
     {

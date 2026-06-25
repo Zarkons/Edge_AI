@@ -11,8 +11,8 @@ from tensorflow.keras import layers
 from tensorflow.keras import models
 from IPython import display
 
-from learning.example.simple_audio_recognition.train import audio_processing
-from learning.example.simple_audio_recognition.train import sample_processing
+import audio_processing
+import sample_processing
 
 # Set the seed value for experiment reproducibility.
 seed = 42
@@ -142,6 +142,29 @@ def make_spec_ds(ds):
         num_parallel_calls=tf.data.AUTOTUNE)
 
 def get_model(input_shape, num_labels, dataset):
+    """Build and compile a simple convolutional neural network model for audio classification.
+
+    The model architecture consists of the following pipeline layers:
+
+    * **Input layer:** Accepts input of shape `input_shape`.
+    * **Resizing layer:** Downsamples the input to 32x32.
+    * **Normalization layer:** Normalizes the input data.
+    * **Conv2D layers:** Applies 32 and 64 convolutional filters with a 3x3 kernel and ReLU activation.
+    * **MaxPooling2D layer:** Reduces the spatial dimensions of the output.
+    * **Dropout layer:** Randomly sets input units to 0 (rate: 0.25) to prevent overfitting.
+    * **Flatten layer:** Flattens the input tensor dimensions.
+    * **Dense layer:** Fully connected layer with 128 units and ReLU activation.
+    * **Dropout layer:** Randomly sets input units to 0 (rate: 0.5) to prevent overfitting.
+    * **Dense layer:** Fully connected output layer with `num_labels` units.
+
+    Args:
+        input_shape (tuple): The spatial dimensions of the incoming audio spectrogram tensors.
+        num_labels (int): Total number of target output classification categories.
+        dataset (tf.data.Dataset): The underlying pipeline dataset used to adapt the normalization layer.
+
+    Returns:
+        tf.keras.Model: A compiled Keras neural network model ready for training loops.
+    """
 
     normalization_layer = layers.Normalization()
     normalization_layer.adapt(data=dataset.map(map_func=lambda spec, label: spec))

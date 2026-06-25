@@ -9,9 +9,10 @@
 
 #define TENSOR_ARENA_SIZE 512 * 1024
 
-using namespace AudioModelPipeline;
-using namespace QuantizationTypes;
-using namespace AudioSampleProcessing;
+using namespace audio_model_pipeline;
+using namespace quantization_types;
+using namespace audio_sample_processing;
+using namespace tflite_model_handler;
 
 int main()
 {
@@ -76,8 +77,8 @@ int main()
             sample *= SIGNAL_GAIN;
         }
 
-        float current_max = *std::max_element(current_audio.begin(), current_audio.end());
-        float current_min = *std::min_element(current_audio.begin(), current_audio.end());
+        // float current_max = *std::max_element(current_audio.begin(), current_audio.end());
+        // float current_min = *std::min_element(current_audio.begin(), current_audio.end());
 
         // 2. Calculate average volume (Root Mean Square / Energy)
         float energy_sum = 0.0f;
@@ -98,8 +99,8 @@ int main()
         // printf("Raw Sample Max: %f, Min: %f\n", current_max, current_min);
 
         // 4. Feature Extraction & Inference Pass
-        std::vector<float> features = AudioModelPipeline::ComputeSTFT(current_audio);
-        std::vector<float> probabilities = AudioModelPipeline::RunInference(audio_model, features, SPECTROGRAM_GAIN);
+        std::vector<float> features = audio_model_pipeline::ComputeSTFT(current_audio);
+        std::vector<float> probabilities = audio_model_pipeline::RunInference(audio_model, features, SPECTROGRAM_GAIN);
 
         if (!probabilities.empty())
         {

@@ -7,7 +7,13 @@ module(
 bazel_dep(name = "rules_cc", version = "0.2.16")
 bazel_dep(name = "rules_python", version = "1.8.3")
 bazel_dep(name = "rules_shell", version = "0.3.0")
+bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "googletest", version = "1.15.2")
+bazel_dep(name = "sphinxdocs", version = "2.0.2")
+bazel_dep(name = "rules_doxygen", version = "2.6.3")
+
+doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
+use_repo(doxygen_extension, "doxygen")
 
 # 2. Keep tflite-micro as a local module dependency
 bazel_dep(name = "tflm", version = "0.0.1")
@@ -40,8 +46,24 @@ pip.parse(
     requirements_lock = "//:python_requirements_3_11_lock.txt",
 )
 
+# Docs requirements for sphinxdocs rules
+pip.parse(
+    hub_name = "pip_deps_docs",
+    python_version = "3.11",
+    requirements_lock = "@rules_python//docs:requirements.txt",
+)
+
+# Breathe extension requirements for C/C++ API rendering in Sphinx
+pip.parse(
+    hub_name = "pip_deps_sphinx",
+    python_version = "3.11",
+    requirements_lock = "//docs:requirements_sphinx_3_11.txt",
+)
+
 # 5. Expose the populated repositories to your root workspace
 use_repo(python, "python_3_11")
 
 use_repo(pip, "pip_deps_tflm")
 use_repo(pip, "pip_deps_tfcore")
+use_repo(pip, "pip_deps_docs")
+use_repo(pip, "pip_deps_sphinx")

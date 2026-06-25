@@ -1,0 +1,26 @@
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+filegroup(
+    name = "simple_audio_recognition_doxygen_srcs",
+    srcs = [
+        "//learning/example/simple_audio_recognition/application:doxygen_srcs",
+    ],
+    visibility = ["//docs:__subpackages__"],
+)
+
+sphinx_docs_library(
+    name = "simple_audio_recognition_docs",
+    srcs = glob(
+        [
+            "docs/*.rst",
+            "docs/diagrams/*.puml",
+        ],
+    ),
+    visibility = ["//docs:__subpackages__"],
+    deps = [
+        "//learning/example/simple_audio_recognition/train:train_python_docs",
+    ],
+)

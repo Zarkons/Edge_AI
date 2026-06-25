@@ -1,12 +1,13 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
+############################# Library Definitions ###########################
+
 genrule(
     name = "convert_tflite_to_cc",
     srcs = ["tflite_model/audio_recognition_model.tflite"],
     outs = ["audio_recognition_model.cc"],
     cmd = "xxd -i $< > $@",
-    visibility = ["//visibility:public"],
 )
 
 sh_binary(
@@ -15,6 +16,7 @@ sh_binary(
     # Passes the sandbox file path as the first argument ($1) to the script
     args = ["$(rootpath :convert_tflite_to_cc)"],
     data = [":convert_tflite_to_cc"],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(
@@ -26,7 +28,6 @@ cc_library(
         "api/sample_processing_from_file.h",
     ],
     includes = ["api"],
-    visibility = ["//visibility:public"],
     deps = [
         ":get_label_names",
         "//modules/common_types",
@@ -42,7 +43,6 @@ cc_library(
         "api/sample_processing_from_mic.h",
     ],
     includes = ["api"],
-    visibility = ["//visibility:public"],
     deps = [
         "//modules/common_types",
         "//modules/miniaudio",
@@ -58,7 +58,6 @@ cc_library(
         "api/get_label_names.h",
     ],
     includes = ["api"],
-    visibility = ["//visibility:public"],
     deps = [
         "//modules/common_types",
     ],
@@ -75,7 +74,6 @@ cc_library(
     includes = [
         "api",
     ],
-    visibility = ["//visibility:public"],
     deps = [
         "//modules/common_types",
         "//modules/tflite_model_handler",
@@ -86,7 +84,6 @@ cc_library(
 cc_binary(
     name = "simple_audio_recognition",
     srcs = [
-        "src/audio_model_pipeline.cc",
         "src/main_file_input.cc",
         "tflite_model/audio_recognition_model.cc",
         "tflite_model/audio_recognition_model.h",
@@ -97,6 +94,7 @@ cc_binary(
     includes = ["tflite_model"],
     deps = [
         ":audio_model_pipeline",
+        ":get_label_names",
         ":sample_processing_from_file",
         "//modules/common_types",
         "//modules/tflite_model_handler",
@@ -107,7 +105,6 @@ cc_binary(
 cc_binary(
     name = "simple_audio_recognition_with_miniaudio",
     srcs = [
-        "src/audio_model_pipeline.cc",
         "src/main_mic_input.cc",
         "tflite_model/audio_recognition_model.cc",
         "tflite_model/audio_recognition_model.h",
@@ -125,4 +122,15 @@ cc_binary(
         "//modules/tflite_model_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],
+)
+
+############################ Documentation Definitions ###########################
+
+filegroup(
+    name = "doxygen_srcs",
+    srcs = glob([
+        "api/*.h",
+        "src/*.cc",
+    ]),
+    visibility = ["//learning/example/simple_audio_recognition:__subpackages__"],
 )

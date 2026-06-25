@@ -5,8 +5,8 @@ import numpy as np
 from absl import app
 import ai_edge_litert.interpreter as tflite_interp
 
-from learning.example.simple_audio_recognition.train import audio_processing
-from learning.example.simple_audio_recognition.train import sample_processing
+import audio_processing
+import sample_processing
 
 def run_inference(tflite_path: str, wav_path: str):
     # 1. Initialize the Interpreter

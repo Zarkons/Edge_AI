@@ -1,0 +1,85 @@
+load("@doxygen//:doxygen.bzl", "doxygen")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx.bzl",
+    "sphinx_build_binary",
+    "sphinx_docs",
+)
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+filegroup(
+    name = "doxygen_xml_dir",
+    srcs = [":doxygen_xml"],
+    output_group = "xml",
+)
+
+# Collect files exactly where they live
+sphinx_docs_library(
+    name = "docs_sources",
+    srcs = glob(
+        [
+            "*.rst",
+            "src/**/*.rst",
+        ],
+        allow_empty = True,
+    ),
+    deps = [
+        "//learning/example/simple_audio_recognition:simple_audio_recognition_docs",
+        "//modules/common_types:common_types_docs",
+        "//modules/miniaudio:miniaudio_docs",
+        "//modules/tflite_model_handler:tflite_model_handler_docs",
+    ],
+)
+
+sphinx_build_binary(
+    name = "sphinx_bin",
+    deps = [
+        "@pip_deps_docs//sphinx",
+        "@pip_deps_sphinx//breathe",
+        "@pip_deps_sphinx//sphinx_plantuml",
+    ],
+)
+
+filegroup(
+    name = "all_doxygen_srcs",
+    srcs = [
+        "//learning/example/simple_audio_recognition:simple_audio_recognition_doxygen_srcs",
+        "//modules/common_types:common_types_doxygen_srcs",
+        "//modules/tflite_model_handler:tflite_model_handler_doxygen_srcs",
+    ],
+)
+
+doxygen(
+    name = "doxygen_xml",
+    outs = ["xml"],
+    configurations = [
+        "EXTRACT_ALL = YES",
+        "EXTRACT_PRIVATE = YES",
+        "EXTRACT_STATIC = YES",
+    ],
+    generate_html = False,
+    generate_xml = True,
+    deps = [
+        ":all_doxygen_srcs",
+    ],
+)
+
+sphinx_docs(
+    name = "docs",
+    config = "conf.py",
+    extra_opts = [
+        "-vvv",
+        "-D",
+        "doxygen_xml_dir=$(location :doxygen_xml_dir)",
+    ],
+    formats = ["html"],
+    sphinx = ":sphinx_bin",
+    strip_prefix = "docs/",
+    tools = [":doxygen_xml_dir"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":docs_sources",
+    ],
+)

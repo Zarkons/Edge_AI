@@ -1,0 +1,2 @@
+breathe==4.36.0
+sphinx-plantuml

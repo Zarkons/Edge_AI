@@ -3,12 +3,14 @@
 #include "sample_processing_from_file.h"
 #include "audio_model_pipeline.h"
 #include "common_types.h"
+#include "get_label_names.h"
 
 #define TENSOR_ARENA_SIZE 512 * 1024
 
-using namespace AudioModelPipeline;
-using namespace QuantizationTypes;
-using namespace AudioSampleProcessing;
+using namespace audio_model_pipeline;
+using namespace quantization_types;
+using namespace audio_sample_processing;
+using namespace tflite_model_handler;
 
 int main()
 {
@@ -43,13 +45,14 @@ int main()
         spectrogram = ComputeSTFT(sample.raw_waveform);
         // printf("Spectrogram size: %zu\n", spectrogram.size());
 
-        predictions = RunInference(audio_model, spectrogram);
+        float spectogram_gain = 1.0f; // Adjust this value to boost or reduce the spectrogram values
+        predictions = RunInference(audio_model, spectrogram, spectogram_gain);
         // printf("Predictions size: %zu\n", predictions.size());
 
         auto max_iterator = std::max_element(predictions.begin(), predictions.end());
 
         size_t winning_index = std::distance(predictions.begin(), max_iterator);
-        float highest_confidence = *max_iterator;
+        // float highest_confidence = *max_iterator;
         std::vector<std::string> label_names = GetLabelNamesList();
         // printf("Predicted label: %s, confidence: %.4f\n", label_names[winning_index].c_str(), highest_confidence);
         if (sample.path.find(label_names[winning_index]) != std::string::npos)

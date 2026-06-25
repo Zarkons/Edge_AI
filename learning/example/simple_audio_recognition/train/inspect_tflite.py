@@ -2,7 +2,7 @@ import pathlib
 import tensorflow as tf
 import os
 
-from learning.example.simple_audio_recognition.train import sample_processing
+import sample_processing
 
 def inspect_tflite_datatypes(tflite_path: str):
     # 1. Load the converted binary model

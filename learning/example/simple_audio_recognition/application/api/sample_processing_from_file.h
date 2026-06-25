@@ -1,22 +1,20 @@
-#ifndef SAMPLE_PROCESSING_H
-#define SAMPLE_PROCESSING_H
+#ifndef SAMPLE_PROCESSING_FROM_FILE_H_
+#define SAMPLE_PROCESSING_FROM_FILE_H_
 
 #include <string>
 #include <vector>
 #include "common_types.h"
 
-namespace AudioSampleProcessing
+namespace audio_sample_processing
 {
-    using namespace MlTypesDynamic;
-
     struct AudioSample
     {
         std::string path;
-        RawSignalFloatVec raw_waveform;
+        ml_types_dynamic::RawSignalFloatVec raw_waveform;
     };
 
     AudioSample GetSample();
 
-} // namespace AudioSampleProcessing
+} // namespace audio_sample_processing
 
-#endif // SAMPLE_PROCESSING_H
+#endif // SAMPLE_PROCESSING_FROM_FILE_H_

@@ -6,10 +6,9 @@
 #include <random>
 #include <vector>
 
-namespace fs = std::filesystem;
-
 namespace
 {
+    namespace fs = std::filesystem;
 
     std::vector<std::string> getLabelNames()
     {
@@ -43,7 +42,7 @@ namespace
 
 } // namespace
 
-namespace AudioSampleProcessing
+namespace audio_sample_processing
 {
     std::vector<std::string> GetLabelNamesList()
     {

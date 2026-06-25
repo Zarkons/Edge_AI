@@ -9,10 +9,11 @@
 #include <random>
 #include <vector>
 
-namespace fs = std::filesystem;
-
 namespace
 {
+    namespace fs = std::filesystem;
+    using namespace ml_types_dynamic;
+    using namespace audio_sample_processing;
     constexpr size_t kInputSampleCount = 16000;
 
     std::string getWavFilesPath()
@@ -95,8 +96,10 @@ namespace
     }
 } // namespace
 
-namespace AudioSampleProcessing
+namespace audio_sample_processing
 {
+    using namespace ml_types_dynamic;
+
     AudioSample GetSample()
     {
         const std::string directory_path = getWavFilesPath();

@@ -1,14 +1,14 @@
-#ifndef SAMPLE_PROCESSING_H
-#define SAMPLE_PROCESSING_H
+#ifndef GET_LABEL_NAMES_H_
+#define GET_LABEL_NAMES_H_
 
 #include <string>
 #include <vector>
 #include "common_types.h"
 
-namespace AudioSampleProcessing
+namespace audio_sample_processing
 {
     std::vector<std::string> GetLabelNamesList();
 
-} // namespace AudioSampleProcessing
+} // namespace audio_sample_processing
 
-#endif // SAMPLE_PROCESSING_H
+#endif // GET_LABEL_NAMES_H_
