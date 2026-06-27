@@ -42,10 +42,7 @@ namespace
 
 } // namespace
 
-namespace audio_sample_processing
+std::vector<std::string> GetLabelNamesList()
 {
-    std::vector<std::string> GetLabelNamesList()
-    {
-        return getLabelNames();
-    }
+    return getLabelNames();
 }

@@ -16,7 +16,7 @@ sphinx_docs_library(
     srcs = glob(
         [
             "docs/*.rst",
-            "docs/diagrams/*.puml",
+            "docs/diagrams/*.png",
         ],
     ),
     visibility = ["//docs:__subpackages__"],

@@ -9,7 +9,7 @@
 
 using namespace audio_model_pipeline;
 using namespace quantization_types;
-using namespace audio_sample_processing;
+using namespace file_sample_processing;
 using namespace tflite_model_handler;
 
 int main()

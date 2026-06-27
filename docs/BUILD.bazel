@@ -20,8 +20,8 @@ sphinx_docs_library(
     name = "docs_sources",
     srcs = glob(
         [
-            "*.rst",
-            "src/**/*.rst",
+            "**/*.rst",
+            "**/*.png",
         ],
         allow_empty = True,
     ),

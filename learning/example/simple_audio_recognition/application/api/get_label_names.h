@@ -5,10 +5,6 @@
 #include <vector>
 #include "common_types.h"
 
-namespace audio_sample_processing
-{
-    std::vector<std::string> GetLabelNamesList();
-
-} // namespace audio_sample_processing
+std::vector<std::string> GetLabelNamesList();
 
 #endif // GET_LABEL_NAMES_H_

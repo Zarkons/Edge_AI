@@ -1,7 +1,7 @@
 #include "sample_processing_from_mic.h"
 #include <iostream>
 
-namespace audio_sample_processing
+namespace mic_sample_processing
 {
     MicrophoneInput::MicrophoneInput()
     {
@@ -66,8 +66,17 @@ namespace audio_sample_processing
             std::cerr << "Error: Failed to open default mic hardware device." << std::endl;
             return false;
         }
+        if (ma_device_start(&device_) != MA_SUCCESS)
+        {
+            std::cerr << "Error: Failed to start mic device." << std::endl;
+            ma_device_uninit(&device_);
+        }
+        else
+        {
+            is_initialized_ = true;
+        }
 
-        return ma_device_start(&device_) == MA_SUCCESS;
+        return is_initialized_;
     }
 
     void MicrophoneInput::Stop()

@@ -13,7 +13,7 @@ namespace
 {
     namespace fs = std::filesystem;
     using namespace ml_types_dynamic;
-    using namespace audio_sample_processing;
+    using namespace file_sample_processing;
     constexpr size_t kInputSampleCount = 16000;
 
     std::string getWavFilesPath()
@@ -96,7 +96,7 @@ namespace
     }
 } // namespace
 
-namespace audio_sample_processing
+namespace file_sample_processing
 {
     using namespace ml_types_dynamic;
 

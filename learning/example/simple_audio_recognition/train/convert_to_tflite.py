@@ -13,7 +13,20 @@ LABEL_NAMES = ["down", "go", "left", "no", "off", "on", "right", "stop", "up", "
 
 
 class ConvertToTFLite:
+    """A class to convert a trained Keras model to TFLite format with full integer quantization.
+
+    Attributes:
+        converter (tf.lite.TFLiteConverter): TFLite converter instance initialized 
+            with the frozen concrete function.
+        tflite_model (bytes or None): The converted TFLite model binary data. 
+            Defaults to None until conversion is executed.
+    """
     def __init__(self, model_path: str):
+        """Initialize the converter by freezing the saved Keras model variables.
+
+        Args:
+            model_path (str): Path to the directory containing the trained Keras/SavedModel.
+        """
         loaded = tf.saved_model.load(str(model_path))
         serving_fn = loaded.signatures['serving_default']
         frozen_fn = convert_variables_to_constants_v2(serving_fn)
@@ -22,6 +35,19 @@ class ConvertToTFLite:
         self.tflite_model = None  # Placeholder for the converted TFLite model
 
     def representative_data_gen(self, inputs_path: str):
+        """Generate representative data required for full INT8 quantization calibration.
+
+        This function reads a subset of up to 100 random training audio files, decodes 
+        them, extracts 3D spectrograms, and yields them sequentially to calibrate the 
+        dynamic ranges of the model activations.
+
+        Args:
+            inputs_path (str): Path to the directory containing the calibration ``.wav`` files.
+
+        Yields:
+            list[tf.Tensor]: A single-element list containing a 3D spectrogram 
+            tensor cast to ``tf.float32``.
+        """
         audio_dir = pathlib.Path(inputs_path)
         wav_paths = list(audio_dir.glob("**/*.wav"))
 
@@ -48,9 +74,19 @@ class ConvertToTFLite:
                 # Skip any corrupt audio files safely
                 continue
 
-
     def convert_to_tflite(self, inputs_path: str) -> bytes:
-        """Convert the Keras model to TFLite format."""
+        """Convert the loaded model to TFLite format with strict full integer configuration.
+
+        Enforces INT8 execution optimizations and sets both the input and output 
+        inference interfaces to signed INT8 to ensure maximum compatibility with 
+        edge AI hardware accelerators.
+
+        Args:
+            inputs_path (str): Path to the directory containing calibration audio files.
+
+        Returns:
+            bytes: The serialized TFLite binary model.
+        """
 
         # Enable full integer quantization for Edge AI hardware optimization
         self.converter.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -69,7 +105,13 @@ class ConvertToTFLite:
         return self.tflite_model
 
     def save_tflite_model(self, file_path: str):
-        """Save the generated TFLite binary bytes to a file."""
+        """Save the generated TFLite binary bytes to a physical file.
+
+        Creates any missing parent directories automatically before writing the binary stream.
+
+        Args:
+            file_path (str): Output destination path for the ``.tflite`` file.
+        """
         print("Saving TFLite model to:", file_path)
         pathlib.Path(file_path).parent.mkdir(parents=True, exist_ok=True)
         with open(file_path, 'wb') as f:
