@@ -1,5 +1,5 @@
-#ifndef TFLITE_MODEL_HANDLER_H_
-#define TFLITE_MODEL_HANDLER_H_
+#ifndef RTLITE_MICRO_HANDLER_H_
+#define RTLITE_MICRO_HANDLER_H_
 
 #include <cstdint>
 #include <functional>
@@ -13,7 +13,7 @@
 using namespace ml_types_dynamic;
 using namespace quantization_types;
 
-namespace tflite_model_handler
+namespace rtlite_micro_handler
 {
 
     /**
@@ -294,6 +294,6 @@ namespace tflite_model_handler
         return new TFLiteModelHandlerImpl<ArenaSize, OpCount>();
     }
 
-} // namespace tflite_model_handler
+} // namespace rtlite_micro_handler
 
-#endif // TFLITE_MODEL_HANDLER_H_
+#endif // RTLITE_MICRO_HANDLER_H_

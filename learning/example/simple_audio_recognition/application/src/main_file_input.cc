@@ -1,5 +1,5 @@
 #include "audio_recognition_model.h"
-#include "tflite_model_handler.h"
+#include "rtlite_micro_handler.h"
 #include "sample_processing_from_file.h"
 #include "audio_model_pipeline.h"
 #include "common_types.h"
@@ -10,7 +10,7 @@
 using namespace audio_model_pipeline;
 using namespace quantization_types;
 using namespace file_sample_processing;
-using namespace tflite_model_handler;
+using namespace rtlite_micro_handler;
 
 int main()
 {

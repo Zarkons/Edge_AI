@@ -7,12 +7,12 @@ load(
 ########################## Library Definitions #################################
 
 cc_library(
-    name = "tflite_model_handler",
+    name = "rtlite_micro_handler",
     srcs = [
-        "api/tflite_model_handler.h",
+        "api/rtlite_micro_handler.h",
     ],
     hdrs = [
-        "api/tflite_model_handler.h",
+        "api/rtlite_micro_handler.h",
     ],
     includes = [
         "api",
@@ -40,7 +40,7 @@ cc_library(
 ########################## Documentation Definitions ###########################
 
 filegroup(
-    name = "tflite_model_handler_doxygen_srcs",
+    name = "rtlite_micro_handler_doxygen_srcs",
     srcs = glob(
         [
             "api/*.h",
@@ -50,7 +50,7 @@ filegroup(
 )
 
 sphinx_docs_library(
-    name = "tflite_model_handler_docs",
+    name = "rtlite_micro_handler_docs",
     srcs = glob(["docs/*.rst"]),
     visibility = ["//docs:__subpackages__"],
 )

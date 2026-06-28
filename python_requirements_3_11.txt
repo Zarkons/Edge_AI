@@ -1,7 +1,11 @@
-
 matplotlib
 seaborn
 numpy
 tensorflow
 IPython
-ai_edge_litert
+ai-edge-litert
+opencv-python
+lxml
+pillow
+tf_slim
+ultralytics

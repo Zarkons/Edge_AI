@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cstdint>
-#include "tflite_model_handler.h"
+#include "rtlite_micro_handler.h"
 #include "common_types.h"
 
 /**
@@ -58,7 +58,7 @@ namespace audio_model_pipeline
      * @return ml_types_dynamic::PredictionFloatVec Final network output classification probabilities, or an empty vector if sizing verification fails.
      */
     ml_types_dynamic::PredictionFloatVec RunInference(
-        tflite_model_handler::TFLiteModelHandler<10> *engine,
+        rtlite_micro_handler::TFLiteModelHandler<10> *engine,
         const ml_types_dynamic::FeatureFloatVec &float_spectrogram,
         const float spectrogram_gain);
 } // namespace audio_model_pipeline

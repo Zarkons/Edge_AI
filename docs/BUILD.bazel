@@ -29,7 +29,7 @@ sphinx_docs_library(
         "//learning/example/simple_audio_recognition:simple_audio_recognition_docs",
         "//modules/common_types:common_types_docs",
         "//modules/miniaudio:miniaudio_docs",
-        "//modules/tflite_model_handler:tflite_model_handler_docs",
+        "//modules/rtlite_micro_handler:rtlite_micro_handler_docs",
     ],
 )
 
@@ -47,7 +47,7 @@ filegroup(
     srcs = [
         "//learning/example/simple_audio_recognition:simple_audio_recognition_doxygen_srcs",
         "//modules/common_types:common_types_doxygen_srcs",
-        "//modules/tflite_model_handler:tflite_model_handler_doxygen_srcs",
+        "//modules/rtlite_micro_handler:rtlite_micro_handler_doxygen_srcs",
     ],
 )
 

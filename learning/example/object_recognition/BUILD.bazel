@@ -1,0 +1,36 @@
+load("@pip_deps_tfcore//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "inspect_model",
+    srcs = ["quantization/inspect_model.py"],
+    args = [
+        "--model_path=_main/learning/example/object_recognition/quantization/quantized_model/yolov8_int8.tflite",
+    ],
+    data = [
+        "quantization/quantized_model/yolov8_int8.tflite",
+    ],
+    deps = [
+        "@rules_python//python/runfiles",
+    ],
+)
+
+py_binary(
+    name = "quantize_model",
+    srcs = ["quantization/quantize_model.py"],
+    args = [
+        "--base_model=yolov8n_base_model/file/downloaded",
+        "--calibration_images=coco_val2017/val2017/000000000139.jpg",
+    ],
+    data = [
+        "@coco_val2017//:saved_images_dir",
+        "@yolov8n_base_model//file",
+    ],
+    imports = ["."],
+    main = "quantization/quantize_model.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@rules_python//python/runfiles",
+        requirement("ultralytics"),
+    ],
+)

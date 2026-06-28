@@ -3,11 +3,11 @@ module(
     version = "1.0.0",
 )
 
-# 1. Bring in fundamental build dependencies
+# Bring in fundamental build dependencies
 bazel_dep(name = "rules_cc", version = "0.2.16")
-bazel_dep(name = "rules_python", version = "1.8.3")
-bazel_dep(name = "rules_shell", version = "0.3.0")
-bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_python", version = "1.8.5")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "googletest", version = "1.15.2")
 bazel_dep(name = "sphinxdocs", version = "2.0.2")
 bazel_dep(name = "rules_doxygen", version = "2.6.3")
@@ -15,14 +15,14 @@ bazel_dep(name = "rules_doxygen", version = "2.6.3")
 doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
 use_repo(doxygen_extension, "doxygen")
 
-# 2. Keep tflite-micro as a local module dependency
+# Keep tflite-micro as a local module dependency
 bazel_dep(name = "tflm", version = "0.0.1")
 local_path_override(
     module_name = "tflm",
     path = "tflite-micro",
 )
 
-# 3. Configure an isolated, local Python toolchain
+# Configure an isolated, local Python toolchain
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
@@ -32,7 +32,7 @@ python.toolchain(
     python_version = "3.11",
 )
 
-# 4. FIX: Point directly to the sub-repo's compiled lockfile
+# Point directly to the sub-repo's compiled lockfile
 pip.parse(
     hub_name = "pip_deps_tflm",
     python_version = "3.11",
@@ -60,10 +60,36 @@ pip.parse(
     requirements_lock = "//docs:requirements_sphinx_3_11.txt",
 )
 
-# 5. Expose the populated repositories to your root workspace
+# Expose the populated repositories to your root workspace
 use_repo(python, "python_3_11")
 
 use_repo(pip, "pip_deps_tflm")
 use_repo(pip, "pip_deps_tfcore")
 use_repo(pip, "pip_deps_docs")
 use_repo(pip, "pip_deps_sphinx")
+
+http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_file(
+    name = "yolov8n_base_model",
+    sha256 = "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+    urls = ["https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt"],
+)
+
+# Download COCO dataset for calibration of the object recognition model
+http_archive(
+    name = "coco_val2017",
+    build_file_content = """
+filegroup(
+    name = "saved_images_dir",
+    srcs = glob(["val2017/*.jpg"]),
+    visibility = ["//visibility:public"],
+)
+""",
+    # Adding the SHA256 ensures Bazel caches it reliably
+    sha256 = "4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
+    # Official URL for COCO 2017 Validation Set
+    urls = ["http://images.cocodataset.org/zips/val2017.zip"],
+)

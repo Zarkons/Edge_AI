@@ -76,7 +76,7 @@ cc_library(
     ],
     deps = [
         "//modules/common_types",
-        "//modules/tflite_model_handler",
+        "//modules/rtlite_micro_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],
 )
@@ -97,7 +97,7 @@ cc_binary(
         ":get_label_names",
         ":sample_processing_from_file",
         "//modules/common_types",
-        "//modules/tflite_model_handler",
+        "//modules/rtlite_micro_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],
 )
@@ -119,7 +119,7 @@ cc_binary(
         ":sample_processing_from_mic",
         "//modules/common_types",
         "//modules/miniaudio",
-        "//modules/tflite_model_handler",
+        "//modules/rtlite_micro_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],
 )

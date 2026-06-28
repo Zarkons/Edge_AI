@@ -9,4 +9,4 @@ Modules are created to provide a structured and organized way to manage the vari
 
     /docs/common_types
     /docs/miniaudio
-    /docs/tflite_model_handler
+    /docs/rtlite_micro_handler

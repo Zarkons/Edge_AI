@@ -7,7 +7,7 @@ namespace audio_model_pipeline
 {
     using namespace quantization_types;
     using namespace ml_types_dynamic;
-    using namespace tflite_model_handler;
+    using namespace rtlite_micro_handler;
 
     constexpr size_t FRAME_LENGTH = 256;
     constexpr size_t FRAME_STEP = 127;
