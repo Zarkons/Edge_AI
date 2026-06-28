@@ -1,8 +1,10 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
-# 1. Load the standard py_binary from rules_python
-load("@rules_python//python:defs.bzl", "py_binary")
 # 2. Load the requirement macro separately from your pip hub
 load("@pip_deps_tflm//:requirements.bzl", "requirement")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+# 1. Load the standard py_binary from rules_python
+load("@rules_python//python:defs.bzl", "py_binary")
+load("//modules/helpers:defs.bzl", "inspect_model_macro")
 
 py_binary(
     name = "train",
@@ -16,17 +18,12 @@ py_binary(
 
 cc_test(
     name = "anomaly_detection_tests",
+    size = "small",
     srcs = [
-        "anomaly_detection_tests.cc",
         "anomaly_detection_quantized.cc",
         "anomaly_detection_quantized.h",
+        "anomaly_detection_tests.cc",
     ],
-    deps = [
-        "@googletest//:gtest_main",
-        "@tflm//tensorflow/lite/schema:schema_utils",
-        "@tflm//tensorflow/lite/micro:micro_framework",
-    ],
-    size = "small",
     # 1. Tells the compiler to separate functions into isolated memory drawers
     copts = [
         "-ffunction-sections",
@@ -36,4 +33,15 @@ cc_test(
     linkopts = [
         "-Wl,-dead_strip",
     ],
+    deps = [
+        "@googletest//:gtest_main",
+        "@tflm//tensorflow/lite/micro:micro_framework",
+        "@tflm//tensorflow/lite/schema:schema_utils",
+    ],
+)
+
+inspect_model_macro(
+    name = "inspect_model",
+    model_target = ":anomaly_detection_quantized.tflite",
+    visibility = ["//visibility:public"],
 )

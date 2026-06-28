@@ -1,18 +1,11 @@
 load("@pip_deps_tfcore//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary")
+load("//modules/helpers:defs.bzl", "inspect_model_macro")
 
-py_binary(
+inspect_model_macro(
     name = "inspect_model",
-    srcs = ["quantization/inspect_model.py"],
-    args = [
-        "--model_path=_main/learning/example/object_recognition/quantization/quantized_model/yolov8_int8.tflite",
-    ],
-    data = [
-        "quantization/quantized_model/yolov8_int8.tflite",
-    ],
-    deps = [
-        "@rules_python//python/runfiles",
-    ],
+    model_target = ":quantization/quantized_model/yolov8_int8.tflite",
+    visibility = ["//visibility:public"],
 )
 
 py_binary(

@@ -3,6 +3,8 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 ############################# Library Definitions ###########################
 
+load("//modules/helpers:defs.bzl", "inspect_model_macro")
+
 genrule(
     name = "convert_tflite_to_cc",
     srcs = ["tflite_model/audio_recognition_model.tflite"],
@@ -122,6 +124,12 @@ cc_binary(
         "//modules/rtlite_micro_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],
+)
+
+inspect_model_macro(
+    name = "inspect_model",
+    model_target = ":tflite_model/audio_recognition_model.tflite",
+    visibility = ["//visibility:public"],
 )
 
 ############################ Documentation Definitions ###########################
