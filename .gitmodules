@@ -7,5 +7,6 @@
 	url = https://github.com/tensorflow/tensorflow
     ignore = dirty
 [submodule "onnxruntime"]
-    path = onnxruntime
-    url = https://github.com/microsoft/onnxruntime.git
+	path = onnxruntime
+	url = https://github.com/microsoft/onnxruntime.git
+    ignore = dirty
