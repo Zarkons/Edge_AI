@@ -3,4 +3,4 @@ bazel-out
 bazel-testlogs
 bazel-Edge_AI
 .DS_Store
-build_dir
+_build_dir
