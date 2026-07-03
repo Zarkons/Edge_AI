@@ -4,8 +4,10 @@ numpy
 tensorflow
 IPython
 ai-edge-litert
-opencv-python
 lxml
 pillow
 tf_slim
 ultralytics
+onnx
+onnxruntime
+opencv-python-headless

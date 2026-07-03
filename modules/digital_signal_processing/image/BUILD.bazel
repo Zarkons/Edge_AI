@@ -1,0 +1,67 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+########################### Library Definitions #################################
+
+cc_library(
+    name = "dip_data_types",
+    srcs = [
+        "api/dip_data_types.h",
+    ],
+    hdrs = [
+        "api/dip_data_types.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)
+
+cc_library(
+    name = "cpu_letterbox_preprocessor",
+    srcs = [
+        "src/CpuLetterboxPreprocessor.cc",
+    ],
+    hdrs = [
+        "api/CpuLetterboxPreprocessor.h",
+        "api/IImagePreprocessor.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":dip_data_types",
+    ],
+)
+
+cc_library(
+    name = "planar_scale_tensor_packer",
+    srcs = [
+        "src/PlanarScaleTensorPacker.cc",
+    ],
+    hdrs = [
+        "api/ITensorPacker.h",
+        "api/PlanarScaleTensorPacker.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":dip_data_types",
+    ],
+)
+
+########################### Documentation Definitions ###########################
+
+# sphinx_docs_library(
+#     name = "dsp_image_docs",
+#     srcs = glob(["docs/*.rst"]),
+#     visibility = ["//docs:__subpackages__"],
+# )

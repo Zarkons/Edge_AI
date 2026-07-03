@@ -1,0 +1,32 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+########################### Library Definitions #################################
+
+cc_library(
+    name = "onnxruntime_engine",
+    srcs = [
+        "src/ONNXRuntimeEngine.cc",
+    ],
+    hdrs = [
+        "api/ONNXRuntimeEngine.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@onnxruntime_mac_arm64//:onnxruntime_c",
+    ],
+)
+
+########################### Documentation Definitions ###########################
+
+# sphinx_docs_library(
+#     name = "dsp_image_docs",
+#     srcs = glob(["docs/*.rst"]),
+#     visibility = ["//docs:__subpackages__"],
+# )

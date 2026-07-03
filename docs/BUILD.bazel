@@ -28,7 +28,7 @@ sphinx_docs_library(
     deps = [
         "//learning/example/simple_audio_recognition:simple_audio_recognition_docs",
         "//modules/common_types:common_types_docs",
-        "//modules/miniaudio:miniaudio_docs",
+        "//modules/digital_signal_processing/audio/miniaudio:miniaudio_docs",
         "//modules/rtlite_micro_handler:rtlite_micro_handler_docs",
     ],
 )

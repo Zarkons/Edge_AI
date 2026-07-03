@@ -1,1 +1,4 @@
-exports_files(["inspect_model.py"])
+exports_files([
+    "tflite_inspect_model.py",
+    "onnxruntime_inspect_model.py",
+])

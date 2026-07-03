@@ -1,2 +1,7 @@
+# Global Platform Targets
 build --macos_minimum_os=14.0
-build --cxxopt=-std=c++17
+
+# Global Compiler Flags for C++
+build --cxxopt=-std=c++20
+build --cxxopt=-Wall
+build --cxxopt=-Wthread-safety

@@ -4,7 +4,7 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 # 1. Load the standard py_binary from rules_python
 load("@rules_python//python:defs.bzl", "py_binary")
-load("//modules/helpers:defs.bzl", "inspect_model_macro")
+load("//modules/helpers:defs.bzl", "tflite_inspect_model_macro")
 
 py_binary(
     name = "train",
@@ -40,7 +40,7 @@ cc_test(
     ],
 )
 
-inspect_model_macro(
+tflite_inspect_model_macro(
     name = "inspect_model",
     model_target = ":anomaly_detection_quantized.tflite",
     visibility = ["//visibility:public"],

@@ -1,0 +1,111 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+########################### Library Definitions #################################
+
+cc_library(
+    name = "file_input_handler",
+    srcs = [
+        "src/FileInputHandler.cc",
+    ],
+    hdrs = [
+        "api/FileInputHandler.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@bazel_tools//tools/cpp/runfiles",
+        "@opencv",
+    ],
+)
+
+cc_binary(
+    name = "object_recognition_application",
+    srcs = [
+        "src/main.cc",
+    ],
+    data = [
+        "//learning/example/object_recognition:onnx_models",
+        "@coco_val2017//:saved_images_dir",
+    ],
+    includes = [
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":camera_input_handler",
+        ":file_input_handler",
+        ":yolov8_post_processor",
+        ":yolov8_visualizer",
+        "//modules/digital_signal_processing/image:cpu_letterbox_preprocessor",
+        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
+        "//modules/onnxruntime:onnxruntime_engine",
+        "@opencv",
+    ],
+)
+
+cc_library(
+    name = "yolov8_post_processor",
+    srcs = [
+        "src/YOLOv8PostProcessor.cc",
+    ],
+    hdrs = [
+        "api/YOLOv8PostProcessor.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//modules/digital_signal_processing/image:dip_data_types",
+    ],
+)
+
+cc_library(
+    name = "yolov8_visualizer",
+    srcs = [
+        "src/YOLOv8Visualizer.cc",
+    ],
+    hdrs = [
+        "api/YOLOv8Visualizer.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":yolov8_post_processor",
+        "@opencv",
+    ],
+)
+
+cc_library(
+    name = "camera_input_handler",
+    srcs = [
+        "src/CameraInputHandler.cc",
+    ],
+    hdrs = [
+        "api/CameraInputHandler.h",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//modules/digital_signal_processing/image:dip_data_types",
+        "@opencv",
+    ],
+)
+
+########################### Documentation Definitions ###########################
+
+# sphinx_docs_library(
+#     name = "dsp_image_docs",
+#     srcs = glob(["docs/*.rst"]),
+#     visibility = ["//docs:__subpackages__"],
+# )

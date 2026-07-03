@@ -4,6 +4,7 @@ module(
 )
 
 # Bring in fundamental build dependencies
+bazel_dep(name = "apple_support", version = "1.17.1")
 bazel_dep(name = "rules_cc", version = "0.2.16")
 bazel_dep(name = "rules_python", version = "1.8.5")
 bazel_dep(name = "rules_shell", version = "0.6.1")
@@ -11,6 +12,7 @@ bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "googletest", version = "1.15.2")
 bazel_dep(name = "sphinxdocs", version = "2.0.2")
 bazel_dep(name = "rules_doxygen", version = "2.6.3")
+bazel_dep(name = "opencv", version = "4.13.0.bcr.5")
 
 doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
 use_repo(doxygen_extension, "doxygen")
@@ -92,4 +94,21 @@ filegroup(
     sha256 = "4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
     # Official URL for COCO 2017 Validation Set
     urls = ["http://images.cocodataset.org/zips/val2017.zip"],
+)
+
+http_archive(
+    name = "onnxruntime_mac_arm64",
+    build_file_content = """
+cc_import(
+    name = "onnxruntime_c",
+    shared_library = "lib/libonnxruntime.1.dylib",
+    data = ["lib/libonnxruntime.dylib"],
+    hdrs = glob(["include/**/*.h"]),
+    strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+)
+    """,
+    sha256 = "545e81c58152353acb0d1e8bd6ce4b62f830c0961f5b3acfedc790ffd76e477a",  # Matches the signature on GitHub
+    strip_prefix = "onnxruntime-osx-arm64-1.27.0",
+    urls = ["https://github.com/microsoft/onnxruntime/releases/download/v1.27.0/onnxruntime-osx-arm64-1.27.0.tgz"],
 )

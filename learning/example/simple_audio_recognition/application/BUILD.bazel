@@ -3,7 +3,7 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 ############################# Library Definitions ###########################
 
-load("//modules/helpers:defs.bzl", "inspect_model_macro")
+load("//modules/helpers:defs.bzl", "tflite_inspect_model_macro")
 
 genrule(
     name = "convert_tflite_to_cc",
@@ -47,7 +47,7 @@ cc_library(
     includes = ["api"],
     deps = [
         "//modules/common_types",
-        "//modules/miniaudio",
+        "//modules/digital_signal_processing/audio/miniaudio",
     ],
 )
 
@@ -120,13 +120,13 @@ cc_binary(
         ":get_label_names",
         ":sample_processing_from_mic",
         "//modules/common_types",
-        "//modules/miniaudio",
+        "//modules/digital_signal_processing/audio/miniaudio",
         "//modules/rtlite_micro_handler",
         "@tflm//tensorflow/lite/micro:micro_framework",
     ],
 )
 
-inspect_model_macro(
+tflite_inspect_model_macro(
     name = "inspect_model",
     model_target = ":tflite_model/audio_recognition_model.tflite",
     visibility = ["//visibility:public"],

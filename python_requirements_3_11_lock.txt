@@ -274,6 +274,7 @@ flatbuffers==25.12.19 \
     --hash=sha256:7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4
     # via
     #   ai-edge-litert
+    #   onnxruntime
     #   tensorflow
 fonttools==4.63.0 \
     --hash=sha256:032038247a96c1690f9f31e377c389383c902531b085aa4e4dabd6f57f870e69 \
@@ -910,6 +911,7 @@ ml-dtypes==0.5.4 \
     --hash=sha256:f21c9219ef48ca5ee78402d5cc831bd58ea27ce89beda894428bc67a52da5328
     # via
     #   keras
+    #   onnx
     #   tensorflow
 mpmath==1.3.0 \
     --hash=sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f \
@@ -1004,7 +1006,10 @@ numpy==2.4.6 \
     #   keras
     #   matplotlib
     #   ml-dtypes
+    #   onnx
+    #   onnxruntime
     #   opencv-python
+    #   opencv-python-headless
     #   pandas
     #   seaborn
     #   tensorflow
@@ -1015,6 +1020,58 @@ nvidia-ml-py==13.610.43 \
     --hash=sha256:65437eb73d68d0c62c931ca4d45038472faff03bd0b8729abba4b899f70d60f2 \
     --hash=sha256:f13c72698edef492f985cc225f14faafe68ae065a2e407f45bdf6f4b9b43fde8
     # via ultralytics
+onnx==1.22.0 \
+    --hash=sha256:19e45e4af88e3fe3261458d4b8cc461957ae2782a358a3560503569bf3b23b72 \
+    --hash=sha256:1d0a2bdb15eb2b3cb65c438f3423d9620d14fdce32f92380e6bb1b2e09568ef5 \
+    --hash=sha256:239958534464612fbcb6ed23d5228aaa925b39b8773f58726809ffdccb4edd1c \
+    --hash=sha256:2632406b8f523ef2e2873c363f90b20a3d88c0fbcfac757d3addffccf8f452c2 \
+    --hash=sha256:2d8f229a553fa440fe623ed7b36fca5e7762da3af871c3f8f8ce451df73e2914 \
+    --hash=sha256:33ce94119bbb7f05d9caea4ea7549f5185a54369f6bbc9f70171bd5ee6935bbc \
+    --hash=sha256:596fbf0490947533c1c1045ba860851dc9fb77471023dac9a71ba5b42ceab103 \
+    --hash=sha256:5c1c0408a9d4b4df33851672e5fc7590b96301ee123396d608f9ab6f045ab06b \
+    --hash=sha256:6d0ffffd63a4ecc21ddaeddd5bf02099cb701aa4243f2de00122726869065ca4 \
+    --hash=sha256:72ccebab3bac07215c204ce8848d42e78eaaa666badbf72d25cd359b9f269e3a \
+    --hash=sha256:82e9f27fc1223cb06d68a56bed6f9d3caf3d0dad1b61bce45006d529b15bd94c \
+    --hash=sha256:8561a2c00041c07e08db0c228593b5b4694100398685f348532af7dbb84189da \
+    --hash=sha256:87a3077958f66f9a26dec10077ac28326d9cec2cbe1f0b040947243449754573 \
+    --hash=sha256:8907b9b9389893bc0dc6314cc00ee1e3a69844e48d689eacc6a0340411a7da58 \
+    --hash=sha256:8a5eccce2d5fc6c5046928a9aa7cdd9750ea4a586f8de341d3d40d820c35fdec \
+    --hash=sha256:8e268cdc0547e3949799ffd4a44451dc2b9080b57d0824a2db680b6ec65506f0 \
+    --hash=sha256:955e02e1f6d385b53d52f9cd7b9cdf5caf417c300bcfe3c64c6d542be763845b \
+    --hash=sha256:a1a89a7cb9ba13d78f009bdec448ec82a98972589734f157022a2bff7a5973a6 \
+    --hash=sha256:a3a39fc4643867aecb33417fdddb11e308ee79d2d4a584b9d50cc7aec2091b13 \
+    --hash=sha256:ae5a563f281cd9d2845622cecf6c092a57e4ee1b138f66fdbbdd4200567a5e16 \
+    --hash=sha256:c21a0e59fd967a95b358e4a6e756d1f1eec2d304a83480f329f66e30d2bf0223 \
+    --hash=sha256:cc8b66b312f8f03a53e268afb67180a2d97dd12cc79e2b61361c6c0073448016 \
+    --hash=sha256:ef40c0aaf0b643857ea9306fc7eddce17eaf9fb0407e4801f1fc5758443a38e0 \
+    --hash=sha256:f3c120dcdb70ad738f3c061b32798f408ea299eb69f84dd69ab4a6bf3c2ec01f
+    # via -r python_requirements_3_11.txt
+onnxruntime==1.27.0 \
+    --hash=sha256:0874edc171f470fc4dd2bbb60bc0989612ed1a8b89b365cda016630a93227f13 \
+    --hash=sha256:1b215aa662c8f983f7d6dedafe65a9be72c26e5338e0fe98b3e0422c32c85428 \
+    --hash=sha256:20c321cf187ba496e648acf6b4cf90b4d398b0d17c2a77fdaeba365b908cc1c1 \
+    --hash=sha256:2eb083321af8a236a84c7c140a7f4cecbfa2a987a18c07c78db471c20cd390ef \
+    --hash=sha256:2fdfa9df40a0ded0028ce6f9cd863264237f3970559dea2b81456e9ac4622b94 \
+    --hash=sha256:370d211e1ceeac4cd5f45301655463ac59e27cdc74d9f7aeb2d19ff4b7a76715 \
+    --hash=sha256:445fb702ea5241ba813a3ce2febe2e9408a64f6ad2eb610924322c536165f7cd \
+    --hash=sha256:48b3d87eb560ff6a772240506f3c78d6d27c63cafedd5c775672e1194f968cfd \
+    --hash=sha256:49e416be0d717338b6d041b99911b716d70c397d277056450724f93bdded3fc2 \
+    --hash=sha256:54c0c4e9202c36c4ecdb1f3443f5dfbfd5ee3b54d1362c4b4c6134110e74fb32 \
+    --hash=sha256:5b51c014cf1a4fcd93c29a97eac8071fa27710dae05a4d0380bb60a66d60a62c \
+    --hash=sha256:6872443f236a554921cda6f318c900e2d0c226792cf3534d00e5057c6926e5d2 \
+    --hash=sha256:75fbc1e1fb43a39a856c8209c544cca7817b5de7ac16b15b1bdf55d1cc67b9df \
+    --hash=sha256:760021bca514d64a811837820d351a08a41741f16f8b4c26450da708fecf14e6 \
+    --hash=sha256:7c65a7438632d55dfbc8a02ee60bd6cf7dd9d1ba05a43d4b851452f32338e194 \
+    --hash=sha256:856032937dd3bc7a7c141909c8d7ae4fde3e3f59bddf061ae627b9a051bda95c \
+    --hash=sha256:8ba14a38c570087f3cdb8cfba33f7a38a1e826c1e5b29e17c28ceda0cc910016 \
+    --hash=sha256:a14c2ce45312def86b77aea651f46565e45960cf5f0721bfdff449165086ab76 \
+    --hash=sha256:b3e5b58b8c89c2b20e086e890aa9527377e5c240dc3ecc1640d18e07705eeb1c \
+    --hash=sha256:c6197a02e3f620c4dc13cff51b80672409fc1ffab3aa2593911b19fd322ff48b \
+    --hash=sha256:c6fddce0539a4898c7bef35b052ffd37935b2190e35488eab99ce91887743ea1 \
+    --hash=sha256:d0d1f68868e2ef30ef70998ba9bbbc5c305e9b17041e3936751c1b8aa6aade06 \
+    --hash=sha256:e4f7b0e90d2d212e2c2deaa6c8291616183ab815d3ec558ea12d3ac8b26d36f4 \
+    --hash=sha256:ff050e4f6bf7f12918fa14dcb047c0b02e295f35e86d42532552be4b3d54e977
+    # via -r python_requirements_3_11.txt
 opencv-python==4.13.0.92 \
     --hash=sha256:0bc2596e68f972ca452d80f444bc404e08807d021fbba40df26b61b18e01838a \
     --hash=sha256:372fe164a3148ac1ca51e5f3ad0541a4a276452273f503441d718fab9c5e5f59 \
@@ -1024,9 +1081,17 @@ opencv-python==4.13.0.92 \
     --hash=sha256:620d602b8f7d8b8dab5f4b99c6eb353e78d3fb8b0f53db1bd258bb1aa001c1d5 \
     --hash=sha256:bccaabf9eb7f897ca61880ce2869dcd9b25b72129c28478e7f2a5e8dee945616 \
     --hash=sha256:caf60c071ec391ba51ed00a4a920f996d0b64e3e46068aac1f646b5de0326a19
-    # via
-    #   -r python_requirements_3_11.txt
-    #   ultralytics
+    # via ultralytics
+opencv-python-headless==4.13.0.92 \
+    --hash=sha256:0525a3d2c0b46c611e2130b5fdebc94cf404845d8fa64d2f3a3b679572a5bd22 \
+    --hash=sha256:0bd48544f77c68b2941392fcdf9bcd2b9cdf00e98cb8c29b2455d194763cf99e \
+    --hash=sha256:1a7d040ac656c11b8c38677cc8cccdc149f98535089dbe5b081e80a4e5903209 \
+    --hash=sha256:3e0a6f0a37994ec6ce5f59e936be21d5d6384a4556f2d2da9c2f9c5dc948394c \
+    --hash=sha256:5c8cfc8e87ed452b5cecb9419473ee5560a989859fe1d10d1ce11ae87b09a2cb \
+    --hash=sha256:77a82fe35ddcec0f62c15f2ba8a12ecc2ed4207c17b0902c7a3151ae29f37fb6 \
+    --hash=sha256:a7cf08e5b191f4ebb530791acc0825a7986e0d0dee2a3c491184bd8599848a4b \
+    --hash=sha256:eb60e36b237b1ebd40a912da5384b348df8ed534f6f644d8e0b4f103e272ba7d
+    # via -r python_requirements_3_11.txt
 opt-einsum==3.4.0 \
     --hash=sha256:69bb92469f86a1565195ece4ac0323943e83477171b91d24c35afe028a90d7cd \
     --hash=sha256:96ca72f1b886d148241348783498194c577fa30a8faac108586b14f1ba4473ac
@@ -1137,6 +1202,7 @@ packaging==26.2 \
     # via
     #   keras
     #   matplotlib
+    #   onnxruntime
     #   tensorflow
     #   wheel
 pandas==3.0.3 \
@@ -1324,6 +1390,8 @@ protobuf==7.35.1 \
     --hash=sha256:ce115a26fe0c39a2c29973d914d327e516a6455464489fe3cd1e51a1b354f81a
     # via
     #   ai-edge-litert
+    #   onnx
+    #   onnxruntime
     #   tensorflow
 psutil==7.2.2 \
     --hash=sha256:0746f5f8d406af344fd547f1c8daa5f5c33dbc293bb8d6a16d80b4bb88f59372 \
@@ -1596,6 +1664,7 @@ typing-extensions==4.15.0 \
     #   ai-edge-litert
     #   grpcio
     #   ipython
+    #   onnx
     #   optree
     #   tensorflow
     #   torch
