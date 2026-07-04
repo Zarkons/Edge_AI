@@ -54,7 +54,7 @@ cc_binary(
         "src/main_camera_input.cc",
     ],
     data = [
-        "//learning/example/object_recognition:onnx_models",
+        "//learning/example/object_recognition/quantization:onnx_models",
     ],
     includes = [
     ],
@@ -67,6 +67,7 @@ cc_binary(
         "//modules/digital_signal_processing/image:cpu_letterbox_preprocessor",
         "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
         "//modules/onnxruntime:onnxruntime_engine",
+        "//modules/tracy_profiler",
         "@opencv",
     ],
 )

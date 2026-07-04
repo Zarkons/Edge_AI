@@ -9,6 +9,7 @@ bazel_dep(name = "rules_cc", version = "0.2.16")
 bazel_dep(name = "rules_python", version = "1.8.5")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "platforms", version = "1.1.0")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "googletest", version = "1.15.2")
 bazel_dep(name = "sphinxdocs", version = "2.0.2")
 bazel_dep(name = "rules_doxygen", version = "2.6.3")
@@ -111,4 +112,36 @@ cc_import(
     sha256 = "545e81c58152353acb0d1e8bd6ce4b62f830c0961f5b3acfedc790ffd76e477a",  # Matches the signature on GitHub
     strip_prefix = "onnxruntime-osx-arm64-1.27.0",
     urls = ["https://github.com/microsoft/onnxruntime/releases/download/v1.27.0/onnxruntime-osx-arm64-1.27.0.tgz"],
+)
+
+# Fetch Tracy directly as a plain repository target
+http_archive(
+    name = "tracy",
+    build_file_content = """
+cc_library(
+    name = "tracy_client",
+    srcs = ["public/TracyClient.cpp"],
+    hdrs = glob([
+        "public/**/*.hpp",
+        "public/**/*.h",
+    ]),
+    textual_hdrs = glob([
+        "public/**/*.cpp",
+    ]),
+    includes = [
+        "public",
+        "public/tracy",
+    ],
+    defines = ["TRACY_ENABLE"],
+    visibility = ["//visibility:public"],
+    linkopts = select({
+        "@platforms//os:windows": ["-lws2_32", "-ldbghelp"],
+        "@platforms//os:linux": ["-lpthread", "-ldl"],
+        "//conditions:default": [],
+    }),
+)
+""",
+    integrity = "sha256-1O/FDrywv8/buhSJla63UETA2A9dkSI66/qo+p5WPSs=",
+    strip_prefix = "tracy-0.13.1",
+    urls = ["https://github.com/wolfpld/tracy/archive/refs/tags/v0.13.1.tar.gz"],
 )

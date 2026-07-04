@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include "YOLOv8Visualizer.h"
+#include "TracyProfiler.h"
 
 #include "tools/cpp/runfiles/runfiles.h"
 using bazel::tools::cpp::runfiles::Runfiles;
@@ -25,8 +26,9 @@ using namespace onnxruntime::inference;
 
 int main(int argc, char *argv[])
 {
+    PROFILER_LOG("Profiling enabled: Tracy Profiler active. Use Tracy GUI to visualize performance metrics.");
     // Hardcode your runfiles lookup tokens directly.
-    std::string model_token = "_main/learning/example/object_recognition/_build_dir/models/yolov8n_fp32.onnx";
+    std::string model_token = "_main/learning/example/object_recognition/quantization/_build_dir/models/yolov8n_fp32.onnx";
 
     try
     {
@@ -112,29 +114,46 @@ int main(int argc, char *argv[])
             frame_buffer.stride = live_frame.stride;
 
             std::cout << "-> Processing Live Camera Frame [" << processed_counter << "]" << std::endl;
+            TransformMetadata meta;
 
-            TransformMetadata meta = preprocessor.Execute(frame_buffer, target_width, target_height, preprocessed_buffer.data(), preprocessed_buffer.size());
-            packer.Pack(preprocessed_buffer.data(), target_width, target_height, target_channels, tensor_buffer.data(), tensor_buffer.size());
+            {
+                ZoneScopedN("Preprocessing");
+                meta = preprocessor.Execute(frame_buffer, target_width, target_height, preprocessed_buffer.data(), preprocessed_buffer.size());
+            }
+
+            {
+                ZoneScopedN("Packing");
+                packer.Pack(preprocessed_buffer.data(), target_width, target_height, target_channels, tensor_buffer.data(), tensor_buffer.size());
+            }
 
             int64_t input_shape[] = {1, target_channels, target_height, target_width};
             size_t shape_dims = 4;
+            bool success = false;
 
-            bool success = engine.Run(
-                tensor_buffer.data(),
-                input_shape,
-                shape_dims,
-                out_preallocated_buffer.data(),
-                out_preallocated_buffer.size(),
-                output_result);
+            {
+                ZoneScopedN("ONNX Inference");
+                success = engine.Run(
+                    tensor_buffer.data(),
+                    input_shape,
+                    shape_dims,
+                    out_preallocated_buffer.data(),
+                    out_preallocated_buffer.size(),
+                    output_result);
+            }
 
             if (success)
             {
-                std::vector<Detection> detections = post_processor.Execute(
-                    out_preallocated_buffer.data(),
-                    0.75f, // Confidence Threshold
-                    0.45f, // NMS Overlap IoU Threshold
-                    meta   // Transform metrics containing source sizing bounds
-                );
+                std::vector<Detection> detections;
+                {
+                    ZoneScopedN("Postprocessing");
+                    detections = post_processor.Execute(
+                        out_preallocated_buffer.data(),
+                        0.75f, // Confidence Threshold
+                        0.45f, // NMS Overlap IoU Threshold
+                        meta   // Transform metrics containing source sizing bounds
+                    );
+                }
+                FrameMark;
 
                 // Initialize OpenCV container directly referencing the incoming camera frame array
                 cv::Mat frame(live_frame.height, live_frame.width, CV_8UC3, live_frame.data.data(), live_frame.stride);

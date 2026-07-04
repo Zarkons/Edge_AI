@@ -1,0 +1,23 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+
+########################### Library Definitions #################################
+
+cc_library(
+    name = "tracy_profiler",
+    hdrs = [
+        "TracyProfiler.h",
+    ],
+    includes = [
+        ".",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+    ] + select({
+        "//:tracy_profiler_active": ["@tracy//:tracy_client"],
+        "//conditions:default": [],
+    }),
+)

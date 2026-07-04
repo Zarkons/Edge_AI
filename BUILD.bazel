@@ -1,7 +1,24 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
 compile_pip_requirements(
     name = "requirements_tfcore",
     src = "python_requirements_3_11.txt",
     requirements_txt = "python_requirements_3_11_lock.txt",
+)
+
+# Define the user flag
+bool_flag(
+    name = "tracy_profiler_enabled",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+# Define the valid select condition
+config_setting(
+    name = "tracy_profiler_active",
+    flag_values = {
+        ":tracy_profiler_enabled": "True",
+    },
+    visibility = ["//visibility:public"],
 )

@@ -5,3 +5,13 @@ build --macos_minimum_os=14.0
 build --cxxopt=-std=c++20
 build --cxxopt=-Wall
 build --cxxopt=-Wthread-safety
+
+# --- Optimization Profile for Tracy Profiler ---
+# Force production code optimization (O2/O3) so Tracy measures real-world speeds
+build:tracy_profiler -c opt
+
+# Keep basic debug symbols so Tracy can resolve human-readable source code names
+build:tracy_profiler --copt=-g
+# Enable Tracy instrumentation macros in the code
+build:tracy_profiler --copt=-DTRACY_ENABLE
+build:tracy_profiler --//:tracy_profiler_enabled=True

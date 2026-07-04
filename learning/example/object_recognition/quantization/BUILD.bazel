@@ -16,7 +16,7 @@ onnxruntime_inspect_model_macro(
 
 py_binary(
     name = "ultralytics_quantization",
-    srcs = ["quantization/ultralytics_quantization.py"],
+    srcs = ["ultralytics_quantization.py"],
     args = [
         "--base_model=yolov8n_base_model/file/downloaded",
         "--calibration_images=coco_val2017/val2017/000000000139.jpg",
@@ -26,7 +26,7 @@ py_binary(
         "@yolov8n_base_model//file",
     ],
     imports = ["."],
-    main = "quantization/ultralytics_quantization.py",
+    main = "ultralytics_quantization.py",
     visibility = ["//visibility:public"],
     deps = [
         "@rules_python//python/runfiles",
@@ -37,7 +37,7 @@ py_binary(
 
 py_binary(
     name = "onnxruntime_quantization",
-    srcs = ["quantization/onnxruntime_quantization.py"],
+    srcs = ["onnxruntime_quantization.py"],
     args = [
         "--base_model=yolov8n_base_model/file/downloaded",
         "--calibration_images=coco_val2017/val2017/000000000139.jpg",
@@ -47,7 +47,7 @@ py_binary(
         "@yolov8n_base_model//file",
     ],
     imports = ["."],
-    main = "quantization/onnxruntime_quantization.py",
+    main = "onnxruntime_quantization.py",
     visibility = ["//visibility:public"],
     deps = [
         "@rules_python//python/runfiles",
