@@ -26,13 +26,35 @@ cc_library(
 )
 
 cc_binary(
-    name = "object_recognition_application",
+    name = "file_input_app",
     srcs = [
-        "src/main.cc",
+        "src/main_file_input.cc",
     ],
     data = [
         "//learning/example/object_recognition:onnx_models",
         "@coco_val2017//:saved_images_dir",
+    ],
+    includes = [
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":file_input_handler",
+        ":yolov8_post_processor",
+        ":yolov8_visualizer",
+        "//modules/digital_signal_processing/image:cpu_letterbox_preprocessor",
+        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
+        "//modules/onnxruntime:onnxruntime_engine",
+        "@opencv",
+    ],
+)
+
+cc_binary(
+    name = "camera_input_app",
+    srcs = [
+        "src/main_camera_input.cc",
+    ],
+    data = [
+        "//learning/example/object_recognition:onnx_models",
     ],
     includes = [
     ],
