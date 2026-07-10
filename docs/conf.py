@@ -20,8 +20,73 @@ extensions = [
     'sphinx.ext.napoleon',    # Supports Google/NumPy style docstrings
     'breathe',                # Consumes Doxygen XML for C/C++ API docs
     'sphinxcontrib.plantuml',
+    'sphinx_needs',           # Adds support for requirement tracking in docs
+    'sphinx.ext.graphviz',    # Adds support for Graphviz diagrams
+    'sphinxcontrib.mermaid',  # Adds support for Mermaid diagrams
 ]
-
+needs_flow_engine = "graphviz"
+needs_id_regex = "^[a-zA-Z0-9_]{5,}"
+needs_extra_options = [
+    "priority",
+    "metric",
+    "target",
+    "characteristic",
+    "req_type",
+]
+needs_choices = {
+    "req_type": ["functional", "quality", "constraint"]
+}
+needs_extra_links = [
+    {
+        "option": "achieves",
+        "incoming": "achieved_by",
+        "outgoing": "achieves",
+        "style": "#00FF00",
+    },
+    {
+        "option": "satisfies",
+        "incoming": "satisfied_by",
+        "outgoing": "satisfies",
+        "style": "#00FF00",
+    },
+    {
+        "option": "verifies",
+        "incoming": "verified_by",
+        "outgoing": "verifies",
+        "style": "#0000FF",
+    }
+]
+needs_types = [
+    {
+        "directive": "goal",
+        "title": "Goal",
+        "prefix": "goal_",
+        "color": "#1f77b4",
+        "style": "node",
+    },
+    {
+        "directive": "req",
+        "title": "Requirement",
+        "prefix": "req_",
+        "color": "#ff7f0e",
+        "style": "node",
+    },
+    {
+        "directive": "spec",
+        "title": "Specification",
+        "prefix": "spec_",
+        "color": "#2ca02c",
+        "style": "node",
+    },
+    {
+        "directive": "dec",
+        "title": "Decision",
+        "prefix": "dec_",
+        "color": "#d62728",
+        "style": "node",
+    },
+]
+plantuml_ephemeral_with_zooming = True
 plantuml_output_format = 'svg'
 plantuml_ephemeral_server = 'http://plantuml.com'
 
@@ -101,12 +166,6 @@ def resolve_breathe_paths(app, config):
             f"\n>>> BREATHE ERROR: index.xml not found at target {final_xml_path}\n"
         )
 
-
-# 3. Connect the path solver to Sphinx's early configuration event
-def setup(app):
-    app.connect("config-inited", resolve_breathe_paths)
-
-
 breathe_default_project = 'EdgeAI'
 
 
@@ -116,3 +175,77 @@ html_static_path = []
 html_show_sphinx = False
 
 
+# -- Mermaid Diagram Customizations -----------------------------------------
+# Tuning knobs for Mermaid sizing.
+# Reduce these values if diagrams look too large.
+DOC_BODY_MAX_WIDTH_PX = 1200
+MERMAID_MIN_WIDTH_PX = 400
+MERMAID_MIN_HEIGHT_PX = 460
+MERMAID_NODE_SPACING = 45
+MERMAID_RANK_SPACING = 55
+
+# Configures the client-side JavaScript engine running in the user's browser
+mermaid_init_js = (
+    "mermaid.initialize({\n"
+    "    theme: 'default',\n"
+    "    startOnLoad: true,\n"
+    "    flowchart: {\n"
+    "        htmlLabels: true,\n"
+    "        useMaxWidth: true,\n"
+    f"        nodeSpacing: {MERMAID_NODE_SPACING},\n"
+    f"        rankSpacing: {MERMAID_RANK_SPACING},\n"
+    "    },\n"
+    "    maxTextSize: 100000\n"
+    "});\n"
+)
+
+# Add this code block at the bottom of conf.py to force larger layouts
+def inject_mermaid_styles(app, pagename, templatename, context, doctree):
+    # Only inject if a body exists in the context
+    if "body" in context:
+        context["body"] += (
+            """
+        <style>
+            /* Give content and diagrams more horizontal room in Alabaster. */
+            div.bodywrapper {
+                max-width: 100% !important;
+            }
+            div.body {
+            """
+            + f"                max-width: {DOC_BODY_MAX_WIDTH_PX}px !important;\n"
+            + """
+                width: 100% !important;
+            }
+
+            /* Override sphinxcontrib-mermaid defaults for bigger diagrams. */
+            pre.mermaid,
+            .mermaid-container > pre {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                margin: 0.5rem 0 !important;
+            }
+
+            pre.mermaid > svg,
+            .mermaid-container > pre > svg,
+            .mermaid svg {
+                width: 100% !important;
+            """
+            + f"                min-width: {MERMAID_MIN_WIDTH_PX}px !important;\n"
+            + f"                min-height: {MERMAID_MIN_HEIGHT_PX}px !important;\n"
+            + """
+                height: auto !important;
+                max-width: none !important;
+                display: block !important;
+                margin: 0 auto !important;
+            }
+        </style>
+        """
+        )
+
+def setup(app):
+    # Appends styling directly into the HTML output head node
+    app.connect("html-page-context", inject_mermaid_styles)
+
+    if hasattr(resolve_breathe_paths, '__call__'):
+        app.connect("config-inited", resolve_breathe_paths)

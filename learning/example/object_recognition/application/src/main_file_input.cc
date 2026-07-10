@@ -1,6 +1,6 @@
 #include "FileInputHandler.h"
 #include "dip_data_types.h"
-#include "CPULetterboxPreprocessor.h"
+#include "LetterboxPreprocessor.h"
 #include <vector>
 #include "PlanarScaleTensorPacker.h"
 #include "ONNXRuntimeEngine.h"
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         // Rest of your working while(input_handler.GetNext(disk_frame)) loops remain exactly the same...
         dsp::image::VideoFrame frame_buffer;
         obj_rec::app::RawBufferFrame disk_frame;
-        CPULetterboxPreprocessor preprocessor;
+        LetterboxPreprocessor preprocessor;
         PlanarScaleTensorPacker packer(true);
         YOLOv8PostProcessor post_processor;
 

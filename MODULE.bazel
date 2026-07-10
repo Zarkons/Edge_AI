@@ -60,7 +60,7 @@ pip.parse(
 pip.parse(
     hub_name = "pip_deps_sphinx",
     python_version = "3.11",
-    requirements_lock = "//docs:requirements_sphinx_3_11.txt",
+    requirements_lock = "//docs:requirements_sphinx_3_11_lock.txt",
 )
 
 # Expose the populated repositories to your root workspace

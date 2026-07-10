@@ -1,7 +1,7 @@
 #include "CameraInputHandler.h"
 #include "FileInputHandler.h"
 #include "dip_data_types.h"
-#include "CPULetterboxPreprocessor.h"
+#include "LetterboxPreprocessor.h"
 #include <vector>
 #include "PlanarScaleTensorPacker.h"
 #include "ONNXRuntimeEngine.h"
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         CameraInputHandler camera_handler;
         dsp::image::VideoFrame frame_buffer;
         CameraFrame live_frame;
-        CPULetterboxPreprocessor preprocessor;
+        LetterboxPreprocessor preprocessor;
         PlanarScaleTensorPacker packer(true);
         YOLOv8PostProcessor post_processor;
 

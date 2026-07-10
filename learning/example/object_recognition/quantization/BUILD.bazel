@@ -1,5 +1,9 @@
 load("@pip_deps_tfcore//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
 load("//modules/helpers:defs.bzl", "onnxruntime_inspect_model_macro")
 
 onnxruntime_inspect_model_macro(
@@ -65,5 +69,13 @@ filegroup(
         "_build_dir/models/yolov8n_fp32.onnx",
         "_build_dir/models/yolov8n_int8.onnx",
     ],
+    visibility = ["//visibility:public"],
+)
+
+########################### Documentation Definitions ###########################
+
+sphinx_docs_library(
+    name = "quantization_python_docs",
+    srcs = glob(["*.py"]),
     visibility = ["//visibility:public"],
 )

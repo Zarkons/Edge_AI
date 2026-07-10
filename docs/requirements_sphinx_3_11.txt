@@ -1,2 +1,4 @@
-breathe==4.36.0
-sphinx-plantuml
+breathe==4.35.0
+sphinxcontrib-plantuml
+sphinxcontrib-mermaid
+sphinx-needs==2.1.0

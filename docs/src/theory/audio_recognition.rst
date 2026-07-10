@@ -1,15 +1,15 @@
 ===============================
-Theoretical Audio Recognition
+Audio Recognition
 ===============================
 
 This document details the universal signal processing and mathematical foundations 
 used to transform physical sound waves into structured inputs for deep learning models.
 
 Physical Sound to Digital Waveforms
-===================================
+-----------------------------------
 
 Acoustic Sampling
-------------------
+~~~~~~~~~~~~~~~~~
 Sound propagates as a continuous analog pressure wave through a medium. To process 
 sound digitally, it must undergo analog-to-digital conversion (ADC) via temporal 
 discretization. This process samples the wave's amplitude at fixed intervals defined 
@@ -35,7 +35,7 @@ Where:
 
 
 Time-Domain Representation
-==========================
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A time-domain representation plots the continuous fluctuations of an acoustic 
 signal over a linear chronological baseline. This format provides the raw structural 
@@ -44,7 +44,7 @@ foundation for all subsequent digital signal processing operations.
 .. figure:: diagrams/time_domain_signal.png
    :align: center
    :alt: Time-Domain Signal
-
+    
    Visual representation of a 1D discrete time-domain audio signal.
 
    **X-Axis (Discrete Time):** Represents sequential sample indices running 
@@ -62,7 +62,7 @@ foundation for all subsequent digital signal processing operations.
 
 
 The Physics of Sound: Compression and Rarefaction
--------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In the physical world, sound is a mechanical longitudinal wave of kinetic energy 
 that travels through an elastic medium (such as air). It does not move material 
 permanently forward; instead, it causes local air molecules to oscillate back 
@@ -90,7 +90,7 @@ swinging between positive compression and negative rarefaction over time.
 
 
 Digital Quantization and Amplitude Normalization
-------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When analog electrical voltage leaves a microphone, an Analog-to-Digital Converter 
 (ADC) measures its amplitude at fixed intervals. The precision of these discrete 
 measurements depends heavily on the system's **Bit Depth**. 
@@ -117,17 +117,17 @@ This transformation yields several distinct advantages:
     
 
 The Short-Time Fourier Transform (STFT)
-=======================================
+---------------------------------------
 
 Fourier Transform Limitations
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The standard Discrete Fourier Transform (DFT) converts a global signal into its component 
 frequencies. However, it discards all timing data, assuming the frequencies present 
 exist statically across the entire duration of the audio clip. Because speech and audio 
 are highly dynamic and non-stationary, the standard DFT is insufficient.
 
 Why the STFT is Needed: Navigating the Limitations of Raw Audio and Global DFTs
---------------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To extract meaningful patterns from sound, a machine learning model needs a representation 
 that captures both **chronological progression** and **spectral density**. Neither a raw 
 time-domain waveform nor a standard global DFT can provide both simultaneously.
@@ -176,9 +176,8 @@ acoustic traits of the spoken word.
    :alt: STFT Signal
 
 
-=============================
 The Windowing Principle
-=============================
+------------------------
 
 To capture frequency changes over time, the signal is divided into short, 
 overlapping segments called frames. A localized mathematical function, 
@@ -190,7 +189,7 @@ minimizes artificial sharp cuts at the frame boundaries, preventing a
 mathematical distortion known as **Spectral Leakage**.
 
 The Mathematical Impact of Windowing
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When you isolate a short segment of a continuous audio waveform, you are 
 mathematically multiplying the infinite signal by a rectangular window. This 
@@ -203,7 +202,7 @@ components. As a result, energy from the true frequency "leaks" across
 the entire spectrum, muddying your data and introducing artificial noise.
 
 Bridging the Math to Hyperparameters
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To prevent this spectral leakage, the Short-Time Fourier Transform (STFT) 
 applies the **Hann Window Function**:
@@ -222,7 +221,7 @@ at those boundaries would be heavily attenuated and completely lost to a downstr
 neural network.
 
 The Necessity of the 50% Overlap
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To recover this suppressed data, an overlapping strategy is mandatory. By 
 setting ``FRAME_STEP = 127`` alongside a ``FRAME_LENGTH = 256``, the system 
@@ -246,7 +245,7 @@ modulation is introduced into the spectrogram.
 
 
 STFT Formulation
-----------------
+~~~~~~~~~~~~~~~~
 The **Short-Time Fourier Transform (STFT)** maps the 1D time-domain signal into a 2D 
 complex-valued matrix by computing a localized DFT on each windowed segment as it slides 
 across the timeline:
@@ -263,10 +262,10 @@ Where:
 
 
 Spectrogram Representation
-==========================
+---------------------------
 
 Power and Magnitude Spectrograms
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The raw output of an STFT, :math:`X(m, \omega)`, consists of complex numbers containing both 
 magnitude and phase details. For pattern recognition, phase data is often omitted. 
 
@@ -279,7 +278,7 @@ of specific frequencies over time:
    P(m, \omega) = |X(m, \omega)|^2
 
 Logarithmic Scaling
---------------------
+~~~~~~~~~~~~~~~~~~
 Raw power spectrograms often suffer from large amplitude disparities, where a few high-energy 
 frequencies drown out subtle background details. This clashes with machine learning 
 optimization, as extreme variations create unstable training gradients.
@@ -298,16 +297,16 @@ Where:
 
 
 Pattern Recognition on 2D Tensors
-=================================
+---------------------------------
 
 Time-Frequency Translation
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 The resulting log-spectrogram is a structural 2D grid. The horizontal axis maps 
 progressive **Time Blocks**, while the vertical axis maps discrete **Frequency Bins**. 
 The numerical value at any grid coordinate represents the signal's energy intensity.
 
 Spatial Invariance in Audio
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By representing audio as a 2D matrix, the signal behaves like a single-channel, grayscale 
 image. This allows mathematical concepts from spatial computer vision to apply to audio:
 

@@ -7,6 +7,12 @@ compile_pip_requirements(
     requirements_txt = "python_requirements_3_11_lock.txt",
 )
 
+compile_pip_requirements(
+    name = "requirements_sphinx",
+    src = "//docs:requirements_sphinx_3_11.txt",
+    requirements_txt = "//docs:requirements_sphinx_3_11_lock.txt",
+)
+
 # Define the user flag
 bool_flag(
     name = "tracy_profiler_enabled",

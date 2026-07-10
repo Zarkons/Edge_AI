@@ -22,10 +22,8 @@ namespace dsp
         public:
             /**
              * @brief Constructor initializing the packer with behavioral configuration parameters.
-             * @param[in] swap_rb If true, flips byte 0 and byte 2 of each pixel (converts BGR to RGB).
-             *                    If false, keeps the channel order as-is (processes source RGB).
              */
-            explicit PlanarScaleTensorPacker(bool swap_rb = true);
+            explicit PlanarScaleTensorPacker();
 
             virtual ~PlanarScaleTensorPacker() = default;
 
@@ -40,7 +38,6 @@ namespace dsp
                       size_t tensor_size) override;
 
         private:
-            bool m_swap_rb; /**< Internal behavioral flag tracking whether to invert red/blue vectors. */
         };
 
     } // namespace image

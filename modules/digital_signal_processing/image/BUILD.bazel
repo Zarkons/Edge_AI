@@ -23,13 +23,13 @@ cc_library(
 )
 
 cc_library(
-    name = "cpu_letterbox_preprocessor",
+    name = "letterbox_preprocessor",
     srcs = [
-        "src/CpuLetterboxPreprocessor.cc",
+        "src/LetterboxPreprocessor.cc",
     ],
     hdrs = [
-        "api/CpuLetterboxPreprocessor.h",
         "api/IImagePreprocessor.h",
+        "api/LetterboxPreprocessor.h",
     ],
     includes = [
         "api",
@@ -43,7 +43,7 @@ cc_library(
 cc_library(
     name = "planar_scale_tensor_packer",
     srcs = [
-        "src/PlanarScaleTensorPacker.cc",
+        "src/PlanarScaleTensorPackerYOLOv8.cc",
     ],
     hdrs = [
         "api/ITensorPacker.h",
@@ -60,8 +60,19 @@ cc_library(
 
 ########################### Documentation Definitions ###########################
 
-# sphinx_docs_library(
-#     name = "dsp_image_docs",
-#     srcs = glob(["docs/*.rst"]),
-#     visibility = ["//docs:__subpackages__"],
-# )
+sphinx_docs_library(
+    name = "docs_srcs",
+    srcs = glob(["docs/*.rst"]),
+    visibility = ["//docs:__subpackages__"],
+)
+
+filegroup(
+    name = "doxygen_srcs",
+    srcs = glob(
+        [
+            "**/*.h",
+            "**/*.cc",
+        ],
+    ),
+    visibility = ["//docs:__subpackages__"],
+)

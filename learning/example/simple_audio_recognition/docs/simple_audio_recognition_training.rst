@@ -11,13 +11,12 @@ Following method is used to create the model:
 .. autofunction:: train.get_model
     :noindex:
 
-
 Model Architecture
 ------------------
 
-.. image:: diagrams/audio_recognition_tflite_quantized.png
-    :align: center
-    :alt: Model Architecture
+.. mermaid:: diagrams/model.mmd
+   :align: center
+   :caption: Structural CNN Inference Topology Matrix
 
 
 Conversion to TFLite

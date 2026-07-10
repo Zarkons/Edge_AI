@@ -6,7 +6,7 @@ load(
 filegroup(
     name = "doxygen_srcs",
     srcs = [
-        "//learning/example/simple_audio_recognition/application:doxygen_srcs",
+        "//learning/example/object_recognition/application:doxygen_srcs",
     ],
     visibility = ["//docs:__subpackages__"],
 )
@@ -15,12 +15,12 @@ sphinx_docs_library(
     name = "docs_srcs",
     srcs = glob(
         [
-            "docs/*.rst",
-            "docs/diagrams/*.mmd",
+            "docs/**/*.rst",
+            "docs/**/*.mmd",
         ],
     ),
     visibility = ["//docs:__subpackages__"],
     deps = [
-        "//learning/example/simple_audio_recognition/train:train_python_docs",
+        "//learning/example/object_recognition/quantization:quantization_python_docs",
     ],
 )

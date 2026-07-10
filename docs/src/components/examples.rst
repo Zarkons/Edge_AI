@@ -8,3 +8,4 @@ Examples provide practical demonstrations for simple use cases of the Edge AI pr
     :caption: Examples List
 
     /docs/simple_audio_recognition  
+    /docs/object_recognition

@@ -8,3 +8,4 @@ This section provides a theoretical explanation of the concepts and principles u
     :caption: Theory Overview
 
     theory/audio_recognition
+    theory/image_recognition

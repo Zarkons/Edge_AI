@@ -23,7 +23,7 @@ cc_library(
 ############################ Documentation Definitions ###########################
 
 filegroup(
-    name = "common_types_doxygen_srcs",
+    name = "doxygen_srcs",
     srcs = glob(
         [
             "*.h",
@@ -33,7 +33,7 @@ filegroup(
 )
 
 sphinx_docs_library(
-    name = "common_types_docs",
+    name = "docs_srcs",
     srcs = glob(["docs/*.rst"]),
     visibility = ["//docs:__subpackages__"],
 )

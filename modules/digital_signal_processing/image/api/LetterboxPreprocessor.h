@@ -1,5 +1,5 @@
-#ifndef DSP_IMAGE_CPU_LETTERBOX_PREPROCESSOR_H_
-#define DSP_IMAGE_CPU_LETTERBOX_PREPROCESSOR_H_
+#ifndef DSP_IMAGE_LETTERBOX_PREPROCESSOR_H_
+#define DSP_IMAGE_LETTERBOX_PREPROCESSOR_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -12,14 +12,14 @@ namespace dsp
     {
 
         /**
-         * @class CPULetterboxPreprocessor
+         * @class LetterboxPreprocessor
          * @brief CPU-bound implementation of a bilinear resizing and letterbox padding pipeline.
          */
-        class CPULetterboxPreprocessor : public IImagePreprocessor
+        class LetterboxPreprocessor : public IImagePreprocessor
         {
         public:
-            CPULetterboxPreprocessor() = default;
-            virtual ~CPULetterboxPreprocessor() = default;
+            LetterboxPreprocessor() = default;
+            virtual ~LetterboxPreprocessor() = default;
 
             TransformMetadata Execute(const VideoFrame &input_frame,
                                       int32_t target_width,
@@ -31,4 +31,4 @@ namespace dsp
     } // namespace image
 } // namespace dsp
 
-#endif // DSP_IMAGE_CPU_LETTERBOX_PREPROCESSOR_H_
+#endif // DSP_IMAGE_LETTERBOX_PREPROCESSOR_H_

@@ -1,4 +1,4 @@
-#include "CPULetterboxPreprocessor.h"
+#include "LetterboxPreprocessor.h"
 #include <algorithm>
 #include <cmath>
 
@@ -7,11 +7,11 @@ namespace dsp
     namespace image
     {
 
-        TransformMetadata CPULetterboxPreprocessor::Execute(const VideoFrame &input_frame,
-                                                            int32_t target_width,
-                                                            int32_t target_height,
-                                                            uint8_t *out_buffer,
-                                                            size_t buffer_size)
+        TransformMetadata LetterboxPreprocessor::Execute(const VideoFrame &input_frame,
+                                                         int32_t target_width,
+                                                         int32_t target_height,
+                                                         uint8_t *out_buffer,
+                                                         size_t buffer_size)
         {
             TransformMetadata meta;
             meta.src_width = input_frame.width;

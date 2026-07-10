@@ -1,0 +1,35 @@
+graph TD
+    %% Execution Routing Pipeline
+    Dataset:::queueLayer -.-> |Adaptation Feed| Norm:::rectLayer
+    Input:::rectLayer --> Resize:::rectLayer
+    Resize --> Norm
+    Norm --> Conv1:::rectLayer
+    Conv1 --> Conv2:::rectLayer
+    Conv2 --> Pool:::rectLayer
+    Pool --> Drop1:::compLayer
+    Drop1 --> Flatten:::rectLayer
+    Flatten --> Dense1:::rectLayer
+    Dense1 --> Drop2:::compLayer
+    Drop2 --> Output:::rectLayer
+
+    %% Architectural Layers Map Definitions
+    Dataset["Dataset Ingestion<br>(tf.data.Dataset)"]
+    Input["Input Layer<br>shape: input_shape"]
+    Resize["Resizing Layer<br>downsample to 32x32"]
+    Norm["Normalization Layer<br>(Adapted via Dataset)"]
+    Conv1["Conv2D Layer 1<br>32 Filters / 3x3 / ReLU"]
+    Conv2["Conv2D Layer 2<br>64 Filters / 3x3 / ReLU"]
+    Pool["MaxPooling2D Layer<br>Spatial Reduction"]
+    Drop1[["Dropout Layer (25%)<br>Rate: 0.25"]]
+    Flatten["Flatten Layer<br>Tensor Dimensional Flattening"]
+    Dense1["Dense Layer<br>128 Units / ReLU"]
+    Drop2[["Dropout Layer (50%)<br>Rate: 0.5"]]
+    Output["Dense Output Layer<br>num_labels Units / Softmax"]
+
+    %% Global Theme CSS Styling Schemes
+    classDef rectLayer fill:#E8F0FE,stroke:#1A73E8,stroke-width:1.5px,color:#174EA6,font-size:16px;
+    classDef queueLayer fill:#E6F4EA,stroke:#137333,stroke-width:1.5px,color:#137333,font-size:16px;
+    classDef compLayer fill:#FCE8E6,stroke:#C5221F,stroke-width:1.5px,color:#A51D24,font-size:16px;
+
+    %% Global Link Arrow Configuration
+    linkStyle default stroke:#5F6368,stroke-width:1.5px;

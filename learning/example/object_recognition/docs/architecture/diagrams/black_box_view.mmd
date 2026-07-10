@@ -1,0 +1,27 @@
+graph LR
+    %% Component Style Definitions
+    classDef mainComponent fill:#2d3748,stroke:#1a202c,stroke-width:2px,color:#fff;
+    classDef dependency fill:#edf2f7,stroke:#cbd5e0,stroke-width:1.5px,color:#2d3748;
+    
+    %% Main Component (Black Box)
+    subgraph SubGraphSystem ["System Boundary"]
+        OR["Object Recognition"]:::mainComponent
+    end
+
+    %% External Dependencies
+    ONNX["ONNX Runtime Engine<br/>(Inference Engine)"]:::dependency
+    DSP["DSP:Image<br/>(Image Processing Blueprint)"]:::dependency
+    CAM["Camera<br/>(Image Capture)"]:::dependency
+    FILE["File System<br/>(Image Storage)"]:::dependency
+
+    %% Connections / Interactions
+    DSP -->| Provides types required for image processing| OR
+    
+    OR -->| Passes tensor & executes model| ONNX
+    ONNX -->| Returns inference confidence results| OR
+
+    CAM -->| Captures live images for processing| OR
+    FILE -->| Provides image database for processing| OR
+
+    %% Layout Optimization
+    style SubGraphSystem fill:none,stroke:#718096,stroke-width:1px,stroke-dasharray:5 5;

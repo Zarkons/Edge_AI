@@ -25,53 +25,6 @@ cc_library(
     ],
 )
 
-cc_binary(
-    name = "file_input_app",
-    srcs = [
-        "src/main_file_input.cc",
-    ],
-    data = [
-        "//learning/example/object_recognition:onnx_models",
-        "@coco_val2017//:saved_images_dir",
-    ],
-    includes = [
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":file_input_handler",
-        ":yolov8_post_processor",
-        ":yolov8_visualizer",
-        "//modules/digital_signal_processing/image:cpu_letterbox_preprocessor",
-        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
-        "//modules/onnxruntime:onnxruntime_engine",
-        "@opencv",
-    ],
-)
-
-cc_binary(
-    name = "camera_input_app",
-    srcs = [
-        "src/main_camera_input.cc",
-    ],
-    data = [
-        "//learning/example/object_recognition/quantization:onnx_models",
-    ],
-    includes = [
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":camera_input_handler",
-        ":file_input_handler",
-        ":yolov8_post_processor",
-        ":yolov8_visualizer",
-        "//modules/digital_signal_processing/image:cpu_letterbox_preprocessor",
-        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
-        "//modules/onnxruntime:onnxruntime_engine",
-        "//modules/tracy_profiler",
-        "@opencv",
-    ],
-)
-
 cc_library(
     name = "yolov8_post_processor",
     srcs = [
@@ -125,10 +78,60 @@ cc_library(
     ],
 )
 
-########################### Documentation Definitions ###########################
+cc_binary(
+    name = "file_input_app",
+    srcs = [
+        "src/main_file_input.cc",
+    ],
+    data = [
+        "//learning/example/object_recognition:onnx_models",
+        "@coco_val2017//:saved_images_dir",
+    ],
+    includes = [
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":file_input_handler",
+        ":yolov8_post_processor",
+        ":yolov8_visualizer",
+        "//modules/digital_signal_processing/image:letterbox_preprocessor",
+        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
+        "//modules/onnxruntime:onnxruntime_engine",
+        "@opencv",
+    ],
+)
 
-# sphinx_docs_library(
-#     name = "dsp_image_docs",
-#     srcs = glob(["docs/*.rst"]),
-#     visibility = ["//docs:__subpackages__"],
-# )
+cc_binary(
+    name = "camera_input_app",
+    srcs = [
+        "src/main_camera_input.cc",
+    ],
+    data = [
+        "//learning/example/object_recognition/quantization:onnx_models",
+    ],
+    includes = [
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":camera_input_handler",
+        ":file_input_handler",
+        ":yolov8_post_processor",
+        ":yolov8_visualizer",
+        "//modules/digital_signal_processing/image:letterbox_preprocessor",
+        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
+        "//modules/onnxruntime:onnxruntime_engine",
+        "//modules/tracy_profiler",
+        "@opencv",
+    ],
+)
+
+############################ Documentation Definitions ###########################
+
+filegroup(
+    name = "doxygen_srcs",
+    srcs = glob([
+        "api/*.h",
+        "src/*.cc",
+    ]),
+    visibility = ["//learning/example/object_recognition:__subpackages__"],
+)
