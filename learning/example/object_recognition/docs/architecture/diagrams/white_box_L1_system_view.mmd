@@ -12,10 +12,10 @@ graph TD
         subgraph WhiteBoxBoundary ["Level 1 White-Box Context"]
             
             %% Internal Boundary Layer Intermediaries (Green Blocks)
-            IN_INGRESS["InputProvider Factory<br/>Polymorphic Ingress"]:::internalBoundary
-            IN_ENGINE["InferenceEngine<br/>Abstract Interface"]:::internalBoundary
-            IN_EGRESS["UIProvider<br/>Shared Memory Egress"]:::internalBoundary
-            IN_OBS["ObservabilityAgent<br/>Lock-Free Metrics"]:::internalBoundary
+            IN_INGRESS["Input Provider<br/>Polymorphic Ingress"]:::internalBoundary
+            IN_ENGINE["Inference Engine<br/>Abstract Interface"]:::internalBoundary
+            IN_EGRESS["Output Provider<br/>Shared Memory Egress"]:::internalBoundary
+            IN_OBS["Observability Agent<br/>Lock-Free Metrics"]:::internalBoundary
             
             %% Core Domain Logic Processing Engine (Blue Block)
             IN_CORE["ObjectRecognitionApplication<br/>Core Execution Loop"]:::internalCore
@@ -26,7 +26,7 @@ graph TD
     %% External Systems (Grey Blocks outside the system wrapper)
     EXT_CAM["Camera Resource<br/>HTTP Stream"]:::externalNeighbor
     EXT_FILE["Local Filesystem<br/>POSIX File IO"]:::externalNeighbor
-    EXT_UI["UI Dashboard<br/>Render Target"]:::externalNeighbor
+    EXT_UI["User Interface Dashboard Process"]:::externalNeighbor
     EXT_TEL["Telemetry Collector<br/>Remote Monitor"]:::externalNeighbor
     EXT_ML["ML Subsystem<br/>External Framework"]:::externalNeighbor
 

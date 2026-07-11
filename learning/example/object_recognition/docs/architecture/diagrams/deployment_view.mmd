@@ -1,0 +1,94 @@
+flowchart LR
+    %% Component Style Definitions
+    classDef physicalNode fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#1e293b;
+    classDef osBox fill:#f1f5f9,stroke:#475569,stroke-width:2px,stroke-dasharray: 3 3,color:#0f172a;
+    classDef processBox fill:#e2e8f0,stroke:#2b6cb0,stroke-width:2px,color:#1e3a8a;
+    classDef appComponent fill:#2b6cb0,stroke:#1a365d,stroke-width:1.5px,color:#fff;
+    classDef libComponent fill:#0284c7,stroke:#0c4a6e,stroke-width:1.5px,color:#fff;
+    classDef brokerBox fill:#7c3aed,stroke:#4c1d95,stroke-width:1.5px,color:#fff;
+    classDef hardwareAsset fill:#dc2626,stroke:#7f1d1d,stroke-width:1.5px,color:#fff;
+    classDef externalNode fill:#edf2f7,stroke:#cbd5e0,stroke-width:1.5px,color:#2d3748;
+
+    %% Network Connected External Targets (Grey Nodes)
+    CAM["Camera Resource<br/>HTTP Stream Source"]:::externalNode
+    UI["External GUI Dashboard<br/>Visualization Target"]:::externalNode
+    TEL["Telemetry Collector<br/>Remote Monitor"]:::externalNode
+
+    %% Physical Node Wrapper
+    subgraph EDGE_COMP ["Edge Computer Host"]
+        
+        %% Operating System Layer
+        subgraph OS_ENV ["Host OS Execution Environment"]
+            
+            DISK["Local Drive Storage<br/>Model Weights File"]:::osBox
+            EXT_FILE["Local Filesystem<br/>POSIX File Assets"]:::osBox
+            SHM["Thread-Safe Shared Memory"]:::osBox
+
+            %% Primary Analytical Pipeline Process
+            subgraph APP_PROC ["Process Space: Core Pipeline"]
+                BIN["ObjectRecognitionApplication<br/>Executable Binary"]:::appComponent
+                
+                %% In-Process Dependencies (Static Libraries)
+                STATIC_LIB["Input Provider<br/>Static Library<br/>.a / .lib"]:::libComponent
+                IN_EGRESS["OutputProvider<br/>Static Library<br/>.a / .lib"]:::libComponent
+                IN_OBS["ObservabilityAgent<br/>Static Library<br/>.a / .lib"]:::libComponent
+                
+                %% Your Custom Wrapper (Now accurately a Shared Library)
+                IN_ENGINE["Inference Engine<br/>Shared Library<br/>.so / .dll"]:::libComponent
+                
+                %% The Concrete Framework Shared Object Engine Backend
+                FRAMEWORK_LIB["Inference Framework<br/>Shared Library<br/>.so / .dll"]:::libComponent
+            end
+
+            %% The Decoupled Visualization Subsystem Process
+            subgraph UI_COLLECTOR_PROC ["Process Space: UI Collector"]
+                COLLECTOR_BIN["UI Collector App<br/>Executable Binary"]:::brokerBox
+            end
+        end
+
+        %% Physical Hardware Acceleration Layer
+        subgraph HW_LAYER ["Physical Hardware Layer"]
+            CPU["Host Processor CPU<br/>Vector Operations"]:::hardwareAsset
+            GPU["Hardware Accelerator<br/>Parallel Compute"]:::hardwareAsset
+        end
+    end
+
+    %% Apply the high-contrast classes to the container targets
+    class OS_ENV osBox;
+    class APP_PROC processBox;
+    class UI_COLLECTOR_PROC processBox;
+
+    %% Inbound Data Ingress 
+    CAM --> STATIC_LIB
+    EXT_FILE --> STATIC_LIB
+    
+    %% Clear Structural Deployment Dependencies
+    BIN -->|Compile-Time Linked| STATIC_LIB
+    BIN -->|Compile-Time Linked| IN_EGRESS
+    BIN -->|Compile-Time Linked| IN_OBS
+    
+    %% Dynamic Linkage Path from Executable to Custom Wrapper
+    BIN == "Runtime Dynamic Link" ==> IN_ENGINE
+    
+    %% Downstream Dynamic Handoff to Framework
+    IN_ENGINE == "Runtime Dynamic Link" ==> FRAMEWORK_LIB
+    DISK -.-> FRAMEWORK_LIB
+
+    %% Decoupled Push Boundary
+    IN_EGRESS ==> SHM
+    SHM ==> COLLECTOR_BIN
+
+    %% External Infrastructure Egress 
+    COLLECTOR_BIN -.-> UI
+    IN_OBS -.-> TEL
+
+    %% Hardware Execution Mappings
+    FRAMEWORK_LIB --> GPU
+    FRAMEWORK_LIB -.-> CPU
+
+    %% Assign Container Styles with Explicit Text Color Overrides
+    style EDGE_COMP fill:#f8fafc,stroke:#64748b,stroke-width:2px;
+    style HW_LAYER fill:none,stroke:#dc2626,stroke-width:2px;
+    style OS_ENV fill:#f1f5f9,stroke:#475569,stroke-width:2px,stroke-dasharray:5 5,color:#0f172a;
+    style APP_PROC fill:#e2e8f0,stroke:#2b6cb0,stroke-width:2px,color:#1e3a8a;
+    style UI_COLLECTOR_PROC fill:#e2e8f0,stroke:#2b6cb0,stroke-width:2px,color:#1e3a8a;

@@ -35,60 +35,63 @@ needs_extra_options = [
 
 needs_extra_links = [
     {
+        # Strategy executes Requirement
         "option": "executes",
         "incoming": "executed_by",
         "outgoing": "executes",
         "style": "#FF0000"
     },
     {
+        # Strategy satisfies Goal
         "option": "satisfies",
         "incoming": "satisfied_by",
         "outgoing": "satisfies",
         "style": "#00FF00",
     },
     {
+        # Strategy adheres to Constraint
         "option": "adheres_to",
         "incoming": "adhered_by",
         "outgoing": "adheres_to",
         "style": "#A000FF",
     },
     {
+        # Decision enables Strategy
         "option": "enables",
         "incoming": "enabled_by",
         "outgoing": "enables",
         "style": "#FF00FF",
     },
     {
+        # Concept realizes Decision
         "option": "realizes",
         "incoming": "realized_by",
         "outgoing": "realizes",
         "style": "#FFA500",
     },
     {
+        # Specification implements Concept
         "option": "implements",
         "incoming": "implemented_by",
         "outgoing": "implements",
         "style": "#800080",
     },
     {
+        # Test verifies Requirement, Goal, Constraint, or Specification
         "option": "verifies",
         "incoming": "verified_by",
         "outgoing": "verifies",
         "style": "#0000FF",
     },
     {
-        "option": "verifies",
-        "incoming": "verified_by",
-        "outgoing": "verifies",
-        "style": "#0000FF",
-    },
-    {
+        # Requirement, Goal, Constraint, or Specification is assigned to a Component
         "option": "assigned_to",
         "incoming": "assigned_by",
         "outgoing": "assigned_to",
         "style": "#0000FF",
     },
     {
+        # Component is decomposed into sub-components
         "option": "decomposed_from",
         "incoming": "decomposed_by",
         "outgoing": "decomposed_from",
