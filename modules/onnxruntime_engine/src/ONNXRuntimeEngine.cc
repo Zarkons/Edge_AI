@@ -94,7 +94,7 @@ namespace
     }
 }
 
-namespace onnxruntime
+namespace onnxruntime_engine
 {
     namespace inference
     {

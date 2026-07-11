@@ -22,7 +22,7 @@ constexpr size_t ouput_buffer_capacity = 800000; // Pre-allocate a large enough 
 
 using namespace obj_rec::app;
 using namespace dsp::image;
-using namespace onnxruntime::inference;
+using namespace onnxruntime_engine::inference;
 
 int main(int argc, char *argv[])
 {

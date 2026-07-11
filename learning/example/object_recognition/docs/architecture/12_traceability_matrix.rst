@@ -1,5 +1,5 @@
-Traceability Matrix
-===================
+12. Traceability Matrix
+=======================
 
 This section provides an automated, bidirectional mapping of the system architecture. It tracks how high-level business drivers and quality goals translate into concrete technical requirements, and how those requirements are verified.
 
@@ -11,7 +11,8 @@ Functional Requirements
 -----------------------
 
 .. needtable::
-    :columns: id, title, status, satisfied_by, verified_by
+    :columns: id, title, status, executed_by, verified_by
+    :colwidths: 25, 55, 15, 15, 15
     :sort: id
     :filter: type == "req"
 
@@ -20,7 +21,25 @@ Quality Goals
 -------------
 
 .. needtable::
-    :columns: id, title, status, fulfilled_by
-    :colwidths: 25, 55, 15, 15
+    :columns: id, title, status, satisfied_by, verified_by
+    :colwidths: 25, 55, 15, 15, 15
     :sort: id
     :filter: type == "goal"
+
+Constraints
+-----------
+
+.. needtable::
+    :columns: id, title, status, adhered_by, verified_by
+    :colwidths: 25, 55, 15, 15, 15
+    :sort: id
+    :filter: type == "constraint"
+
+Strategies
+----------
+
+.. needtable::
+    :columns: id, title, status, executes, satisfies, adheres_to
+    :colwidths: 25, 55, 15, 15, 15, 15
+    :sort: id
+    :filter: type == "strategy"

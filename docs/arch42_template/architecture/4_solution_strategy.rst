@@ -1,2 +1,2 @@
-Solution Strategy
-=================
+4. Solution Strategy
+=====================

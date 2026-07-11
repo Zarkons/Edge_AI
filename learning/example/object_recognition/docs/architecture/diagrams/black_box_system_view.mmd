@@ -1,0 +1,31 @@
+graph LR
+    %% Component Style Definitions
+    classDef systemBlackBox fill:#1a202c,stroke:#2d3748,stroke-width:3px,color:#fff;
+    classDef externalNeighbor fill:#edf2f7,stroke:#cbd5e0,stroke-width:1.5px,color:#2d3748;
+    
+    %% Pure Black-Box System Boundary (No internal details leaked)
+    subgraph SubGraphSystem ["System Boundary"]
+        OR["Object Recognition System<br/>(Core Application Core)"]:::systemBlackBox
+    end
+
+    %% True External Neighbors & Environmental Infrastructure Context
+    CAM["Camera Resource<br/>(Live HTTP/MJPEG Streams)"]:::externalNeighbor
+    FILE["Local Filesystem<br/>(Static Image Assets)"]:::externalNeighbor
+    UI["User Interface Process<br/>(Asynchronous GUI App)"]:::externalNeighbor
+    MON["Telemetry Collector<br/>(Asynchronous Monitor Target)"]:::externalNeighbor
+    ML_SUBSYSTEM["Machine Learning Subsystem<br/>(Hardware Evaluation Framework)"]:::externalNeighbor
+    MODEL_ASSET["Model Asset Resource<br/>(Pre-Trained Serialized File)"]:::externalNeighbor
+
+    %% Boundary Interaction Data Streams
+    CAM -->| Inbound Frame Stream | OR
+    FILE -->| Inbound File Buffers | OR
+    MODEL_ASSET -->| Serialized Graph Ingestion | OR
+    
+    OR == "Tensor Payload" ==> ML_SUBSYSTEM
+    ML_SUBSYSTEM == "Bounding Box Arrays" ==> OR
+
+    OR -.->| Zero-Copy Shared Memory Push | UI
+    OR -.->| Asynchronous Socket Telemetry | MON
+
+    %% Layout Optimization - Quotes added for strict modern parsing engine
+    style SubGraphSystem fill:none,stroke:#4a5568,stroke-width:2px,stroke-dasharray:5 5;

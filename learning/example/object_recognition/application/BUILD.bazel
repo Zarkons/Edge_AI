@@ -96,7 +96,7 @@ cc_binary(
         ":yolov8_visualizer",
         "//modules/digital_signal_processing/image:letterbox_preprocessor",
         "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
-        "//modules/onnxruntime:onnxruntime_engine",
+        "//modules/onnxruntime_engine",
         "@opencv",
     ],
 )
@@ -119,7 +119,7 @@ cc_binary(
         ":yolov8_visualizer",
         "//modules/digital_signal_processing/image:letterbox_preprocessor",
         "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
-        "//modules/onnxruntime:onnxruntime_engine",
+        "//modules/onnxruntime_engine",
         "//modules/tracy_profiler",
         "@opencv",
     ],

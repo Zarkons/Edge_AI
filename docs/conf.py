@@ -31,17 +31,14 @@ needs_extra_options = [
     "metric",
     "target",
     "characteristic",
-    "req_type",
 ]
-needs_choices = {
-    "req_type": ["functional", "quality", "constraint"]
-}
+
 needs_extra_links = [
     {
-        "option": "achieves",
-        "incoming": "achieved_by",
-        "outgoing": "achieves",
-        "style": "#00FF00",
+        "option": "executes",
+        "incoming": "executed_by",
+        "outgoing": "executes",
+        "style": "#FF0000"
     },
     {
         "option": "satisfies",
@@ -50,11 +47,53 @@ needs_extra_links = [
         "style": "#00FF00",
     },
     {
+        "option": "adheres_to",
+        "incoming": "adhered_by",
+        "outgoing": "adheres_to",
+        "style": "#A000FF",
+    },
+    {
+        "option": "enables",
+        "incoming": "enabled_by",
+        "outgoing": "enables",
+        "style": "#FF00FF",
+    },
+    {
+        "option": "realizes",
+        "incoming": "realized_by",
+        "outgoing": "realizes",
+        "style": "#FFA500",
+    },
+    {
+        "option": "implements",
+        "incoming": "implemented_by",
+        "outgoing": "implements",
+        "style": "#800080",
+    },
+    {
         "option": "verifies",
         "incoming": "verified_by",
         "outgoing": "verifies",
         "style": "#0000FF",
-    }
+    },
+    {
+        "option": "verifies",
+        "incoming": "verified_by",
+        "outgoing": "verifies",
+        "style": "#0000FF",
+    },
+    {
+        "option": "assigned_to",
+        "incoming": "assigned_by",
+        "outgoing": "assigned_to",
+        "style": "#0000FF",
+    },
+    {
+        "option": "decomposed_from",
+        "incoming": "decomposed_by",
+        "outgoing": "decomposed_from",
+        "style": "#0000FF",
+    },
 ]
 needs_types = [
     {
@@ -79,10 +118,38 @@ needs_types = [
         "style": "node",
     },
     {
-        "directive": "dec",
+        "directive": "adr",
         "title": "Decision",
-        "prefix": "dec_",
+        "prefix": "adr_",
         "color": "#d62728",
+        "style": "node",
+    },
+    {
+        "directive": "strategy",
+        "title": "Strategy",
+        "prefix": "str_",
+        "color": "#9467bd",
+        "style": "node",
+    },
+    {
+        "directive": "concept",
+        "title": "Concept",
+        "prefix": "con_",
+        "color": "#8c564b",
+        "style": "node",
+    },
+    {
+        "directive": "constraint",
+        "title": "Constraint",
+        "prefix": "const_",
+        "color": "#e377c2",
+        "style": "node",
+    },
+    {
+        "directive": "component",
+        "title": "Component",
+        "prefix": "comp_",
+        "color": "#7f7f7f",
         "style": "node",
     },
 ]
@@ -171,16 +238,12 @@ breathe_default_project = 'EdgeAI'
 
 # -- Options for HTML Output -------------------------------------------------
 html_theme = 'alabaster'
-html_static_path = []
+html_static_path = ['_static']
 html_show_sphinx = False
 
 
 # -- Mermaid Diagram Customizations -----------------------------------------
 # Tuning knobs for Mermaid sizing.
-# Reduce these values if diagrams look too large.
-DOC_BODY_MAX_WIDTH_PX = 1200
-MERMAID_MIN_WIDTH_PX = 400
-MERMAID_MIN_HEIGHT_PX = 460
 MERMAID_NODE_SPACING = 45
 MERMAID_RANK_SPACING = 55
 
@@ -191,7 +254,7 @@ mermaid_init_js = (
     "    startOnLoad: true,\n"
     "    flowchart: {\n"
     "        htmlLabels: true,\n"
-    "        useMaxWidth: true,\n"
+    "        useMaxWidth: false,\n"
     f"        nodeSpacing: {MERMAID_NODE_SPACING},\n"
     f"        rankSpacing: {MERMAID_RANK_SPACING},\n"
     "    },\n"
@@ -211,13 +274,10 @@ def inject_mermaid_styles(app, pagename, templatename, context, doctree):
                 max-width: 100% !important;
             }
             div.body {
-            """
-            + f"                max-width: {DOC_BODY_MAX_WIDTH_PX}px !important;\n"
-            + """
                 width: 100% !important;
             }
 
-            /* Override sphinxcontrib-mermaid defaults for bigger diagrams. */
+            /* Keep Mermaid diagrams at natural size and scroll when needed. */
             pre.mermaid,
             .mermaid-container > pre {
                 width: 100% !important;
@@ -229,17 +289,251 @@ def inject_mermaid_styles(app, pagename, templatename, context, doctree):
             pre.mermaid > svg,
             .mermaid-container > pre > svg,
             .mermaid svg {
-                width: 100% !important;
-            """
-            + f"                min-width: {MERMAID_MIN_WIDTH_PX}px !important;\n"
-            + f"                min-height: {MERMAID_MIN_HEIGHT_PX}px !important;\n"
-            + """
                 height: auto !important;
                 max-width: none !important;
+                width: auto !important;
                 display: block !important;
                 margin: 0 auto !important;
             }
+
+            .mermaid-zoom-controls {
+                display: flex;
+                gap: 0.35rem;
+                justify-content: flex-end;
+                align-items: center;
+                margin: 0.25rem 0 0.35rem;
+                font-size: 0.85rem;
+            }
+
+            .mermaid-zoom-controls button {
+                border: 1px solid #bbb;
+                border-radius: 0.35rem;
+                background: #fff;
+                color: #333;
+                padding: 0.2rem 0.55rem;
+                cursor: pointer;
+            }
+
+            .mermaid-zoom-controls button:hover {
+                background: #f3f3f3;
+            }
+
+            .mermaid-zoom-controls .mermaid-zoom-label {
+                min-width: 3.5rem;
+                text-align: right;
+                color: #666;
+                user-select: none;
+            }
         </style>
+
+        <script>
+        (function () {
+            var ZOOM_STEP = 0.25;
+            var ZOOM_MIN = 0.5;
+            var ZOOM_MAX = 3.0;
+            var DEFAULT_BASELINE_SCALE = 1.3;
+
+            function getViewBoxSize(svg) {
+                var viewBox = svg.getAttribute('viewBox');
+                if (!viewBox) {
+                    return null;
+                }
+
+                var parts = viewBox.trim().split(/[\s,]+/).map(parseFloat);
+                if (parts.length !== 4 || isNaN(parts[2]) || isNaN(parts[3])) {
+                    return null;
+                }
+
+                return { width: parts[2], height: parts[3] };
+            }
+
+            function clamp(value, min, max) {
+                return Math.min(max, Math.max(min, value));
+            }
+
+            function measureSvg(svg) {
+                var width = parseFloat(svg.getAttribute('data-mermaid-base-width'));
+                var height = parseFloat(svg.getAttribute('data-mermaid-base-height'));
+                var viewBoxSize = getViewBoxSize(svg);
+
+                if (viewBoxSize && (
+                    !width || !height ||
+                    (width <= 300 && height <= 150) ||
+                    Math.abs(width - viewBoxSize.width) > 1 ||
+                    Math.abs(height - viewBoxSize.height) > 1
+                )) {
+                    width = viewBoxSize.width;
+                    height = viewBoxSize.height;
+                }
+
+                if (!width || !height) {
+                    if (!width || !height) {
+                        var rect = svg.getBoundingClientRect();
+                        width = rect.width || parseFloat(svg.getAttribute('width')) || 800;
+                        height = rect.height || parseFloat(svg.getAttribute('height')) || 400;
+                    }
+
+                    svg.setAttribute('data-mermaid-base-width', String(width));
+                    svg.setAttribute('data-mermaid-base-height', String(height));
+                }
+
+                return { width: width, height: height };
+            }
+
+            function getFitZoom(shell, svg) {
+                var base = measureSvg(svg);
+                var availableWidth = shell.clientWidth || base.width;
+                var availableHeight = Math.floor(window.innerHeight * 0.8);
+                var widthZoom = availableWidth / base.width;
+                var heightZoom = availableHeight / base.height;
+
+                return Math.min(widthZoom, heightZoom, 1);
+            }
+
+            function applyZoom(content, svg, shell, zoom) {
+                var base = measureSvg(svg);
+                var fitZoom = getFitZoom(shell, svg);
+                var nextZoom = clamp(zoom, ZOOM_MIN, ZOOM_MAX);
+                var actualZoom = fitZoom * DEFAULT_BASELINE_SCALE * nextZoom;
+
+                content.style.width = (base.width * actualZoom) + 'px';
+                content.style.height = (base.height * actualZoom) + 'px';
+                svg.setAttribute('data-mermaid-zoom', String(nextZoom));
+                return nextZoom;
+            }
+
+            function stabilizeZoom(content, svg, shell, getZoom, updateLabel) {
+                [0, 100, 300, 700].forEach(function (delay) {
+                    window.setTimeout(function () {
+                        var zoom = applyZoom(content, svg, shell, getZoom());
+                        updateLabel(zoom);
+                    }, delay);
+                });
+            }
+
+            function addControls(target) {
+                if (!target || target.getAttribute('data-mermaid-zoom-ready') === 'true') {
+                    return;
+                }
+
+                var svg = target.querySelector('svg');
+                if (!svg) {
+                    return;
+                }
+
+                var shell = document.createElement('div');
+                shell.className = 'mermaid-zoom-shell';
+                shell.style.overflow = 'auto';
+                shell.style.maxWidth = '100%';
+                shell.style.maxHeight = '80vh';
+                shell.style.width = '100%';
+                shell.style.margin = '0.5rem 0';
+
+                var content = document.createElement('div');
+                content.className = 'mermaid-zoom-content';
+                content.style.position = 'relative';
+                content.style.display = 'block';
+
+                target.parentNode.insertBefore(shell, target);
+                shell.appendChild(content);
+                content.appendChild(target);
+
+                target.setAttribute('data-mermaid-zoom-ready', 'true');
+                target.style.width = '100%';
+                target.style.height = '100%';
+                target.style.maxWidth = 'none';
+                target.style.display = 'block';
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                svg.style.maxWidth = 'none';
+                svg.style.display = 'block';
+
+                var controls = document.createElement('div');
+                controls.className = 'mermaid-zoom-controls';
+                controls.innerHTML = '<button type="button" data-mermaid-action="out">-</button>' +
+                    '<button type="button" data-mermaid-action="reset">100%</button>' +
+                    '<button type="button" data-mermaid-action="in">+</button>' +
+                    '<span class="mermaid-zoom-label">100%</span>';
+
+                shell.parentNode.insertBefore(controls, shell);
+
+                var label = controls.querySelector('.mermaid-zoom-label');
+                var zoom = applyZoom(content, svg, shell, 1);
+
+                function updateLabel(value) {
+                    label.textContent = Math.round(value * 100) + '%';
+                }
+
+                updateLabel(zoom);
+                stabilizeZoom(content, svg, shell, function () { return zoom; }, updateLabel);
+
+                window.addEventListener('resize', function () {
+                    zoom = applyZoom(content, svg, shell, zoom);
+                    updateLabel(zoom);
+                });
+
+                controls.addEventListener('click', function (event) {
+                    var action = event.target && event.target.getAttribute('data-mermaid-action');
+                    if (!action) {
+                        return;
+                    }
+
+                    if (action === 'reset') {
+                        zoom = applyZoom(content, svg, shell, 1);
+                    } else if (action === 'in') {
+                        zoom = applyZoom(content, svg, shell, zoom + ZOOM_STEP);
+                    } else if (action === 'out') {
+                        zoom = applyZoom(content, svg, shell, zoom - ZOOM_STEP);
+                    }
+
+                    updateLabel(zoom);
+                });
+            }
+
+            function scanMermaidDiagrams() {
+                document.querySelectorAll('pre.mermaid, .mermaid-container > pre, .mermaid').forEach(addControls);
+            }
+
+            function observeMermaidDiagrams() {
+                var scheduled = false;
+
+                function requestScan() {
+                    if (scheduled) {
+                        return;
+                    }
+
+                    scheduled = true;
+                    window.requestAnimationFrame(function () {
+                        scheduled = false;
+                        scanMermaidDiagrams();
+                    });
+                }
+
+                scanMermaidDiagrams();
+
+                if (document.body) {
+                    var observer = new MutationObserver(function () {
+                        requestScan();
+                    });
+
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+
+                    window.addEventListener('beforeunload', function () {
+                        observer.disconnect();
+                    });
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', observeMermaidDiagrams);
+            } else {
+                observeMermaidDiagrams();
+            }
+        }());
+        </script>
         """
         )
 

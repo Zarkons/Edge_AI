@@ -13,14 +13,13 @@ filegroup(
 
 sphinx_docs_library(
     name = "docs_srcs",
-    srcs = glob(
-        [
-            "docs/**/*.rst",
-            "docs/**/*.mmd",
-        ],
-    ),
+    srcs = glob([
+        "docs/**/*.rst",
+        "docs/**/*.mmd",
+    ]) + [
+        "//learning/example/object_recognition/quantization:python_docs_srcs",
+    ],
     visibility = ["//docs:__subpackages__"],
     deps = [
-        "//learning/example/object_recognition/quantization:quantization_python_docs",
     ],
 )

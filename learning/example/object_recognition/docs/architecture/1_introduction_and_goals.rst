@@ -9,23 +9,21 @@ This document describes the architecture of the Object Recognition example appli
 .. req:: Object Recognition
     :id: req_object_recognition
     :status: draft
-    :req_type: functional
+    :assigned_to: comp_object_recognition_system
     
-        The system shall recognize and classify objects in real-time.
+    The system shall recognize and classify objects in real-time.
 
 .. req:: Input Processing
     :id: req_input_processing
     :status: draft
-    :req_type: functional
     
-        The system shall be able to process inputs from live camera feeds as well as pre-recorded video files.
+    The system shall be able to process inputs from live camera feeds as well as pre-recorded video files.
 
 .. req:: Output Generation
     :id: req_output_generation
     :status: draft
-    :req_type: functional
 
-        The system shall output the recognized objects along with their confidence scores and bounding boxes to a user interface.
+    The system shall output the recognized objects along with their confidence scores and bounding boxes to a user interface.
 
 .. note::
     Usually the requirements are listed in a separate document, and referenced here, but for the sake of this example, they are included here to provide context for the architectural decisions.
@@ -37,40 +35,51 @@ This document describes the architecture of the Object Recognition example appli
 The following overarching quality goals serve as the primary architectural drivers for this system. They represent the core qualities valued by our stakeholders:
 
 .. goal:: High Inference Accuracy
-  :id: goal_high_inference_accuracy
-  :status: draft
-  :characteristic: Accuracy
+    :id: goal_high_inference_accuracy
+    :status: draft
+    :characteristic: Accuracy
 
-    The system shall achieve high accuracy in object recognition to minimize
-    false negatives and ensure reliable performance in production environments.
+    Maximize object recognition precision to minimize false negatives 
+    and prevent misclassifications in production environments. This goal 
+    motivates model selection and quantization calibration strategies.
 
 .. goal:: Low Memory Footprint
-  :id: goal_low_memory_footprint
-  :status: draft
-  :characteristic: Efficiency
+    :id: goal_low_memory_footprint
+    :status: draft
+    :characteristic: Efficiency
 
-    The system shall be optimized for low memory usage to enable deployment on resource-constrained edge devices.
+    Minimize the overall runtime memory consumption of the execution loop. 
+    This optimization ensures the application runs within the strict physical 
+    RAM limits of resource-constrained single-board edge devices.
 
 .. goal:: Framework & Model Agnosticism
-  :id: goal_framework_model_agnosticism
-  :status: draft
-  :characteristic: Maintainability
+    :id: goal_framework_model_agnosticism
+    :status: draft
+    :characteristic: Maintainability
 
-    The architecture shall be designed to allow for easy swapping of machine learning models and frameworks without requiring changes to the application code.
+    Isolate core domain processing and image transformation logic from specific 
+    machine learning network topologies and framework-specific memory schemas. 
+    This optimization ensures that underlying neural network models or runtime 
+    vendors can be updated without modifying application pre-processing code.
 
 .. goal:: Runtime Extensibility
-  :id: goal_runtime_extensibility
-  :status: draft
-  :characteristic: Flexibility
+    :id: goal_runtime_extensibility
+    :status: draft
+    :characteristic: Flexibility
 
-    The system shall be designed to support the integration of new model runtime frameworks (e.g., ONNX, TensorRT, OpenVINO) to enable deployment on various edge hardware platforms.
-
+    Support the out-of-band loading and execution of alternative hardware 
+    acceleration backends without modifying or recompiling the primary application 
+    binary. This flexibility enables dynamic switching between execution 
+    providers to accommodate differing physical edge silicon variants.
+    
 .. goal:: System Observability
-  :id: goal_system_observability
-  :status: draft
-  :characteristic: Observability
+    :id: goal_system_observability
+    :status: draft
+    :characteristic: Observability
 
-    The system shall provide observability features for logging and performance monitoring to facilitate rapid diagnosis of issues and performance bottlenecks.
+    Expose granular runtime telemetry, logging metrics, and performance 
+    traces out-of-band. This facilitates rapid remote diagnosis of 
+    production bottlenecks without degrading real-time loop execution.
 
 1.3 Stakeholders
 ----------------

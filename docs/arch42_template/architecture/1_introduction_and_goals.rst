@@ -1,5 +1,5 @@
-Introduction And Goals
-=======================
+1. Introduction And Goals
+=========================
 
 .. Functional requirements are usually derived elsewhere, the architecural document should reference them in order to satisfy them and provide traceability matrix. So this section provides the list of functional requirements.
 

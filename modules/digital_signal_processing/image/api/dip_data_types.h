@@ -7,7 +7,6 @@
  * @file dip_data_types.h
  * @brief Defines the fundamental data structures for the dsp::image processing subsystem.
  */
-
 namespace dsp
 {
     namespace image

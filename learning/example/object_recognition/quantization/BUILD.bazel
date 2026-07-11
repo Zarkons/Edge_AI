@@ -74,8 +74,8 @@ filegroup(
 
 ########################### Documentation Definitions ###########################
 
-sphinx_docs_library(
-    name = "quantization_python_docs",
-    srcs = glob(["*.py"]),
-    visibility = ["//visibility:public"],
+filegroup(
+    name = "python_docs_srcs",
+    srcs = glob(["**/*.py"]),
+    visibility = ["//learning/example/object_recognition:__subpackages__"],
 )
