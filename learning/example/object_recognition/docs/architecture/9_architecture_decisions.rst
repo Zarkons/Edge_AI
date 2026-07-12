@@ -74,8 +74,8 @@
     * **Increased Development Overhead**: Engineering teams lose the convenience of dynamic standard library collections, requiring all internal algorithmic data structures to use fixed arrays, stacks, or static buffer blocks.
 
 
-.. adr:: Asynchronous Ring-Buffer Thread for I/O
-    :id: adr_asynchronous_ring_buffer_thread_for_io
+.. adr:: Single-Threaded Cooperative Execution Loop with Asynchronous I/O
+    :id: adr_single_threaded_cooperative_execution_loop_with_asynchronous_io
     :status: draft
     :enables: str_io_boundary_abstraction
 
@@ -123,7 +123,7 @@
 
     **Core Pipeline Linkage**
 
-    The core pipeline will compile directly against the static or dynamic native C++ 
+    The core pipeline will compile directly against the dynamic native C++ 
     ONNX Runtime libraries. Direct runtime dependencies on high-level Python wrappers, 
     PyTorch runtimes, or heavy framework inference setups are strictly forbidden.
 
@@ -182,4 +182,102 @@
       and actively calibrate an ahead-of-time optimization toolchain to output compliant, 
       calibrated artifacts.
 
+.. adr:: Dynamic Linkage Polymorphic Plugin Infrastructure
+    :id: adr_dynamic_linkage_polymorphic_plugin_infrastructure
+    :status: draft
+    :enables: str_polymorphic_runtime_plugins
 
+    .. rubric:: Context
+
+    The edge object recognition core must adapt to evolving computer vision models, new pre-processing algorithms, and different hardware acceleration modules over time. Hardcoding these processing steps directly into the core execution binary forces complete system recompilations for minor logic updates, increasing software distribution overhead and testing regression cycles. To achieve target flexibility goals, the system must separate the high-speed orchestration engine from localized execution algorithms through an expandable runtime infrastructure.
+
+    .. rubric:: Decision
+
+    Implement a decoupled plugin framework utilizing standard C++ pure virtual interface definitions loaded at runtime via native operating system dynamic loading utilities (``dlopen``/``dlsym`` on Linux/QNX/macOS).
+
+    **Interface and Linkage Architecture**
+    
+    * **State-Free Interfaces**: All extensible components must inherit from zero-state, pure virtual C++ class definitions. 
+    * **Dynamic Shared Objects**: Processing modules must be compiled as independent, standalone dynamic shared libraries (``.so`` or ``.dylib``) stored in a dedicated repository sub-folder.
+    * **C-Linkage Gateway Functions**: To avoid C++ name-mangling issues across differing compiler versions, every plugin shared object must expose a standard ``extern "C"`` factory gateway function (such as ``create_plugin`` and ``destroy_plugin``) for the system core to hook into.
+
+    .. rubric:: Consequences
+
+    **Positive Consequences (Benefits)**
+
+    * **Isolated Runtime Extensibility**: New inference algorithms or custom image manipulation blocks can be dynamically swapped in or out via configuration profiles without modifying or recompiling the core processing pipeline.
+    * **Granular Team Velocity**: Engineering teams can develop, test, and release separate analytical components as independent versioned binaries, reducing deployment pipeline bottlenecks.
+    * **Minimized Active Executable Footprint**: The core engine only maps the specific shared objects demanded by the active operational pipeline profile into system memory, avoiding unneeded binary loading.
+
+    **Negative Consequences (Risks and Mitigations)**
+
+    * **Fragile Application Binary Interface (ABI) Vulnerability**: Compiling individual plugins with mismatched toolchain versions can lead to memory alignment crashes. The deployment pipeline must strictly enforce matching compiler baselines and inject strict semantic version checking macros into the plugin discovery phase.
+    * **Initialization-Phase Overhead**: Dynamic linking introduces localized system latency during boot cycles while loading symbols; this is accepted since it remains confined entirely to the initialization phase.
+
+.. adr:: Lock-Free Atomic Queue Telemetry Engine
+    :id: adr_lock_free_atomic_queue_telemetry_engine
+    :status: draft
+    :enables: str_non_blocking_telemetry_logging
+
+    .. rubric:: Context
+
+    Comprehensive runtime observability is mandatory to evaluate system health, frame drop rates, and model confidence metrics on field devices. However, standard logging libraries write directly to disk files or network sockets, introducing unpredictable kernel blocking states and heavy system I/O latency. Inside a high-speed, single-threaded execution loop, a single blocking write would destroy real-time processing guarantees, directly compromising the determinism of the computer vision core.
+
+    .. rubric:: Decision
+
+    Standardize on **Tracy Profiler** as the core native telemetry and system performance logging framework. The system will leverage Tracy's internal lock-free, zero-allocation micro-profiling infrastructure to capture runtime traces.
+
+    **Telemetry Integration Rules**
+    
+    * **Hot-Path Instrumentation**: The core single-threaded loop will be instrumented using standard Tracy macros (such as ``ZoneScoped`` or ``TracyPlot``). These macros perform non-blocking, atomic pointer writes into Tracy's internal high-speed memory buffers.
+    * **Telemetry Separation**: The main execution thread will never touch network or disk I/O for logging. Tracy's internal background worker thread will manage the async collection and broadcasting of trace frames across the network socket to the Tracy server UI.
+    * **Conditional Production Compilation**: Tracy instrumentation must be bound to a specific compile target definition (e.g., ``TRACY_ENABLE``). For strict production deployments where network telemetry is unneeded, the macros will compile out to absolute zero-cost null statements.
+
+    .. rubric:: Consequences
+
+    **Positive Consequences (Benefits)**
+
+    * **Production-Grade Zero-Impact Profiling**: High-frequency zone tracking, frame timings, and memory snapshots are captured with sub-microsecond overhead, causing zero timing distortion inside the critical hot-path.
+    * **No Custom Queue Wheels**: Eliminates the maintenance overhead of writing a custom lock-free ring buffer or multi-process IPC serialization engine since Tracy handles it natively.
+    * **Rich Visual Observability**: Unlocks deep, real-time visual analysis of frame rates, CPU core usage, cache misses, and pipeline bottlenecks without modifying application code structures.
+
+    **Negative Consequences (Risks and Mitigations)**
+
+    * **Background Memory Consumption**: Tracy maintains an internal, fixed-size atomic ring buffer to hold trace events. If the network connection to the server drops, memory usage will grow up to a declared limit, which must be carefully constrained to prevent running out of space on edge devices.
+    * **External Dependency Risk**: Integrating Tracy requires importing its native source files into the repository. The build system must isolate this dependency strictly within a specific profiling target to ensure core code stays clean.
+
+.. adr:: Hermetic Multi-Platform Toolchain Matrix Layout
+    :id: adr_hermetic_multi_platform_toolchain_matrix_layout
+    :status: draft
+    :enables: str_cross_platform_build_system, str_multi_architecture_support
+
+    .. rubric:: Context
+
+    Building code for varying edge environments—such as Raspberry Pi 5 running embedded Linux or macOS workstations—typically introduces environmental drift. To realize a cross-platform compilation pipeline under strict real-time hardware criteria, we cannot rely on variable host system states. Historically, supporting multiple target environments forces developers to inject brittle preprocessor conditional blocks (``#ifdef __APPLE__``) or manually switch compiler flags. This practice fractures code logic, degrades maintainability, and allows platform compilation errors to leak past local testing loops.
+
+    .. rubric:: Decision
+
+    Standardize on a centralized, declarative **Platforms and Toolchains Matrix** within the build configuration files to orchestrate all cross-platform and multi-architecture targets.
+
+    **Cross-Platform Boundary Rules**
+    
+    * **Centralized Mappings**: All deployment hardware architectures and target operating systems must be explicitly declared using native target matching definitions (such as ``constraint_value`` and ``platform``) inside a root-level configurations package (e.g., ``//platforms``).
+    * **Decoupled Flag Injection**: Application source code blocks (``cc_library`` configurations) are strictly forbidden from hardcoding raw compilation flags or target architecture switches. All environment-specific optimization flags must switch dynamically through target selection tables (``select()`` mappings).
+
+    **Multi-Architecture Segregation Rules**
+    
+    * **Banned Preprocessor Toggles**: The use of preprocessor compiler macros to switch core operational compilation logic based on the target architecture is banned inside domain source files.
+    * **Hermetic Toolchain Registration**: The repository root must encapsulate explicit cross-compilation toolchain matrices (configuring explicit ``cc_toolchain`` rules). These configurations must tightly bind target compilers, sysroots, and target architectures to their matching destination platforms inside the main configuration space.
+
+    .. rubric:: Consequences
+
+    **Positive Consequences (Benefits)**
+
+    * **Absolute Reproducibility and Parity**: Moving compilation rules entirely into declarative Starlark schemas guarantees bit-identical binary generation across different platforms, local setups, and remote automated builders.
+    * **Deterministic Target Switching**: Compiling the entire system for an alternative destination environment is reduced to passing a single command-line target platform flag parameter, automatically re-mapping all optimization flags and compiler paths.
+    * **Pristine Source Segregation**: Eliminates the need to pollute application source code with build-system logic or platform detection scripts, preserving clean module boundaries.
+
+    **Negative Consequences (Risks and Mitigations)**
+
+    * **Elevated Platform Boilerplate Overhead**: Writing explicit target constraint profiles and configuration matrices introduces more initial design and file tracking overhead than legacy procedural configurations.
+    * **Cross-Toolchain Workspace Complexity**: Integrating independent cross-compilers and isolated sysroots inside a declarative layout requires precise up-front configuration to maintain clean toolchain isolation boundaries.

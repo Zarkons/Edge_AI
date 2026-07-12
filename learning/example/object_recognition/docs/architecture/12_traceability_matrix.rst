@@ -39,7 +39,7 @@ Strategies
 ----------
 
 .. needtable::
-    :columns: id, title, status, executes, satisfies, adheres_to
-    :colwidths: 25, 55, 15, 15, 15, 15
+    :columns: id, title, status, executes, satisfies, adheres_to, enabled_by
+    :colwidths: 25, 55, 15, 15, 15, 15, 15
     :sort: id
     :filter: type == "strategy"

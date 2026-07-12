@@ -9,7 +9,7 @@
 
     Standardize the core execution logic exclusively on C++20 for Edge devices. Bypasses managed runtime overhead, interpreter engine startups, and memory management latency (such as Python's Global Interpreter Lock). Ensures deterministic, high-speed execution loops directly on edge CPUs.
 
-.. str:: Unified I/O Boundary Abstraction
+.. strategy:: Unified I/O Boundary Abstraction
     :id: str_io_boundary_abstraction
     :status: draft
     :executes: req_input_processing, req_output_generation
@@ -68,7 +68,7 @@
     :status: draft
     :adheres_to: const_build_system
 
-    Utilize a cross-platform build system that supports multiple operating systems and hardware architectures. This ensures that the object recognition system can be built and deployed consistently across different edge devices, facilitating easier maintenance and updates.
+    Use a bazel build system to manage cross-platform builds, ensuring consistent compilation and linking across different operating systems and architectures. This strategy simplifies dependency management and promotes reproducibility in builds for various edge devices.
 
 .. strategy:: Multi-Architecture Support
     :id: str_multi_architecture_support
