@@ -1,4 +1,4 @@
-# Edge AI & Real-Time Embedded Vision Framework
+# Edge AI & Real-Time Embedded Framework
 
 This is a personal R&D project born out of curiosity to explore the intersection of Edge AI, digital signal processing (DSP), and safety-critical execution constraints. Built completely independent of any corporate affiliation, this repository serves a dual purpose: exploring cutting-edge edge intelligence paradigms and creating clean, scalable training architectures designed to demonstrate how structural documentation drives long-term software maintainability and scalability.
 

@@ -8,7 +8,7 @@ The main goal is to:
  - Provide a basic understanding of Edge AI concepts and technologies, focused on practical applications and real-world use cases.
  - Provide a documentation that is easy to follow and understand, that demonstrates that documentation plays a crucial role in the development, and gives an insight of how to structure and organize a project for better maintainability and scalability.
 
-The concepts cover both Heavy Edge applications that are executed under a full operating system, using RTLite framework, and Light Edge applications that can be executed on bare-metal devices, using RT Lite Micro framework.
+The concepts cover both Heavy Edge applications that are executed under a full operating system, using RTLite framework, and Light Edge applications that can be executed on bare-metal devices, various frameworks like RT Lite Micro and ONNX Runtime.
 
 Documentation Structure
 -----------------------
