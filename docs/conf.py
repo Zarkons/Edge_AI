@@ -31,7 +31,14 @@ needs_extra_options = [
     "metric",
     "target",
     "characteristic",
+    "verification_method",
+    "verification_criteria",
+    "argumentation",
 ]
+
+needs_extra_options_choices = {
+    "verification_method": ["Test", "Review", "N/A", "Compile-Time Check", "Static Analysis"],
+}
 
 needs_extra_links = [
     {
