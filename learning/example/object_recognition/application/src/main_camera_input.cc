@@ -1,9 +1,9 @@
 #include "CameraInputHandler.h"
 #include "FileInputHandler.h"
 #include "dip_data_types.h"
-#include "LetterboxPreprocessor.h"
+#include "letterbox_preprocessor.h"
 #include <vector>
-#include "PlanarScaleTensorPacker.h"
+#include "planar_scale_tensor_packer.h"
 #include "ONNXRuntimeEngine.h"
 #include "YOLOv8PostProcessor.h"
 #include <iostream>
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         dsp::image::VideoFrame frame_buffer;
         CameraFrame live_frame;
         LetterboxPreprocessor preprocessor;
-        PlanarScaleTensorPacker packer(true);
+        PlanarScaleTensorPacker packer;
         YOLOv8PostProcessor post_processor;
 
         std::vector<uint8_t> preprocessed_buffer(target_width * target_height * target_channels);
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
         // Configure connection string for your iPhone's IP Cam App stream
         // Update this string with the matching IP/Port displayed inside your phone's app interface!
-        std::string iphone_stream_url = "http://192.168.1.154:8080/stream.mjpeg";
+        std::string iphone_stream_url = "http://192.168.1.203:8080/stream.mjpeg";
         if (!camera_handler.Initialize(iphone_stream_url))
         {
             std::cerr << "CRITICAL: Could not connect to live iPhone stream pipeline." << std::endl;

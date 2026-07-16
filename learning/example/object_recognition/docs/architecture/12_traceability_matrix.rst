@@ -43,3 +43,12 @@ Strategies
     :colwidths: 25, 55, 15, 15, 15, 15, 15
     :sort: id
     :filter: type == "strategy"
+
+Concepts
+--------
+
+.. needtable::
+    :columns: id, title, status, realizes, implemented_by
+    :colwidths: 25, 55, 15, 15, 15
+    :sort: id
+    :filter: type == "concept"

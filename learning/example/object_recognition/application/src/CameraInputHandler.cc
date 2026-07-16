@@ -4,12 +4,80 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <fcntl.h>
+#include <cerrno>
 #include <cstring>
 
 namespace obj_rec
 {
     namespace app
     {
+        namespace
+        {
+            constexpr int kConnectTimeoutSeconds = 5;
+            constexpr int kReceiveTimeoutSeconds = 5;
+
+            bool ConnectWithTimeout(int sock_fd, const sockaddr *address, socklen_t address_len, int timeout_seconds)
+            {
+                int flags = fcntl(sock_fd, F_GETFL, 0);
+                if (flags < 0)
+                {
+                    return false;
+                }
+
+                if (fcntl(sock_fd, F_SETFL, flags | O_NONBLOCK) < 0)
+                {
+                    return false;
+                }
+
+                int connect_result = ::connect(sock_fd, address, address_len);
+                if (connect_result == 0)
+                {
+                    fcntl(sock_fd, F_SETFL, flags);
+                    return true;
+                }
+
+                if (errno != EINPROGRESS)
+                {
+                    fcntl(sock_fd, F_SETFL, flags);
+                    return false;
+                }
+
+                fd_set write_fds;
+                FD_ZERO(&write_fds);
+                FD_SET(sock_fd, &write_fds);
+
+                timeval timeout;
+                timeout.tv_sec = timeout_seconds;
+                timeout.tv_usec = 0;
+
+                int ready = select(sock_fd + 1, nullptr, &write_fds, nullptr, &timeout);
+                if (ready <= 0)
+                {
+                    fcntl(sock_fd, F_SETFL, flags);
+                    errno = (ready == 0) ? ETIMEDOUT : errno;
+                    return false;
+                }
+
+                int socket_error = 0;
+                socklen_t socket_error_length = sizeof(socket_error);
+                if (getsockopt(sock_fd, SOL_SOCKET, SO_ERROR, &socket_error, &socket_error_length) < 0)
+                {
+                    fcntl(sock_fd, F_SETFL, flags);
+                    return false;
+                }
+
+                fcntl(sock_fd, F_SETFL, flags);
+                if (socket_error != 0)
+                {
+                    errno = socket_error;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
         CameraInputHandler::CameraInputHandler()
             : m_sock_fd(-1)
         {
@@ -74,6 +142,9 @@ namespace obj_rec
                 return false;
             }
 
+            std::cout << "[CameraInputHandler] Connecting to " << host << ':' << port
+                      << " with a " << kConnectTimeoutSeconds << "s timeout." << std::endl;
+
             m_sock_fd = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
             if (m_sock_fd < 0)
             {
@@ -81,15 +152,25 @@ namespace obj_rec
                 return false;
             }
 
-            if (::connect(m_sock_fd, res->ai_addr, res->ai_addrlen) < 0)
+            if (!ConnectWithTimeout(m_sock_fd, res->ai_addr, res->ai_addrlen, kConnectTimeoutSeconds))
             {
-                std::cerr << "[CameraInputHandler Error] Socket connection refused by iPhone." << std::endl;
+                std::cerr << "[CameraInputHandler Error] Socket connection to " << host << ':' << port
+                          << " failed: " << std::strerror(errno) << std::endl;
                 ::close(m_sock_fd);
                 m_sock_fd = -1;
                 freeaddrinfo(res);
                 return false;
             }
             freeaddrinfo(res);
+
+            timeval recv_timeout;
+            recv_timeout.tv_sec = kReceiveTimeoutSeconds;
+            recv_timeout.tv_usec = 0;
+            if (setsockopt(m_sock_fd, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout)) != 0)
+            {
+                std::cerr << "[CameraInputHandler Warn] Failed to set receive timeout: "
+                          << std::strerror(errno) << std::endl;
+            }
 
             // Send a standard raw HTTP GET request to pull the continuous MJPEG stream
             std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
@@ -160,6 +241,11 @@ namespace obj_rec
                 ssize_t bytes_received = ::recv(m_sock_fd, recv_buf, sizeof(recv_buf), 0);
                 if (bytes_received <= 0)
                 {
+                    if (bytes_received < 0)
+                    {
+                        std::cerr << "[CameraInputHandler Error] Timed out or failed while waiting for MJPEG bytes: "
+                                  << std::strerror(errno) << std::endl;
+                    }
                     return false; // Connection closed or dropped
                 }
                 m_stream_buffer.insert(m_stream_buffer.end(), recv_buf, recv_buf + bytes_received);

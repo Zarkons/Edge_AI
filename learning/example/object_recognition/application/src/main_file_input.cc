@@ -1,8 +1,8 @@
 #include "FileInputHandler.h"
 #include "dip_data_types.h"
-#include "LetterboxPreprocessor.h"
+#include "letterbox_preprocessor.h"
 #include <vector>
-#include "PlanarScaleTensorPacker.h"
+#include "planar_scale_tensor_packer.h"
 #include "ONNXRuntimeEngine.h"
 #include "YOLOv8PostProcessor.h"
 #include <iostream>
