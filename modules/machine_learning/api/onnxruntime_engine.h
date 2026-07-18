@@ -62,10 +62,15 @@ namespace ml
             std::unique_ptr<Ort::Env> m_env;
             std::unique_ptr<Ort::SessionOptions> m_session_options;
             std::unique_ptr<Ort::Session> m_session{nullptr};
+            std::unique_ptr<Ort::IoBinding> m_io_binding;
             std::string m_input_name;
             std::string m_output_name;
             ONNXTensorElementDataType m_input_elem_type{ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED};
             Ort::MemoryInfo m_memory_info{nullptr};
+            size_t m_input_tensor_size{0};
+            size_t m_output_element_count{0};
+            size_t m_output_shape_dims{0};
+            int64_t m_output_shape[8]{};
         };
     } // namespace engine
 } // namespace ml

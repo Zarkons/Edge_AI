@@ -11,7 +11,7 @@ build --cxxopt=-Wthread-safety
 build:tracy_profiler -c opt
 
 # Keep basic debug symbols so Tracy can resolve human-readable source code names
-build:tracy_profiler --copt=-g
-# Enable Tracy instrumentation macros in the code
-build:tracy_profiler --copt=-DTRACY_ENABLE
 build:tracy_profiler --//:tracy_profiler_enabled=True
+
+# Enable print logger
+build:print_logger --//:print_logger_enabled=True

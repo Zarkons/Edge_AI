@@ -20,11 +20,25 @@ bool_flag(
     visibility = ["//visibility:public"],
 )
 
+bool_flag(
+    name = "print_logger_enabled",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
 # Define the valid select condition
 config_setting(
     name = "tracy_profiler_active",
     flag_values = {
         ":tracy_profiler_enabled": "True",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "print_logger_active",
+    flag_values = {
+        ":print_logger_enabled": "True",
     },
     visibility = ["//visibility:public"],
 )

@@ -119,12 +119,38 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "print_logger",
+    hdrs = [
+        "api/print_logger.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)
+
 cc_binary(
     name = "camera_input_app",
     srcs = [
         "api/application_constants.h",
         "src/main_camera_input.cc",
     ],
+    copts = select({
+        "//:print_logger_active": [
+            "-DPRINT_LOGGER_ENABLE",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "//:tracy_profiler_active": [
+            "-DTRACY_ENABLE",
+            "-g",
+        ],
+        "//conditions:default": [],
+    }),
     data = [
         "//learning/example/object_recognition/quantization:onnx_models",
     ],
@@ -136,6 +162,7 @@ cc_binary(
         ":camera_input_handler",
         ":file_input_handler",
         ":ml_model_resolver",
+        ":print_logger",
         ":yolov8_post_processor",
         ":yolov8_visualizer",
         "//modules/digital_signal_processing/image:letterbox_preprocessor",

@@ -121,6 +121,8 @@ namespace ml
                 m_input_name = m_session->GetInputNameAllocated(0, m_allocator).get();
                 m_output_name = m_session->GetOutputNameAllocated(0, m_allocator).get();
 
+                m_io_binding = std::make_unique<Ort::IoBinding>(*m_session);
+
                 auto input_type_info = m_session->GetInputTypeInfo(0);
                 auto output_type_info = m_session->GetOutputTypeInfo(0);
                 ONNXType input_onnx_type = input_type_info.GetONNXType();
@@ -134,9 +136,15 @@ namespace ml
                     auto tensor_info = input_type_info.GetTensorTypeAndShapeInfo();
                     ONNXTensorElementDataType elem_type = tensor_info.GetElementType();
                     m_input_elem_type = elem_type;
+                    auto input_shape_vec = tensor_info.GetShape();
+                    m_input_tensor_size = 1;
+                    for (auto dim : input_shape_vec)
+                    {
+                        m_input_tensor_size *= static_cast<size_t>(dim);
+                    }
                     std::cout << " elem_type=" << TensorTypeToString(elem_type)
                               << "(" << static_cast<int>(elem_type) << ")"
-                              << " shape=" << ShapeToString(tensor_info.GetShape());
+                              << " shape=" << ShapeToString(input_shape_vec);
                 }
                 std::cout << std::endl;
 
@@ -146,9 +154,16 @@ namespace ml
                 {
                     auto tensor_info = output_type_info.GetTensorTypeAndShapeInfo();
                     ONNXTensorElementDataType elem_type = tensor_info.GetElementType();
+                    auto output_shape_vec = tensor_info.GetShape();
+                    m_output_element_count = tensor_info.GetElementCount();
+                    m_output_shape_dims = output_shape_vec.size();
+                    for (size_t i = 0; i < m_output_shape_dims; ++i)
+                    {
+                        m_output_shape[i] = output_shape_vec[i];
+                    }
                     std::cout << " elem_type=" << TensorTypeToString(elem_type)
                               << "(" << static_cast<int>(elem_type) << ")"
-                              << " shape=" << ShapeToString(tensor_info.GetShape());
+                              << " shape=" << ShapeToString(output_shape_vec);
                 }
                 std::cout << std::endl;
                 m_memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
@@ -168,109 +183,53 @@ namespace ml
                                              size_t out_buffer_capacity,
                                              InferenceOutput &out_result)
         {
-            // Defensive runtime safety checks
-            if (!m_session || !input_tensor || !input_shape || !out_preallocated_buffer)
+            if (!m_session || !input_tensor || !input_shape || !out_preallocated_buffer || !out_result.shape || out_result.shape_capacity == 0) [[unlikely]]
             {
-                std::cerr << "[ONNX][Run] Invalid input state: session=" << (m_session ? "ok" : "null")
-                          << " input_tensor=" << (input_tensor ? "ok" : "null")
-                          << " input_shape=" << (input_shape ? "ok" : "null")
-                          << " output_buffer=" << (out_preallocated_buffer ? "ok" : "null") << std::endl;
-                return false;
-            }
-            if (!out_result.shape || out_result.shape_capacity == 0)
-            {
-                std::cerr << "[ONNX][Run] Invalid output shape buffer: shape="
-                          << (out_result.shape ? "ok" : "null")
-                          << " capacity=" << out_result.shape_capacity << std::endl;
                 return false;
             }
 
-            try
+            // 1. Wrap preallocated input memory (Zero-Copy) — size cached at init
+            Ort::Value input_onnx_tensor = Ort::Value::CreateTensor<float>(
+                m_memory_info, const_cast<float *>(input_tensor), m_input_tensor_size, input_shape, shape_dims);
+
+            // 2. Safety checks using shape metadata cached at init
+            if (m_output_element_count > out_buffer_capacity) [[unlikely]]
             {
-                // m_input_elem_type and m_memory_info are cached during Initialize()
-                if (m_input_elem_type != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
-                {
-                    std::cerr << "[ONNX][Run] Input type mismatch for input '" << m_input_name
-                              << "': model expects " << TensorTypeToString(m_input_elem_type)
-                              << "(" << static_cast<int>(m_input_elem_type) << ")"
-                              << " but engine received float32"
-                              << " input_shape=" << ShapeToString(input_shape, shape_dims) << std::endl;
-                    return false;
-                }
-
-                size_t input_tensor_size = 1;
-                for (size_t i = 0; i < shape_dims; ++i)
-                {
-                    input_tensor_size *= static_cast<size_t>(input_shape[i]);
-                }
-
-                Ort::Value input_onnx_tensor = Ort::Value::CreateTensor<float>(
-                    m_memory_info, const_cast<float *>(input_tensor), input_tensor_size, input_shape, shape_dims);
-
-                const char *input_names[] = {m_input_name.c_str()};
-                const char *output_names[] = {m_output_name.c_str()};
-
-                auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, input_names, &input_onnx_tensor, 1, output_names, 1);
-                if (output_tensors.empty())
-                    return false;
-
-                Ort::Value &output_val = output_tensors.front();
-                Ort::TensorTypeAndShapeInfo type_info = output_val.GetTensorTypeAndShapeInfo();
-
-                ONNXTensorElementDataType output_type = type_info.GetElementType();
-                if (output_type != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
-                {
-                    std::cerr << "[ONNX][Run] Output type mismatch for output '" << m_output_name
-                              << "': model produced " << TensorTypeToString(output_type)
-                              << "(" << static_cast<int>(output_type) << ")"
-                              << " but engine expects float32 buffer"
-                              << " output_shape=" << ShapeToString(type_info.GetShape()) << std::endl;
-                    return false;
-                }
-
-                size_t output_size = type_info.GetElementCount();
-                if (output_size > out_buffer_capacity)
-                {
-                    std::cerr << "[ONNX][Run] Output buffer too small: required=" << output_size
-                              << " capacity=" << out_buffer_capacity << std::endl;
-                    return false;
-                }
-
-                const float *raw_output_data = output_val.GetTensorData<float>();
-                std::copy(raw_output_data, raw_output_data + output_size, out_preallocated_buffer);
-
-                // Populate output structure variables safely using the pointers
-                out_result.data_ptr = out_preallocated_buffer;
-                out_result.element_count = output_size;
-
-                auto runtime_shape = type_info.GetShape();
-                if (runtime_shape.size() > out_result.shape_capacity)
-                {
-                    std::cerr << "[ONNX][Run] Output shape dims exceed capacity: dims=" << runtime_shape.size()
-                              << " shape_capacity=" << out_result.shape_capacity << std::endl;
-                    return false; // Safety check
-                }
-
-                out_result.shape_dims = runtime_shape.size();
-                for (size_t i = 0; i < out_result.shape_dims; ++i)
-                {
-                    out_result.shape[i] = runtime_shape[i];
-                }
-
-                return true;
-            }
-            catch (const Ort::Exception &e)
-            {
-                std::cerr << "[ONNX][Run] ORT exception for input '" << m_input_name
-                          << "' shape=" << ShapeToString(input_shape, shape_dims)
-                          << ": " << e.what() << std::endl;
+                std::cerr << "[ONNX][Run] Output buffer too small: required=" << m_output_element_count
+                          << " capacity=" << out_buffer_capacity << std::endl;
                 return false;
             }
-            catch (const std::exception &e)
+
+            if (m_output_shape_dims > out_result.shape_capacity) [[unlikely]]
             {
-                std::cerr << "[ONNX][Run] std::exception: " << e.what() << std::endl;
+                std::cerr << "[ONNX][Run] Output shape dims exceed target structure capacity" << std::endl;
                 return false;
             }
+
+            // 3. Wrap preallocated output memory (Zero-Copy) — shape cached at init
+            Ort::Value output_onnx_tensor = Ort::Value::CreateTensor<float>(
+                m_memory_info, out_preallocated_buffer, out_buffer_capacity, m_output_shape, m_output_shape_dims);
+
+            // 4. IoBinding reset and assignation
+            m_io_binding->ClearBoundInputs();
+            m_io_binding->ClearBoundOutputs();
+            m_io_binding->BindInput(m_input_name.c_str(), input_onnx_tensor);
+            m_io_binding->BindOutput(m_output_name.c_str(), output_onnx_tensor);
+
+            // 5. Ultra-fast inference pass
+            m_session->Run(Ort::RunOptions{nullptr}, *m_io_binding);
+
+            // 6. Populate result metadata — no copies, no allocations
+            out_result.data_ptr = out_preallocated_buffer;
+            out_result.element_count = m_output_element_count;
+            out_result.shape_dims = m_output_shape_dims;
+
+            for (size_t i = 0; i < m_output_shape_dims; ++i)
+            {
+                out_result.shape[i] = m_output_shape[i];
+            }
+
+            return true;
         }
 
         // Ensure this declaration signature is added to your ONNXRuntimeEngine header file!

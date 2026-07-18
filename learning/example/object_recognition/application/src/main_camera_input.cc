@@ -14,6 +14,7 @@
 #include "video_pipeline.h"
 #include "ml_model_resolver.h"
 #include "application_constants.h"
+#include "print_logger.h"
 
 using namespace obj_rec::app;
 using namespace dsp::image;
@@ -58,28 +59,26 @@ int main(int argc, char *argv[])
 
     try
     {
-        std::cout << "============= Live Object Recognition Application =============" << std::endl;
+        PRINT_LOG("============= Live Object Recognition Application =============");
 
         abs_model_path = ResolveAbsModelPath(argv[0]);
-        std::cout << "[ObjRec][INFO] Resolved Model Path : " << abs_model_path << std::endl;
+        PRINT_LOG("[ObjRec][INFO] Resolved Model Path : " << abs_model_path);
 
         if (!pipeline.InitializeEngine(abs_model_path, intra_op_threads, inter_op_threads))
         {
             std::cerr << "[ObjRec][ERROR] Failed to initialize ONNX Runtime engine." << std::endl;
             return -1;
         }
-        std::cout << "[ObjRec][INFO] ONNX Engine initialized successfully.\n"
-                  << std::endl;
+        PRINT_LOG("[ObjRec][INFO] ONNX Engine initialized successfully.");
 
         std::vector<std::string> model_classes = pipeline.GetClassNames();
         if (model_classes.empty())
         {
-            std::cout << "[ObjRec][ERROR] Could not resolve embedded model metadata strings. Falling back to numeric Class IDs." << std::endl;
+            PRINT_LOG("[ObjRec][ERROR] Could not resolve embedded model metadata strings. Falling back to numeric Class IDs.");
         }
         else
         {
-            std::cout << "[ObjRec][INFO] Successfully parsed and initialized [" << model_classes.size()
-                      << "] distinct text class tags directly from the ONNX binary." << std::endl;
+            PRINT_LOG("[ObjRec][INFO] Successfully parsed and initialized [" << model_classes.size() << "] distinct text class tags directly from the ONNX binary.");
         }
 
         if (!camera_handler.Initialize(std::string{kIphoneStreamUrl}))
@@ -88,12 +87,14 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        std::cout << "\n🚀 Starting Live iPhone Inference Loop. Press 'q' inside the window canvas to exit.\n"
-                  << std::endl;
+        PRINT_LOG("🚀 Starting Live iPhone Inference Loop. Press 'q' inside the window canvas to exit.");
 
         /* Hot-Path Inference Loop, no dynamic memory allocations after this point! */
-        while (camera_handler.GetNextFrame(live_frame))
+        bool next_frame_available = true;
+        while (next_frame_available)
         {
+            ZoneScopedN("Live Frame Loop");
+            next_frame_available = camera_handler.GetNextFrame(live_frame);
             processed_counter++;
 
             // Map incoming live frame buffers directly into structural signal processing dimensions
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
             frame_buffer.channels = live_frame.channels;
             frame_buffer.stride = live_frame.stride;
 
-            std::cout << "-> Processing Live Camera Frame [" << processed_counter << "]" << std::endl;
+            PRINT_LOG("-> Processing Live Camera Frame [" << processed_counter << "]");
             {
                 ZoneScopedN("Preprocessing");
                 if (!pipeline.StreamFramePreprocess(frame_buffer))
@@ -147,35 +148,41 @@ int main(int argc, char *argv[])
             // Optional: Save latest processed artifact file directly onto disk
             cv::imwrite("output_visualized.jpg", visualization_frame);
 
-            std::cout << "   [Detections Filtered]: " << detections.size() << " objects tracked." << std::endl;
+            PRINT_LOG("   [Detections Filtered]: " << detections.size() << " objects tracked.");
             for (size_t i = 0; i < detections.size(); ++i)
             {
                 std::string class_name = (detections[i].class_id >= 0 && static_cast<size_t>(detections[i].class_id) < model_classes.size())
                                              ? model_classes[detections[i].class_id]
                                              : "Unknown";
 
-                std::cout << "      Object [" << i + 1 << "] -> " << class_name
-                          << " | Conf: " << (detections[i].confidence * 100.0f) << "%"
-                          << " | Mapped Box: ["
-                          << detections[i].x1 << ", " << detections[i].y1 << ", "
-                          << detections[i].x2 << ", " << detections[i].y2 << "]" << std::endl;
+                PRINT_LOG("      Object [" << i + 1 << "] -> " << class_name
+                                           << " | Conf: " << (detections[i].confidence * 100.0f) << "%"
+                                           << " | Mapped Box: ["
+                                           << detections[i].x1 << ", " << detections[i].y1 << ", "
+                                           << detections[i].x2 << ", " << detections[i].y2 << "]");
             }
 
             // FIX: Pass 1ms instead of 0 to allow the live video stream to decode and paint continuously.
             // Breaks execution cleanly when hitting 'q' inside the active visual window canvas.
             if (cv::waitKey(1) == 'q')
             {
-                std::cout << "[INFO] 'q' key pressed. Stopping live stream loop cleanly." << std::endl;
+                PRINT_LOG("[INFO] 'q' key pressed. Stopping live stream loop cleanly.");
                 break;
             }
 
             else
             {
             }
-            std::cout << "---------------------------------------------------------" << std::endl;
+            PRINT_LOG("---------------------------------------------------------");
         }
 
-        std::cout << "\n🟩 Live Execution Terminated cleanly. Total frames processed: " << processed_counter << std::endl;
+        PRINT_LOG("🟩 Live Execution Terminated cleanly. Total frames processed: " << processed_counter);
+    }
+
+    catch (const Ort::Exception &e)
+    {
+        std::cerr << "[ONNX][Run] ORT exception: " << e.what() << std::endl;
+        return false;
     }
     catch (const std::exception &e)
     {
