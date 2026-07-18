@@ -101,20 +101,41 @@ cc_binary(
     ],
 )
 
+cc_library(
+    name = "ml_model_resolver",
+    srcs = [
+        "src/ml_model_resolver_bazel.cc",
+    ],
+    hdrs = [
+        "api/ml_model_resolver.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@bazel_tools//tools/cpp/runfiles",
+    ],
+)
+
 cc_binary(
     name = "camera_input_app",
     srcs = [
+        "api/application_constants.h",
         "src/main_camera_input.cc",
     ],
     data = [
         "//learning/example/object_recognition/quantization:onnx_models",
     ],
     includes = [
+        "api",
     ],
     visibility = ["//visibility:public"],
     deps = [
         ":camera_input_handler",
         ":file_input_handler",
+        ":ml_model_resolver",
         ":yolov8_post_processor",
         ":yolov8_visualizer",
         "//modules/digital_signal_processing/image:letterbox_preprocessor",

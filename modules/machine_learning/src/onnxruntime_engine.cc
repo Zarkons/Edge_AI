@@ -133,6 +133,7 @@ namespace ml
                 {
                     auto tensor_info = input_type_info.GetTensorTypeAndShapeInfo();
                     ONNXTensorElementDataType elem_type = tensor_info.GetElementType();
+                    m_input_elem_type = elem_type;
                     std::cout << " elem_type=" << TensorTypeToString(elem_type)
                               << "(" << static_cast<int>(elem_type) << ")"
                               << " shape=" << ShapeToString(tensor_info.GetShape());
@@ -150,6 +151,7 @@ namespace ml
                               << " shape=" << ShapeToString(tensor_info.GetShape());
                 }
                 std::cout << std::endl;
+                m_memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
                 return true;
             }
             catch (const Ort::Exception &e)
@@ -185,29 +187,14 @@ namespace ml
 
             try
             {
-                auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-
-                auto input_type_info = m_session->GetInputTypeInfo(0);
-                ONNXType input_onnx_type = input_type_info.GetONNXType();
-                if (input_onnx_type != ONNX_TYPE_TENSOR)
-                {
-                    std::cerr << "[ONNX][Run] Unsupported input ONNX value kind for input '" << m_input_name
-                              << "': " << OnnxTypeToString(input_onnx_type)
-                              << "(" << static_cast<int>(input_onnx_type) << ")" << std::endl;
-                    return false;
-                }
-
-                auto expected_input_type_info = input_type_info.GetTensorTypeAndShapeInfo();
-                ONNXTensorElementDataType expected_input_type = expected_input_type_info.GetElementType();
-                if (expected_input_type != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
+                // m_input_elem_type and m_memory_info are cached during Initialize()
+                if (m_input_elem_type != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
                 {
                     std::cerr << "[ONNX][Run] Input type mismatch for input '" << m_input_name
-                              << "': model expects " << TensorTypeToString(expected_input_type)
-                              << "(" << static_cast<int>(expected_input_type) << ")"
+                              << "': model expects " << TensorTypeToString(m_input_elem_type)
+                              << "(" << static_cast<int>(m_input_elem_type) << ")"
                               << " but engine received float32"
-                              << " input_shape=" << ShapeToString(input_shape, shape_dims)
-                              << " model_shape=" << ShapeToString(expected_input_type_info.GetShape())
-                              << std::endl;
+                              << " input_shape=" << ShapeToString(input_shape, shape_dims) << std::endl;
                     return false;
                 }
 
@@ -218,7 +205,7 @@ namespace ml
                 }
 
                 Ort::Value input_onnx_tensor = Ort::Value::CreateTensor<float>(
-                    memory_info, const_cast<float *>(input_tensor), input_tensor_size, input_shape, shape_dims);
+                    m_memory_info, const_cast<float *>(input_tensor), input_tensor_size, input_shape, shape_dims);
 
                 const char *input_names[] = {m_input_name.c_str()};
                 const char *output_names[] = {m_output_name.c_str()};

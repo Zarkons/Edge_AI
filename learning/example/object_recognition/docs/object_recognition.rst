@@ -18,3 +18,4 @@ Object Recognition
     architecture/11_risk_and_technical_debt
     architecture/12_traceability_matrix
     architecture/13_glossary
+    performance_measurements/perf_measurements

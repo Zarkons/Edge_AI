@@ -23,3 +23,9 @@ Documentation Generation
 The project uses Sphinx to generate documentation. The documentation is written in reStructuredText (reST) format, together with doxygen for API documentation, and can be built using the provided Bazel build targets. The overall documentation structure does not follow any specific format, but dedicated component documentation is described using Arc42 template, which is a template for architecture documentation. The Arc42 template provides a structured way to document the architecture of software systems, including their components, relationships, and design decisions. For more information about the Arc42 template, please refer to the official Arc42 website: https://arc42.org/
 
 The derived template in sphinx can be found in :doc:`/arch42_template/arch42_template`
+
+
+Performance Profiling
+---------------------
+
+This project uses Tracy as a performance profiling tool. Tracy is a real-time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler.

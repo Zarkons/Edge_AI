@@ -16,6 +16,7 @@ sphinx_docs_library(
     srcs = glob([
         "docs/**/*.rst",
         "docs/**/*.mmd",
+        "docs/**/*.png",
     ]) + [
         "//learning/example/object_recognition/quantization:python_docs_srcs",
     ],

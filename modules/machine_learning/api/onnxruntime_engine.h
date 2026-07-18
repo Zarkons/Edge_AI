@@ -64,6 +64,8 @@ namespace ml
             std::unique_ptr<Ort::Session> m_session{nullptr};
             std::string m_input_name;
             std::string m_output_name;
+            ONNXTensorElementDataType m_input_elem_type{ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED};
+            Ort::MemoryInfo m_memory_info{nullptr};
         };
     } // namespace engine
 } // namespace ml
