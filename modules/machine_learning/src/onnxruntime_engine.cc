@@ -1,4 +1,4 @@
-#include "ONNXRuntimeEngine.h"
+#include "onnxruntime_engine.h"
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -94,9 +94,9 @@ namespace
     }
 }
 
-namespace onnxruntime_engine
+namespace ml
 {
-    namespace inference
+    namespace engine
     {
         bool ONNXRuntimeEngine::Initialize(const std::string &model_path,
                                            int32_t intra_op_threads,
@@ -104,12 +104,18 @@ namespace onnxruntime_engine
         {
             try
             {
-                m_session_options.SetIntraOpNumThreads(intra_op_threads);
-                m_session_options.SetInterOpNumThreads(inter_op_threads);
-                m_session_options.SetExecutionMode(inter_op_threads > 1 ? ExecutionMode::ORT_PARALLEL : ExecutionMode::ORT_SEQUENTIAL);
-                m_session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+                m_env = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING,
+                                                   "ONNXRuntimeEngine_Inference");
 
-                m_session = std::make_unique<Ort::Session>(m_env, model_path.c_str(), m_session_options);
+                m_session_options = std::make_unique<Ort::SessionOptions>();
+                m_session_options->SetIntraOpNumThreads(intra_op_threads);
+                m_session_options->SetInterOpNumThreads(inter_op_threads);
+                m_session_options->SetExecutionMode(inter_op_threads > 1 ? ExecutionMode::ORT_PARALLEL : ExecutionMode::ORT_SEQUENTIAL);
+                m_session_options->SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+
+                // 3. Create the Session (Dereference m_env and m_session_options using *)
+                m_session = std::make_unique<Ort::Session>(*m_env, model_path.c_str(), *m_session_options);
+
                 Ort::AllocatorWithDefaultOptions m_allocator;
 
                 m_input_name = m_session->GetInputNameAllocated(0, m_allocator).get();
@@ -153,12 +159,12 @@ namespace onnxruntime_engine
             }
         }
 
-        bool ONNXRuntimeEngine::Run(const float *input_tensor,
-                                    const int64_t *input_shape,
-                                    size_t shape_dims,
-                                    float *out_preallocated_buffer,
-                                    size_t out_buffer_capacity,
-                                    InferenceOutput &out_result)
+        bool ONNXRuntimeEngine::RunInference(const float *input_tensor,
+                                             const int64_t *input_shape,
+                                             size_t shape_dims,
+                                             float *out_preallocated_buffer,
+                                             size_t out_buffer_capacity,
+                                             InferenceOutput &out_result)
         {
             // Defensive runtime safety checks
             if (!m_session || !input_tensor || !input_shape || !out_preallocated_buffer)

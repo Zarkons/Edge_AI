@@ -1,4 +1,4 @@
-#include "YOLOv8PostProcessor.h"
+#include "yolov8_post_processor.h"
 #include <cmath>
 #include <algorithm>
 #include <limits>

@@ -9,17 +9,45 @@ load(
 cc_library(
     name = "onnxruntime_engine",
     srcs = [
-        "src/ONNXRuntimeEngine.cc",
+        "src/onnxruntime_engine.cc",
     ],
     hdrs = [
-        "api/ONNXRuntimeEngine.h",
+        "api/onnxruntime_engine.h",
     ],
     includes = [
         "api",
     ],
     visibility = ["//visibility:public"],
     deps = [
+        ":ml_types",
         "@onnxruntime_mac_arm64//:onnxruntime_c",
+    ],
+)
+
+cc_library(
+    name = "ml_types",
+    hdrs = [
+        "api/ml_types.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)
+
+cc_library(
+    name = "inference_engine_concept",
+    hdrs = [
+        "api/ml_engine_concept.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":ml_types",
     ],
 )
 
@@ -33,6 +61,6 @@ sphinx_docs_library(
 
 filegroup(
     name = "doxygen_srcs",
-    srcs = ["api/ONNXRuntimeEngine.h"],
+    srcs = ["api/onnxruntime_engine.h"],
     visibility = ["//docs:__subpackages__"],
 )

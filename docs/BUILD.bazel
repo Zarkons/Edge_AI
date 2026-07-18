@@ -36,7 +36,7 @@ sphinx_docs_library(
         "//modules/common_types:docs_srcs",
         "//modules/digital_signal_processing/audio/miniaudio:docs_srcs",
         "//modules/digital_signal_processing/image:docs_srcs",
-        "//modules/onnxruntime_engine:docs_srcs",
+        "//modules/machine_learning:docs_srcs",
     ],
 )
 
@@ -58,7 +58,7 @@ filegroup(
         "//learning/example/simple_audio_recognition:doxygen_srcs",
         "//modules/common_types:doxygen_srcs",
         "//modules/digital_signal_processing/image:doxygen_srcs",
-        "//modules/onnxruntime_engine:doxygen_srcs",
+        "//modules/machine_learning:doxygen_srcs",
     ],
 )
 

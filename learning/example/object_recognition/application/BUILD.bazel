@@ -9,10 +9,10 @@ load(
 cc_library(
     name = "file_input_handler",
     srcs = [
-        "src/FileInputHandler.cc",
+        "src/file_input_handler.cc",
     ],
     hdrs = [
-        "api/FileInputHandler.h",
+        "api/file_input_handler.h",
     ],
     includes = [
         "api",
@@ -28,10 +28,10 @@ cc_library(
 cc_library(
     name = "yolov8_post_processor",
     srcs = [
-        "src/YOLOv8PostProcessor.cc",
+        "src/yolov8_post_processor.cc",
     ],
     hdrs = [
-        "api/YOLOv8PostProcessor.h",
+        "api/yolov8_post_processor.h",
     ],
     includes = [
         "api",
@@ -46,10 +46,10 @@ cc_library(
 cc_library(
     name = "yolov8_visualizer",
     srcs = [
-        "src/YOLOv8Visualizer.cc",
+        "src/yolov8_visualizer.cc",
     ],
     hdrs = [
-        "api/YOLOv8Visualizer.h",
+        "api/yolov8_visualizer.h",
     ],
     includes = [
         "api",
@@ -65,10 +65,10 @@ cc_library(
 cc_library(
     name = "camera_input_handler",
     srcs = [
-        "src/CameraInputHandler.cc",
+        "src/camera_input_handler.cc",
     ],
     hdrs = [
-        "api/CameraInputHandler.h",
+        "api/camera_input_handler.h",
     ],
     strip_include_prefix = "api",
     visibility = ["//visibility:public"],
@@ -96,7 +96,7 @@ cc_binary(
         ":yolov8_visualizer",
         "//modules/digital_signal_processing/image:letterbox_preprocessor",
         "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
-        "//modules/onnxruntime_engine",
+        "//modules/machine_learning",
         "@opencv",
     ],
 )
@@ -119,7 +119,8 @@ cc_binary(
         ":yolov8_visualizer",
         "//modules/digital_signal_processing/image:letterbox_preprocessor",
         "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
-        "//modules/onnxruntime_engine",
+        "//modules/digital_signal_processing/image:video_pipeline",
+        "//modules/machine_learning:onnxruntime_engine",
         "//modules/tracy_profiler",
         "@opencv",
     ],

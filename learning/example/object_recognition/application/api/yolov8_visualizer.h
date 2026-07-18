@@ -2,7 +2,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <vector>
-#include "YOLOv8PostProcessor.h"
+#include "yolov8_post_processor.h"
 
 namespace obj_rec
 {

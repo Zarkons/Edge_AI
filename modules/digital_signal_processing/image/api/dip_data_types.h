@@ -22,11 +22,11 @@ namespace dsp
          */
         struct VideoFrame
         {
-            const uint8_t *data_ptr = nullptr; /**< Pointer to the contiguous pixel byte array in memory. */
             int32_t width = 0;                 /**< Width of the image in pixels. */
             int32_t height = 0;                /**< Height of the image in pixels. */
             int32_t channels = 0;              /**< Number of color channels (e.g., 3 for BGR/RGB). */
             int32_t stride = 0;                /**< Total row width (stride) in bytes, including hardware padding. */
+            const uint8_t *data_ptr = nullptr; /**< Pointer to the contiguous pixel byte array in memory. */
         };
 
         /**

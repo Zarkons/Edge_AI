@@ -1,14 +1,14 @@
-#include "FileInputHandler.h"
+#include "file_input_handler.h"
 #include "dip_data_types.h"
 #include "letterbox_preprocessor.h"
 #include <vector>
 #include "planar_scale_tensor_packer.h"
-#include "ONNXRuntimeEngine.h"
-#include "YOLOv8PostProcessor.h"
+#include "onnxruntime_engine.h"
+#include "yolov8_post_processor.h"
 #include <iostream>
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
-#include "YOLOv8Visualizer.h"
+#include "yolov8_visualizer.h"
 
 constexpr int32_t target_width = 640;
 constexpr int32_t target_height = 640;
@@ -17,7 +17,7 @@ constexpr size_t ouput_buffer_capacity = 800000; // Pre-allocate a large enough 
 
 using namespace obj_rec::app;
 using namespace dsp::image;
-using namespace onnxruntime_engine::inference;
+using namespace inference_engines::onnxruntime;
 
 int main(int argc, char *argv[])
 {

@@ -23,9 +23,25 @@ cc_library(
 )
 
 cc_library(
-    name = "letterbox_preprocessor",
+    name = "video_pipeline",
     hdrs = [
         "api/image_preprocessor_concept.h",
+        "api/tensor_packer_concept.h",
+        "api/video_pipeline.h",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":dip_data_types",
+        "//modules/machine_learning:inference_engine_concept",
+    ],
+)
+
+cc_library(
+    name = "letterbox_preprocessor",
+    hdrs = [
         "api/letterbox_preprocessor.h",
     ],
     includes = [
@@ -39,11 +55,7 @@ cc_library(
 
 cc_library(
     name = "planar_scale_tensor_packer",
-    srcs = [
-        "src/PlanarScaleTensorPackerYOLOv8.cc",
-    ],
     hdrs = [
-        "api/ITensorPacker.h",
         "api/planar_scale_tensor_packer.h",
     ],
     includes = [
@@ -68,7 +80,6 @@ filegroup(
     srcs = glob(
         [
             "**/*.h",
-            "**/*.cc",
         ],
     ),
     visibility = ["//docs:__subpackages__"],

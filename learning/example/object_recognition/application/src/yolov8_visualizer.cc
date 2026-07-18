@@ -1,4 +1,4 @@
-#include "YOLOv8Visualizer.h"
+#include "yolov8_visualizer.h"
 
 namespace obj_rec
 {

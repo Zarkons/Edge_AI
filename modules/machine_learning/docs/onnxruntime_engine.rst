@@ -1,5 +1,5 @@
 ONNX Runtime Engine Blueprint
 ==============================
 
-.. doxygennamespace:: onnxruntime_engine::inference
+.. doxygennamespace:: ml::engine
    :members:

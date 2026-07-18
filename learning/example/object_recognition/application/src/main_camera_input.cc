@@ -1,16 +1,17 @@
-#include "CameraInputHandler.h"
-#include "FileInputHandler.h"
+#include "camera_input_handler.h"
+#include "file_input_handler.h"
 #include "dip_data_types.h"
 #include "letterbox_preprocessor.h"
 #include <vector>
 #include "planar_scale_tensor_packer.h"
-#include "ONNXRuntimeEngine.h"
-#include "YOLOv8PostProcessor.h"
+#include "onnxruntime_engine.h"
+#include "yolov8_post_processor.h"
 #include <iostream>
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
-#include "YOLOv8Visualizer.h"
+#include "yolov8_visualizer.h"
 #include "TracyProfiler.h"
+#include "video_pipeline.h"
 
 #include "tools/cpp/runfiles/runfiles.h"
 using bazel::tools::cpp::runfiles::Runfiles;
@@ -22,7 +23,7 @@ constexpr size_t ouput_buffer_capacity = 800000; // Pre-allocate a large enough 
 
 using namespace obj_rec::app;
 using namespace dsp::image;
-using namespace onnxruntime_engine::inference;
+using namespace ml::engine;
 
 int main(int argc, char *argv[])
 {
@@ -60,11 +61,6 @@ int main(int argc, char *argv[])
 
         size_t max_output_elements = ouput_buffer_capacity;
         std::vector<float> out_preallocated_buffer(max_output_elements);
-        std::vector<int64_t> output_shape_memory(4);
-
-        InferenceOutput output_result;
-        output_result.shape = output_shape_memory.data();
-        output_result.shape_capacity = output_shape_memory.size();
 
         // Initialize the ONNX Runtime engine ONCE outside the loop
         ONNXRuntimeEngine engine;
@@ -87,6 +83,20 @@ int main(int argc, char *argv[])
             std::cout << "[INFO] Successfully parsed and initialized [" << model_classes.size()
                       << "] distinct text class tags directly from the ONNX binary." << std::endl;
         }
+
+        VideoPipeline<LetterboxPreprocessor, PlanarScaleTensorPacker, ONNXRuntimeEngine> pipeline(
+            std::move(preprocessor),
+            std::move(packer),
+            std::move(engine),
+            target_width,
+            target_height,
+            target_channels,
+            preprocessed_buffer.data(),
+            preprocessed_buffer.size(),
+            tensor_buffer.data(),
+            tensor_buffer.size(),
+            out_preallocated_buffer.data(),
+            out_preallocated_buffer.size());
 
         // Configure connection string for your iPhone's IP Cam App stream
         // Update this string with the matching IP/Port displayed inside your phone's app interface!
@@ -114,35 +124,11 @@ int main(int argc, char *argv[])
             frame_buffer.stride = live_frame.stride;
 
             std::cout << "-> Processing Live Camera Frame [" << processed_counter << "]" << std::endl;
-            TransformMetadata meta;
-
-            {
-                ZoneScopedN("Preprocessing");
-                meta = preprocessor.Execute(frame_buffer, target_width, target_height, preprocessed_buffer.data(), preprocessed_buffer.size());
-            }
-
-            {
-                ZoneScopedN("Packing");
-                packer.Pack(preprocessed_buffer.data(), target_width, target_height, target_channels, tensor_buffer.data(), tensor_buffer.size());
-            }
-
-            int64_t input_shape[] = {1, target_channels, target_height, target_width};
-            size_t shape_dims = 4;
-            bool success = false;
-
-            {
-                ZoneScopedN("ONNX Inference");
-                success = engine.Run(
-                    tensor_buffer.data(),
-                    input_shape,
-                    shape_dims,
-                    out_preallocated_buffer.data(),
-                    out_preallocated_buffer.size(),
-                    output_result);
-            }
+            bool success = pipeline.ProcessStreamFrame(frame_buffer);
 
             if (success)
             {
+                TransformMetadata meta = pipeline.GetLatestTransformMetadata();
                 std::vector<Detection> detections;
                 {
                     ZoneScopedN("Postprocessing");

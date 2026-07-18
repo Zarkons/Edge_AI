@@ -19,8 +19,7 @@ namespace dsp
         class LetterboxPreprocessor
         {
         public:
-            LetterboxPreprocessor() = default;
-            ~LetterboxPreprocessor() = default;
+            explicit LetterboxPreprocessor() = default;
 
             // Mark as inline to suggest compile-time optimization across translation units
             inline TransformMetadata Execute(const VideoFrame &input_frame,
