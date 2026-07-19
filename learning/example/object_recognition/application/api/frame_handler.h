@@ -27,6 +27,7 @@ namespace obj_rec::app
         bool Initialize(const std::string &stream_url);
         void Start();
         void Stop();
+        bool IsRunning() const { return is_running_.load(); }
 
         // Consumer API: Non-blocking check for new data
         bool FetchLatestFrame(CameraFrame &out_frame);

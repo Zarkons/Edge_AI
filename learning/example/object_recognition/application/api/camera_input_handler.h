@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <opencv2/opencv.hpp>
 
 namespace obj_rec
@@ -17,6 +18,13 @@ namespace obj_rec
             int32_t stride = 0;
         };
 
+        enum class CameraFrameStatus
+        {
+            kOk,           // Frame successfully decoded
+            kRetry,        // Transient — no data yet, safe to retry
+            kDisconnected, // Permanent — socket closed or fatal error
+        };
+
         class CameraInputHandler
         {
         public:
@@ -24,13 +32,14 @@ namespace obj_rec
             ~CameraInputHandler();
 
             bool Initialize(const std::string &stream_url);
-            bool GetNextFrame(CameraFrame &out_frame);
+            CameraFrameStatus GetNextFrame(CameraFrame &out_frame);
 
         private:
             bool ParseUrl(const std::string &url, std::string &host, std::string &port, std::string &path);
 
             int m_sock_fd;
-            std::vector<uint8_t> m_stream_buffer;
+            std::deque<uint8_t> m_stream_buffer;
+            std::vector<uint8_t> m_jpeg_cache;
         };
     }
 }

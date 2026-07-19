@@ -28,9 +28,6 @@ namespace obj_rec::app
 
     void FrameHandler::Stop()
     {
-        if (!is_running_.load())
-            return;
-
         is_running_.store(false);
         if (worker_thread_.joinable())
         {
@@ -48,10 +45,17 @@ namespace obj_rec::app
         {
             ZoneScopedN("Worker Frame Fetch");
 
-            if (!camera_handler_.GetNextFrame(local_frame))
+            const CameraFrameStatus status = camera_handler_.GetNextFrame(local_frame);
+            if (status == CameraFrameStatus::kRetry)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 continue;
+            }
+            if (status == CameraFrameStatus::kDisconnected)
+            {
+                PRINT_ERROR("[FrameHandler] Camera stream disconnected. Stopping worker.");
+                is_running_.store(false);
+                break;
             }
 
             {

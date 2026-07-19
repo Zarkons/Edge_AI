@@ -125,12 +125,38 @@ cc_library(
     hdrs = [
         "api/print_logger.h",
     ],
+    defines = select({
+        "//:print_logger_errors_active": ["PRINT_LOGGER_ERROR_ENABLE"],
+        "//:print_logger_all_active": ["PRINT_LOGGER_ENABLE"],
+        "//conditions:default": [],
+    }),
     includes = [
         "api",
     ],
     strip_include_prefix = "api",
     visibility = ["//visibility:public"],
     deps = [
+    ],
+)
+
+cc_library(
+    name = "frame_handler",
+    srcs = [
+        "src/frame_handler.cc",
+    ],
+    hdrs = [
+        "api/frame_handler.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":camera_input_handler",
+        ":print_logger",
+        "//modules/tracy_profiler",
+        "@opencv",
     ],
 )
 
@@ -141,10 +167,6 @@ cc_binary(
         "src/main_camera_input.cc",
     ],
     copts = select({
-        "//:print_logger_errors_active": ["-DPRINT_LOGGER_ERROR_ENABLE"],
-        "//:print_logger_all_active": ["-DPRINT_LOGGER_ENABLE"],
-        "//conditions:default": [],
-    }) + select({
         "//:tracy_profiler_active": [
             "-DTRACY_ENABLE",
             "-g",
@@ -161,6 +183,7 @@ cc_binary(
     deps = [
         ":camera_input_handler",
         ":file_input_handler",
+        ":frame_handler",
         ":ml_model_resolver",
         ":print_logger",
         ":yolov8_post_processor",
