@@ -1,2 +1,0 @@
-Risk And Technical Debt
-=========================

@@ -2,6 +2,10 @@
 
 This is a personal R&D project born out of curiosity to explore the intersection of Edge AI, digital signal processing (DSP), and safety-critical execution constraints. Built completely independent of any corporate affiliation, this repository serves a dual purpose: exploring cutting-edge edge intelligence paradigms and creating clean, scalable training architectures designed to demonstrate how structural documentation drives long-term software maintainability and scalability.
 
+Please click the badge below to access the full project documentation, which includes detailed architectural diagrams, code walkthroughs, and deployment guides:
+
+[![Documentation](https://img.shields.io/badge/Documentation-online-green?style=for-the-badge&logo=readthedocs)](https://zarkons.github.io/Edge_AI/)
+
 ## 🎯 Primary Project Objectives
 * **Practical Edge Concept Delivery:** Demystifying complex embedded AI concepts through concrete, real-world deployment use cases.
 * **Architecture-Driven Documentation:** Engineering a clean, highly organized codebase blueprint that serves as production-grade training material for modular software development.

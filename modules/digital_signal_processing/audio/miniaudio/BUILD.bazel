@@ -1,8 +1,4 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load(
-    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
-    "sphinx_docs_library",
-)
 
 ########################### Library Definitions #################################
 
@@ -20,12 +16,4 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
     ],
-)
-
-########################### Documentation Definitions ###########################
-
-sphinx_docs_library(
-    name = "docs_srcs",
-    srcs = glob(["docs/*.rst"]),
-    visibility = ["//docs:__subpackages__"],
 )

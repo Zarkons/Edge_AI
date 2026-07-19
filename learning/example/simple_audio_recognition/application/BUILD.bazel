@@ -140,5 +140,5 @@ filegroup(
         "api/*.h",
         "src/*.cc",
     ]),
-    visibility = ["//learning/example/simple_audio_recognition:__subpackages__"],
+    visibility = ["//docs:__subpackages__"],
 )

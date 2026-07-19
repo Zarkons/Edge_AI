@@ -1,9 +1,4 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load(
-    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
-    "sphinx_docs_library",
-)
-
 ########################## Library Definitions #################################
 
 cc_library(
@@ -46,11 +41,5 @@ filegroup(
             "api/*.h",
         ],
     ),
-    visibility = ["//docs:__subpackages__"],
-)
-
-sphinx_docs_library(
-    name = "rtlite_micro_handler_docs",
-    srcs = glob(["docs/*.rst"]),
     visibility = ["//docs:__subpackages__"],
 )

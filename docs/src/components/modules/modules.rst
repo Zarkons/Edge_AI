@@ -7,6 +7,8 @@ Modules are created to provide a structured and organized way to manage the vari
     :maxdepth: 1
     :caption: Modules List
 
-    /docs/common_types
-    /docs/miniaudio
-    /docs/dsp_image_types
+    common_types
+    dsp_image_types
+    miniaudio
+    onnxruntime_engine
+    rtlite_micro_handler

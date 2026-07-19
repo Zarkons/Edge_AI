@@ -14,14 +14,13 @@ Documentation Structure
 -----------------------
 
 .. toctree::
-	:maxdepth: 1
-	:caption: Contents
-    :titlesonly:
+   :maxdepth: 3
+   :caption: Contents
 
-    src/external_dependencies
-    src/tools
-    src/theory
-    src/components
+   src/external_dependencies
+   src/tools
+   src/theory/theory
+   src/components/components
 
 
 

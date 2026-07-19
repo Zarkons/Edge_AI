@@ -68,13 +68,6 @@ cc_library(
 )
 
 ########################### Documentation Definitions ###########################
-
-sphinx_docs_library(
-    name = "docs_srcs",
-    srcs = glob(["docs/*.rst"]),
-    visibility = ["//docs:__subpackages__"],
-)
-
 filegroup(
     name = "doxygen_srcs",
     srcs = glob(

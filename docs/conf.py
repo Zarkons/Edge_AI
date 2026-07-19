@@ -247,9 +247,19 @@ breathe_default_project = 'EdgeAI'
 
 
 # -- Options for HTML Output -------------------------------------------------
-html_theme = 'alabaster'
+html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
 html_show_sphinx = False
+
+html_theme_options = {
+    # Keeps your entire recursive audio/image recognition menu structure open on the side
+    "show_navbar_depth": 3,
+    "collapse_navigation": False,
+
+    # Directly locks the theme to a permanent light mode style
+    "theme_dev_mode": False,
+    "default_mode": "light",
+}
 
 
 # -- Mermaid Diagram Customizations -----------------------------------------

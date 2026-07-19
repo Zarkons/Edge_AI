@@ -10,5 +10,5 @@ using RT Lite Micro framework.
     :maxdepth: 1
     :caption: Component Decomposition
 
-    /docs/simple_audio_recognition_training
-    /docs/simple_audio_recognition_application
+    simple_audio_recognition_training
+    simple_audio_recognition_application

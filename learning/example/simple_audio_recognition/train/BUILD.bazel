@@ -98,7 +98,7 @@ filegroup(
 ########################### Documentation Definitions ###########################
 
 sphinx_docs_library(
-    name = "train_python_docs",
+    name = "doxygen_srcs",
     srcs = glob(["*.py"]),
-    visibility = ["//visibility:public"],
+    visibility = ["//docs:__subpackages__"],
 )

@@ -7,5 +7,5 @@ This section provides a theoretical explanation of the concepts and principles u
     :maxdepth: 1
     :caption: Theory Overview
 
-    theory/audio_recognition
-    theory/image_recognition
+    audio_recognition
+    image_recognition

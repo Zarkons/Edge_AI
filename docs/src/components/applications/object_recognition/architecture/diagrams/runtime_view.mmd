@@ -1,0 +1,49 @@
+sequenceDiagram
+    autonumber
+    actor iPhone as "iPhone Camera Stream"
+    participant FH as "FrameHandler"
+    participant Main as "Main Processing Thread"
+    participant VP as "VideoPipeline"
+    participant PP as "YOLOv8PostProcessor"
+    participant Viz as "Visualizer"
+
+    %% ── Initialization ─────────────────────────────────────────────────────
+    note over Main: Initialization
+
+    Main->>VP: Load model & initialize inference engine
+    VP-->>Main: Engine ready / class names
+
+    Main->>FH: Connect to camera stream
+    FH-->>Main: Connected
+    Main->>FH: Start capture
+    activate FH
+    FH->>iPhone: Begin frame acquisition
+    note over FH: Runs on dedicated camera thread
+
+    %% ── Per-Frame Inference Loop ───────────────────────────────────────────
+    note over Main: Per-Frame Inference Loop
+
+    loop Each frame
+        Main->>FH: Request latest frame
+
+        alt No frame available
+            Main->>Main: Idle / check exit condition
+        else Frame available
+            Main->>VP: Preprocess frame
+            VP-->>Main: Preprocessed tensor ready
+
+            Main->>VP: Run inference
+            VP-->>Main: Raw model output
+
+            Main->>PP: Post-process output (NMS + filtering)
+            PP-->>Main: Filtered detections
+
+            Main->>Viz: Render detections onto frame
+            Viz-->>Main: Annotated frame displayed & saved
+        end
+    end
+
+    %% ── Shutdown ───────────────────────────────────────────────────────────
+    note over Main: Shutdown
+    Main->>FH: Stop capture
+    deactivate FH

@@ -7,7 +7,7 @@ This section provides information about the components used in the project.
     :maxdepth: 1
     :caption: Components Overview
 
-    components/modules
-    components/examples
+    modules/modules
+    applications/applications
 
 

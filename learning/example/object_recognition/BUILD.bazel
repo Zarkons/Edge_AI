@@ -1,26 +1,7 @@
-load(
-    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
-    "sphinx_docs_library",
-)
-
 filegroup(
     name = "doxygen_srcs",
     srcs = [
         "//learning/example/object_recognition/application:doxygen_srcs",
     ],
     visibility = ["//docs:__subpackages__"],
-)
-
-sphinx_docs_library(
-    name = "docs_srcs",
-    srcs = glob([
-        "docs/**/*.rst",
-        "docs/**/*.mmd",
-        "docs/**/*.png",
-    ]) + [
-        "//learning/example/object_recognition/quantization:python_docs_srcs",
-    ],
-    visibility = ["//docs:__subpackages__"],
-    deps = [
-    ],
 )
