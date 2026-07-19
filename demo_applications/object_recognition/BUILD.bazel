@@ -1,0 +1,7 @@
+filegroup(
+    name = "doxygen_srcs",
+    srcs = [
+        "//demo_applications/object_recognition/application:doxygen_srcs",
+    ],
+    visibility = ["//docs:__subpackages__"],
+)

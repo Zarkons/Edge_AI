@@ -1,0 +1,81 @@
+load("@pip_deps_tfcore//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary")
+load(
+    "@sphinxdocs//sphinxdocs:sphinx_docs_library.bzl",
+    "sphinx_docs_library",
+)
+load("//modules/helpers:defs.bzl", "onnxruntime_inspect_model_macro")
+
+onnxruntime_inspect_model_macro(
+    name = "inspect_model_unquantized",
+    model_target = ":_build_dir/models/yolov8n_fp32.onnx",
+    visibility = ["//visibility:public"],
+)
+
+onnxruntime_inspect_model_macro(
+    name = "inspect_model_quantized",
+    model_target = ":_build_dir/models/yolov8n_int8.onnx",
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "ultralytics_quantization",
+    srcs = ["ultralytics_quantization.py"],
+    args = [
+        "--base_model=yolov8n_base_model/file/downloaded",
+        "--calibration_images=coco_val2017/val2017/000000000139.jpg",
+    ],
+    data = [
+        "@coco_val2017//:saved_images_dir",
+        "@yolov8n_base_model//file",
+    ],
+    imports = ["."],
+    main = "ultralytics_quantization.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@rules_python//python/runfiles",
+        requirement("ultralytics"),
+        requirement("tensorflow"),
+    ],
+)
+
+py_binary(
+    name = "onnxruntime_quantization",
+    srcs = ["onnxruntime_quantization.py"],
+    args = [
+        "--base_model=yolov8n_base_model/file/downloaded",
+        "--calibration_images=coco_val2017/val2017/000000000139.jpg",
+    ],
+    data = [
+        "@coco_val2017//:saved_images_dir",
+        "@yolov8n_base_model//file",
+    ],
+    imports = ["."],
+    main = "onnxruntime_quantization.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@rules_python//python/runfiles",
+        requirement("onnxruntime"),
+        requirement("onnx"),
+        requirement("numpy"),
+        requirement("opencv-python-headless"),
+        requirement("ultralytics"),
+    ],
+)
+
+filegroup(
+    name = "onnx_models",
+    srcs = [
+        "_build_dir/models/yolov8n_fp32.onnx",
+        "_build_dir/models/yolov8n_int8.onnx",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+########################### Documentation Definitions ###########################
+
+filegroup(
+    name = "python_docs_srcs",
+    srcs = glob(["**/*.py"]),
+    visibility = ["//demo_applications/object_recognition:__subpackages__"],
+)

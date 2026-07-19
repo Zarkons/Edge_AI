@@ -1,7 +1,0 @@
-filegroup(
-    name = "doxygen_srcs",
-    srcs = [
-        "//learning/example/object_recognition/application:doxygen_srcs",
-    ],
-    visibility = ["//docs:__subpackages__"],
-)

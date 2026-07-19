@@ -1,0 +1,47 @@
+# 2. Load the requirement macro separately from your pip hub
+load("@pip_deps_tflm//:requirements.bzl", "requirement")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+# 1. Load the standard py_binary from rules_python
+load("@rules_python//python:defs.bzl", "py_binary")
+load("//modules/helpers:defs.bzl", "tflite_inspect_model_macro")
+
+py_binary(
+    name = "train",
+    srcs = ["train.py"],
+    deps = [
+        requirement("numpy"),
+        requirement("tensorflow"),
+        requirement("matplotlib"),
+    ],
+)
+
+cc_test(
+    name = "anomaly_detection_tests",
+    size = "small",
+    srcs = [
+        "anomaly_detection_quantized.cc",
+        "anomaly_detection_quantized.h",
+        "anomaly_detection_tests.cc",
+    ],
+    # 1. Tells the compiler to separate functions into isolated memory drawers
+    copts = [
+        "-ffunction-sections",
+        "-fdata-sections",
+    ],
+    # 2. Tells the linker to strip out any unused drawers (Garbage Collect)
+    linkopts = [
+        "-Wl,-dead_strip",
+    ],
+    deps = [
+        "@googletest//:gtest_main",
+        "@tflm//tensorflow/lite/micro:micro_framework",
+        "@tflm//tensorflow/lite/schema:schema_utils",
+    ],
+)
+
+tflite_inspect_model_macro(
+    name = "inspect_model",
+    model_target = ":anomaly_detection_quantized.tflite",
+    visibility = ["//visibility:public"],
+)

@@ -1,2 +1,0 @@
-extern unsigned char anomaly_detection_quantized_tflite[];
-extern unsigned int anomaly_detection_quantized_tflite_len;

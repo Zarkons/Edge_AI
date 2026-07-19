@@ -1,0 +1,144 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+############################# Library Definitions ###########################
+
+load("//modules/helpers:defs.bzl", "tflite_inspect_model_macro")
+
+genrule(
+    name = "convert_tflite_to_cc",
+    srcs = ["tflite_model/audio_recognition_model.tflite"],
+    outs = ["audio_recognition_model.cc"],
+    cmd = "xxd -i $< > $@",
+)
+
+sh_binary(
+    name = "get_tflite_cc",
+    srcs = ["copy_model.sh"],
+    # Passes the sandbox file path as the first argument ($1) to the script
+    args = ["$(rootpath :convert_tflite_to_cc)"],
+    data = [":convert_tflite_to_cc"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "sample_processing_from_file",
+    srcs = [
+        "src/sample_processing_from_file.cc",
+    ],
+    hdrs = [
+        "api/sample_processing_from_file.h",
+    ],
+    includes = ["api"],
+    deps = [
+        ":get_label_names",
+        "//modules/common_types",
+    ],
+)
+
+cc_library(
+    name = "sample_processing_from_mic",
+    srcs = [
+        "src/sample_processing_from_mic.cc",
+    ],
+    hdrs = [
+        "api/sample_processing_from_mic.h",
+    ],
+    includes = ["api"],
+    deps = [
+        "//modules/common_types",
+        "//modules/digital_signal_processing/audio/miniaudio",
+    ],
+)
+
+cc_library(
+    name = "get_label_names",
+    srcs = [
+        "src/get_label_names.cc",
+    ],
+    hdrs = [
+        "api/get_label_names.h",
+    ],
+    includes = ["api"],
+    deps = [
+        "//modules/common_types",
+    ],
+)
+
+cc_library(
+    name = "audio_model_pipeline",
+    srcs = [
+        "src/audio_model_pipeline.cc",
+    ],
+    hdrs = [
+        "api/audio_model_pipeline.h",
+    ],
+    includes = [
+        "api",
+    ],
+    deps = [
+        "//modules/common_types",
+        "//modules/rtlite_micro_handler",
+        "@tflm//tensorflow/lite/micro:micro_framework",
+    ],
+)
+
+cc_binary(
+    name = "simple_audio_recognition",
+    srcs = [
+        "src/main_file_input.cc",
+        "tflite_model/audio_recognition_model.cc",
+        "tflite_model/audio_recognition_model.h",
+    ],
+    data = [
+        "//demo_applications/simple_audio_recognition/train:audio_samples_dir",
+    ],
+    includes = ["tflite_model"],
+    deps = [
+        ":audio_model_pipeline",
+        ":get_label_names",
+        ":sample_processing_from_file",
+        "//modules/common_types",
+        "//modules/rtlite_micro_handler",
+        "@tflm//tensorflow/lite/micro:micro_framework",
+    ],
+)
+
+cc_binary(
+    name = "simple_audio_recognition_with_miniaudio",
+    srcs = [
+        "src/main_mic_input.cc",
+        "tflite_model/audio_recognition_model.cc",
+        "tflite_model/audio_recognition_model.h",
+    ],
+    data = [
+        "//demo_applications/simple_audio_recognition/train:audio_samples_dir",
+    ],
+    includes = ["tflite_model"],
+    deps = [
+        ":audio_model_pipeline",
+        ":get_label_names",
+        ":sample_processing_from_mic",
+        "//modules/common_types",
+        "//modules/digital_signal_processing/audio/miniaudio",
+        "//modules/rtlite_micro_handler",
+        "@tflm//tensorflow/lite/micro:micro_framework",
+    ],
+)
+
+tflite_inspect_model_macro(
+    name = "inspect_model",
+    model_target = ":tflite_model/audio_recognition_model.tflite",
+    visibility = ["//visibility:public"],
+)
+
+############################ Documentation Definitions ###########################
+
+filegroup(
+    name = "doxygen_srcs",
+    srcs = glob([
+        "api/*.h",
+        "src/*.cc",
+    ]),
+    visibility = ["//docs:__subpackages__"],
+)
