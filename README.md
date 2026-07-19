@@ -12,7 +12,7 @@ This is a personal R&D project born out of curiosity to explore the intersection
 * **Light Edge & Bare-Metal Deploys:** Ultra-low footprint pipelines tailored for bare-metal target microcontrollers leveraging **RT Lite Micro** and **ONNX Runtime** C++ engines.
 * **Structural Model Optimization:** Deep tech integration of post-training **ML Model Quantization** (INT8 calibration) and model pruning to maximize inference efficiency.
 * **Signal Processing & Computer Vision:** Dedicated low-latency multi-channel **Audio/Video Digital Signal Processing (DSP)** modules orchestrated via **OpenCV**.
-* **Modern Build Systems:** Industrial-grade compilation pipelines managed through **CMake**, **Conan**, and **Bazel** environments.
+* **Modern Build Systems:** Industrial-grade compilation pipelines managed through **Bazel** environment.
 
 ## 🚀 Key Architectural Implementation Highlights
 * **Deterministic Resource Management:** Pre-allocated memory layouts tailored for bare-metal targets to eliminate runtime heap fragmentation in time-critical loops.
