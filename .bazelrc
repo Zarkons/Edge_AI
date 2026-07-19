@@ -13,5 +13,6 @@ build:tracy_profiler -c opt
 # Keep basic debug symbols so Tracy can resolve human-readable source code names
 build:tracy_profiler --//:tracy_profiler_enabled=True
 
-# Enable print logger
-build:print_logger --//:print_logger_enabled=True
+# Enable print logger — level 1: errors only, level 2: info + errors
+build:log_error --//:print_logger_level=1
+build:log_all --//:print_logger_level=2

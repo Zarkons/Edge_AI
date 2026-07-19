@@ -1,4 +1,4 @@
-load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "int_flag")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
 compile_pip_requirements(
@@ -20,9 +20,9 @@ bool_flag(
     visibility = ["//visibility:public"],
 )
 
-bool_flag(
-    name = "print_logger_enabled",
-    build_setting_default = False,
+int_flag(
+    name = "print_logger_level",
+    build_setting_default = 0,
     visibility = ["//visibility:public"],
 )
 
@@ -36,9 +36,17 @@ config_setting(
 )
 
 config_setting(
-    name = "print_logger_active",
+    name = "print_logger_errors_active",
     flag_values = {
-        ":print_logger_enabled": "True",
+        ":print_logger_level": "1",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "print_logger_all_active",
+    flag_values = {
+        ":print_logger_level": "2",
     },
     visibility = ["//visibility:public"],
 )

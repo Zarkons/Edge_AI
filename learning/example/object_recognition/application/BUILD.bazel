@@ -73,6 +73,7 @@ cc_library(
     strip_include_prefix = "api",
     visibility = ["//visibility:public"],
     deps = [
+        ":print_logger",
         "//modules/digital_signal_processing/image:dip_data_types",
         "@opencv",
     ],
@@ -140,9 +141,8 @@ cc_binary(
         "src/main_camera_input.cc",
     ],
     copts = select({
-        "//:print_logger_active": [
-            "-DPRINT_LOGGER_ENABLE",
-        ],
+        "//:print_logger_errors_active": ["-DPRINT_LOGGER_ERROR_ENABLE"],
+        "//:print_logger_all_active": ["-DPRINT_LOGGER_ENABLE"],
         "//conditions:default": [],
     }) + select({
         "//:tracy_profiler_active": [
