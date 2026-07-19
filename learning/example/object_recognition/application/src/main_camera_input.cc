@@ -6,7 +6,6 @@
 #include "planar_scale_tensor_packer.h"
 #include "onnxruntime_engine.h"
 #include "yolov8_post_processor.h"
-#include <iostream>
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include "yolov8_visualizer.h"
@@ -55,41 +54,40 @@ int main(int argc, char *argv[])
         out_preallocated_buffer.data(),
         out_preallocated_buffer.size());
     /* Allocation End */
-    PROFILER_LOG("Profiling enabled: Tracy Profiler active. Use Tracy GUI to visualize performance metrics.");
-
     try
     {
-        PRINT_LOG("============= Live Object Recognition Application =============");
+        PRINT_INFO("============= Live Object Recognition Application =============");
 
         abs_model_path = ResolveAbsModelPath(argv[0]);
-        PRINT_LOG("[ObjRec][INFO] Resolved Model Path : " << abs_model_path);
+        PRINT_INFO("[ObjRec] Resolved Model Path : " << abs_model_path);
 
         if (!pipeline.InitializeEngine(abs_model_path, intra_op_threads, inter_op_threads))
         {
-            std::cerr << "[ObjRec][ERROR] Failed to initialize ONNX Runtime engine." << std::endl;
+            PRINT_ERROR("[ObjRec] Failed to initialize ONNX Runtime engine.");
             return -1;
         }
-        PRINT_LOG("[ObjRec][INFO] ONNX Engine initialized successfully.");
+        PRINT_INFO("[ObjRec] ONNX Engine initialized successfully.");
 
         std::vector<std::string> model_classes = pipeline.GetClassNames();
         if (model_classes.empty())
         {
-            PRINT_LOG("[ObjRec][ERROR] Could not resolve embedded model metadata strings. Falling back to numeric Class IDs.");
+            PRINT_ERROR("[ObjRec] Could not resolve embedded model metadata strings. Falling back to numeric Class IDs.");
         }
         else
         {
-            PRINT_LOG("[ObjRec][INFO] Successfully parsed and initialized [" << model_classes.size() << "] distinct text class tags directly from the ONNX binary.");
+            PRINT_INFO("[ObjRec] Successfully parsed and initialized [" << model_classes.size() << "] distinct text class tags directly from the ONNX binary.");
         }
 
         if (!camera_handler.Initialize(std::string{kIphoneStreamUrl}))
         {
-            std::cerr << "[ObjRec][ERROR] Could not connect to live iPhone stream pipeline." << std::endl;
+            PRINT_ERROR("[ObjRec] Could not connect to live iPhone stream pipeline.");
             return -1;
         }
 
-        PRINT_LOG("🚀 Starting Live iPhone Inference Loop. Press 'q' inside the window canvas to exit.");
+        PRINT_INFO("🚀 Starting Live iPhone Inference Loop. Press 'q' inside the window canvas to exit.");
 
         /* Hot-Path Inference Loop, no dynamic memory allocations after this point! */
+        ZoneScopedN("Total Application Execution");
         bool next_frame_available = true;
         while (next_frame_available)
         {
@@ -104,7 +102,7 @@ int main(int argc, char *argv[])
             frame_buffer.channels = live_frame.channels;
             frame_buffer.stride = live_frame.stride;
 
-            PRINT_LOG("-> Processing Live Camera Frame [" << processed_counter << "]");
+            PRINT_INFO("-> Processing Live Camera Frame [" << processed_counter << "]");
             {
                 ZoneScopedN("Preprocessing");
                 if (!pipeline.StreamFramePreprocess(frame_buffer))
@@ -114,7 +112,7 @@ int main(int argc, char *argv[])
                 ZoneScopedN("Inference");
                 if (!pipeline.InferenceExecute())
                 {
-                    std::cerr << "   [Inference Failure] Engine run failed for frame [" << processed_counter << "]" << std::endl;
+                    PRINT_ERROR("   [Inference Failure] Engine run failed for frame [" << processed_counter << "]");
                     if (cv::waitKey(1) == 'q')
                         break;
                     continue;
@@ -148,45 +146,45 @@ int main(int argc, char *argv[])
             // Optional: Save latest processed artifact file directly onto disk
             cv::imwrite("output_visualized.jpg", visualization_frame);
 
-            PRINT_LOG("   [Detections Filtered]: " << detections.size() << " objects tracked.");
+            PRINT_INFO("   [Detections Filtered]: " << detections.size() << " objects tracked.");
             for (size_t i = 0; i < detections.size(); ++i)
             {
                 std::string class_name = (detections[i].class_id >= 0 && static_cast<size_t>(detections[i].class_id) < model_classes.size())
                                              ? model_classes[detections[i].class_id]
                                              : "Unknown";
 
-                PRINT_LOG("      Object [" << i + 1 << "] -> " << class_name
-                                           << " | Conf: " << (detections[i].confidence * 100.0f) << "%"
-                                           << " | Mapped Box: ["
-                                           << detections[i].x1 << ", " << detections[i].y1 << ", "
-                                           << detections[i].x2 << ", " << detections[i].y2 << "]");
+                PRINT_INFO("      Object [" << i + 1 << "] -> " << class_name
+                                            << " | Conf: " << (detections[i].confidence * 100.0f) << "%"
+                                            << " | Mapped Box: ["
+                                            << detections[i].x1 << ", " << detections[i].y1 << ", "
+                                            << detections[i].x2 << ", " << detections[i].y2 << "]");
             }
 
             // FIX: Pass 1ms instead of 0 to allow the live video stream to decode and paint continuously.
             // Breaks execution cleanly when hitting 'q' inside the active visual window canvas.
             if (cv::waitKey(1) == 'q')
             {
-                PRINT_LOG("[INFO] 'q' key pressed. Stopping live stream loop cleanly.");
+                PRINT_INFO("'q' key pressed. Stopping live stream loop cleanly.");
                 break;
             }
 
             else
             {
             }
-            PRINT_LOG("---------------------------------------------------------");
+            PRINT_INFO("---------------------------------------------------------");
         }
 
-        PRINT_LOG("🟩 Live Execution Terminated cleanly. Total frames processed: " << processed_counter);
+        PRINT_ERROR("Live Execution Terminated cleanly. Total frames processed: " << processed_counter);
     }
 
     catch (const Ort::Exception &e)
     {
-        std::cerr << "[ONNX][Run] ORT exception: " << e.what() << std::endl;
+        PRINT_ERROR(" ORT exception: " << e.what());
         return false;
     }
     catch (const std::exception &e)
     {
-        std::cerr << "🟥 Critical Exception Aborted Operation: " << e.what() << std::endl;
+        PRINT_ERROR("Critical Exception Aborted Operation: " << e.what());
         return -1;
     }
 

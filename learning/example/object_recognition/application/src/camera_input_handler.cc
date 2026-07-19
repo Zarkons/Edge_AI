@@ -1,5 +1,5 @@
 #include "camera_input_handler.h"
-#include <iostream>
+#include "print_logger.h"
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -123,12 +123,12 @@ namespace obj_rec
 
         bool CameraInputHandler::Initialize(const std::string &stream_url)
         {
-            std::cout << "[CameraInputHandler] Bypassing native VideoCapture. Opening direct socket stream..." << std::endl;
+            PRINT_INFO("[CameraInputHandler] Bypassing native VideoCapture. Opening direct socket stream...");
 
             std::string host, port, path;
             if (!ParseUrl(stream_url, host, port, path))
             {
-                std::cerr << "[CameraInputHandler Error] Invalid URL layout passed." << std::endl;
+                PRINT_ERROR("[CameraInputHandler Error] Invalid URL layout passed.");
                 return false;
             }
 
@@ -138,12 +138,12 @@ namespace obj_rec
 
             if (getaddrinfo(host.c_str(), port.c_str(), &hints, &res) != 0)
             {
-                std::cerr << "[CameraInputHandler Error] Host resolution failed." << std::endl;
+                PRINT_ERROR("[CameraInputHandler Error] Host resolution failed.");
                 return false;
             }
 
-            std::cout << "[CameraInputHandler] Connecting to " << host << ':' << port
-                      << " with a " << kConnectTimeoutSeconds << "s timeout." << std::endl;
+            PRINT_INFO("[CameraInputHandler] Connecting to " << host << ':' << port
+                                                             << " with a " << kConnectTimeoutSeconds << "s timeout.");
 
             m_sock_fd = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
             if (m_sock_fd < 0)
@@ -154,8 +154,8 @@ namespace obj_rec
 
             if (!ConnectWithTimeout(m_sock_fd, res->ai_addr, res->ai_addrlen, kConnectTimeoutSeconds))
             {
-                std::cerr << "[CameraInputHandler Error] Socket connection to " << host << ':' << port
-                          << " failed: " << std::strerror(errno) << std::endl;
+                PRINT_ERROR("[CameraInputHandler Error] Socket connection to " << host << ':' << port
+                                                                               << " failed: " << std::strerror(errno));
                 ::close(m_sock_fd);
                 m_sock_fd = -1;
                 freeaddrinfo(res);
@@ -168,15 +168,15 @@ namespace obj_rec
             recv_timeout.tv_usec = 0;
             if (setsockopt(m_sock_fd, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout)) != 0)
             {
-                std::cerr << "[CameraInputHandler Warn] Failed to set receive timeout: "
-                          << std::strerror(errno) << std::endl;
+                PRINT_ERROR("[CameraInputHandler Warn] Failed to set receive timeout: "
+                            << std::strerror(errno));
             }
 
             // Send a standard raw HTTP GET request to pull the continuous MJPEG stream
             std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
             ::send(m_sock_fd, request.c_str(), request.length(), 0);
 
-            std::cout << "[CameraInputHandler] HTTP Network handshake complete. Receiving live stream bytes." << std::endl;
+            PRINT_INFO("[CameraInputHandler] HTTP Network handshake complete. Receiving live stream bytes.");
             return true;
         }
 
@@ -243,8 +243,8 @@ namespace obj_rec
                 {
                     if (bytes_received < 0)
                     {
-                        std::cerr << "[CameraInputHandler Error] Timed out or failed while waiting for MJPEG bytes: "
-                                  << std::strerror(errno) << std::endl;
+                        PRINT_ERROR("[CameraInputHandler Error] Timed out or failed while waiting for MJPEG bytes: "
+                                    << std::strerror(errno));
                     }
                     return false; // Connection closed or dropped
                 }
