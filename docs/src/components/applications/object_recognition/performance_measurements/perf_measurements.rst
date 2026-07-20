@@ -28,7 +28,10 @@ Following figure shows optimized performance measurement of the object recogniti
     In given example for 30fps (33.3ms per frame) camera stream the single-threaded execution for one frame in average takes ~42ms, which results in 23.8fps throughput, less than the camera stream, meaning that output result is late for about ~9ms.
     The multi-threaded execution for one frame in average takes ~37ms, which results in ~27fps throughput, still less than the camera stream, but better than the single-threaded execution, meaning that output is still late, but for about ~3ms, which is better than the single-threaded execution.
 
-    There is no lagging in the output, i.e. the inference result is always related to the latest frame, but the output is late for a few milliseconds, which is acceptable in most cases. The multi-threaded execution is better than the single-threaded execution, but still not optimal. The optimal solution would be to use hardware acceleration for inference and preprocessing, which will be done in following steps.
+    There is no lagging in the output, i.e. the inference result is always related to the latest frame, but the output is late for a few milliseconds, which is acceptable in most cases. The multi-threaded execution is better than the single-threaded execution, but still not optimal.
+
+.. note::
+    If we take a closer look at the measurement, the worker thread that reads the frames from camera takes about ~37ms to pass new frame to main thread for inference. The Preprocessing, Inference, and Postprocessing, and Visualization take ~30ms, which is faster than camera frame rate, so the bottleneck is the reading of the frames from the camera and not the main thread processing. 
 
 Following figure shows performance with utilizing different compiler optimization levels.
 Optimization level useds are:
@@ -45,3 +48,14 @@ From the figure above we can see huge difference in performance between no optim
 
 .. note::
     Since shared library for ONNX Runtime is from official Microsoft release, it is assumed that it is optimized for best performance, and further optimization is not desired. However, if the ONNX Runtime library is built from source, it can be optimized for specific hardware and software configuration, which may bring additional performance improvements.
+
+Following figure shows performance measurement when inference is done on multiple threads (intra_op_threads set to 0).
+
+.. figure:: onnxruntime_intra_op_threads_0.png
+   :align: center
+   :alt:  Performance comparison of the object recognition pipeline with different intra_op_threads settings.
+
+So far inference was done by configuring ONNX Runtime to use CPU execution provider, with intra_op_threads set to 1, which means that inference is done on a single thread. The following measurement shows performance of inference with intra_op_threads set to 0, which means that inference is done on multiple threads, and ONNX Runtime will decide how many threads to use based on the number of available CPU cores. The performance measurement shows that inference time is reduced from ~27ms to ~22ms, which is significant improvement (almost 20% faster).
+
+.. note::
+    Even though the inference time is reduced, the total time to process one frame is still ~37ms, because the bottleneck is still the reading of frames from the camera!
