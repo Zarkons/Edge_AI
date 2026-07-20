@@ -16,3 +16,8 @@ build:tracy_profiler --//:tracy_profiler_enabled=True
 # Enable print logger — level 1: errors only, level 2: info + errors
 build:log_error --//:print_logger_level=1
 build:log_all --//:print_logger_level=2
+
+build:opt_l0 --//:optimization_level=0
+build:opt_l1 --//:optimization_level=1
+build:opt_l2 --//:optimization_level=2
+build:opt_l3 --//:optimization_level=3

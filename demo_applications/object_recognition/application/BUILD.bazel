@@ -166,10 +166,30 @@ cc_binary(
         "api/application_constants.h",
         "src/main_camera_input.cc",
     ],
-    copts = select({
+    copts = [
+        # Place any baseline, non-conditional compilation flags here
+    ] + select({
+        # Chain 1: Isolated feature profile flags
         "//:tracy_profiler_active": [
             "-DTRACY_ENABLE",
             "-g",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        # Chain 2: Isolated optimization rules
+        "//:optimization_level_0": [
+            "-O0",
+        ],
+        "//:optimization_level_1": [
+            "-O1",
+        ],
+        "//:optimization_level_2": [
+            "-O2",
+        ],
+        "//:optimization_level_3": [
+            "-O3",
+            "-ffast-math",
+            "-fvectorize",
         ],
         "//conditions:default": [],
     }),
@@ -179,6 +199,13 @@ cc_binary(
     includes = [
         "api",
     ],
+    linkopts = [
+    ] + select({
+        "//:optimization_level_3": [
+            "-flto",
+        ],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
     deps = [
         ":camera_input_handler",

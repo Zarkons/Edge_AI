@@ -21,6 +21,12 @@ bool_flag(
 )
 
 int_flag(
+    name = "optimization_level",
+    build_setting_default = 1,
+    visibility = ["//visibility:public"],
+)
+
+int_flag(
     name = "print_logger_level",
     build_setting_default = 0,
     visibility = ["//visibility:public"],
@@ -47,6 +53,38 @@ config_setting(
     name = "print_logger_all_active",
     flag_values = {
         ":print_logger_level": "2",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "optimization_level_0",
+    flag_values = {
+        ":optimization_level": "0",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "optimization_level_1",
+    flag_values = {
+        ":optimization_level": "1",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "optimization_level_2",
+    flag_values = {
+        ":optimization_level": "2",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "optimization_level_3",
+    flag_values = {
+        ":optimization_level": "3",
     },
     visibility = ["//visibility:public"],
 )
