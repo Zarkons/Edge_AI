@@ -7,5 +7,6 @@ Application examples provide practical demonstrations for simple use cases of th
     :maxdepth: 1
     :caption: Examples List
 
-    simple_audio_recognition/simple_audio_recognition
     object_recognition/object_recognition
+    simple_audio_recognition/simple_audio_recognition
+    

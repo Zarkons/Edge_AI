@@ -17,10 +17,11 @@ Documentation Structure
    :maxdepth: 3
    :caption: Contents
 
+   src/components/components
    src/external_dependencies
    src/tools
    src/theory/theory
-   src/components/components
+
 
 
 
