@@ -1,6 +1,13 @@
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "int_flag")
+load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
+# Load your cleaned-up Starlark rule configuration helper
+load("//:riscv_toolchain_config.bzl", "riscv_cc_toolchain_config")
+
+package(default_visibility = ["//visibility:public"])
+
+# Pip Requirements Compilation
 compile_pip_requirements(
     name = "requirements_tfcore",
     src = "python_requirements_3_11.txt",
@@ -13,7 +20,7 @@ compile_pip_requirements(
     requirements_txt = "//docs:requirements_sphinx_3_11_lock.txt",
 )
 
-# Define the user flag
+# User-Facing Custom Build Flags
 bool_flag(
     name = "tracy_profiler_enabled",
     build_setting_default = False,
@@ -32,7 +39,7 @@ int_flag(
     visibility = ["//visibility:public"],
 )
 
-# Define the valid select condition
+# Configuration Settings for Select Conditions
 config_setting(
     name = "tracy_profiler_active",
     flag_values = {
@@ -87,4 +94,57 @@ config_setting(
         ":optimization_level": "3",
     },
     visibility = ["//visibility:public"],
+)
+
+# Platforms Definition
+platform(
+    name = "riscv32_tensix",
+    constraint_values = [
+        "@platforms//cpu:riscv32",
+        "@platforms//os:none",  # Bare-metal accelerator target execution profile
+    ],
+)
+
+# Toolchain Definitions
+# Tier 1: Platform constraint matching interface visible to Bazel's build engine
+toolchain(
+    name = "riscv_local_toolchain",
+    exec_compatible_with = [
+        "@platforms//cpu:arm64",  # MacBook Pro host execution machine
+        "@platforms//os:osx",
+    ],
+    target_compatible_with = [
+        "@platforms//cpu:riscv32",
+        "@platforms//os:none",
+    ],
+    toolchain = ":riscv_cc_toolchain",
+    toolchain_type = "@rules_cc//cc:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+# Tier 2: The actual Native CC Toolchain wrapper instance mapping out artifact targets
+cc_toolchain(
+    name = "riscv_cc_toolchain",
+    all_files = ":empty",
+    compiler_files = ":empty",
+    dwp_files = ":empty",
+    linker_files = ":empty",
+    objcopy_files = ":empty",
+    strip_files = ":empty",
+    supports_param_files = 0,
+    toolchain_config = ":riscv_cc_toolchain_config",
+    toolchain_identifier = "riscv-local-compiler",
+    visibility = ["//visibility:public"],
+)
+
+# Tier 3: Instantiate the literal system binaries path configurations from Starlark
+riscv_cc_toolchain_config(
+    name = "riscv_cc_toolchain_config",
+    visibility = ["//visibility:public"],
+)
+
+# Fallback empty configuration targets for local system compilation
+filegroup(
+    name = "empty",
+    srcs = [],
 )

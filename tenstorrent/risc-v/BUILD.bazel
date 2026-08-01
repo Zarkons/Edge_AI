@@ -1,0 +1,25 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+########################### Library Definitions #################################
+
+cc_binary(
+    name = "tensix_vector_kernel",
+    srcs = [
+        "boot.S",
+        "tensix_vector_kernel.cpp",
+    ],
+    additional_linker_inputs = ["tensix_l1.ld"],
+    copts = [
+        "-march=rv32imaf",
+        "-mabi=ilp32f",
+        "-nostdlib",
+        "-O1",
+        "-g",
+    ],
+    linkopts = [
+        "-march=rv32imaf",
+        "-mabi=ilp32f",
+        "-nostdlib",
+        "-T risc-v/tensix_l1.ld",
+        "-Wl,--print-memory-usage",
+    ],
+)

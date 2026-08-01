@@ -1,22 +1,46 @@
-# Global Platform Targets
+# =============================================================================
+# GLOBAL SYSTEM FLAGS
+# =============================================================================
+# Set minimum OS execution targets for native macOS assets
 build --macos_minimum_os=14.0
 
-# Global Compiler Flags for C++
+# Standardize foundational code language standards globally
 build --cxxopt=-std=c++20
 build --cxxopt=-Wall
-build --cxxopt=-Wthread-safety
 
-# --- Optimization Profile for Tracy Profiler ---
-# Force production code optimization (O2/O3) so Tracy measures real-world speeds
+# =============================================================================
+# PLATFORM-SPECIFIC INJECTIONS (The Core Fix)
+# =============================================================================
+# 1. Host Config: Only pass Clang thread safety constraints when explicitly
+# compiling for your MacBook Pro (Apple Silicon / macOS).
+build --host_copt=-Wthread-safety
+
+# 2. Target Config: Automatically bind compiler flags to your custom platform targets.
+# This prevents Clang flags from ever bleeding into your bare-metal GNU GCC cross-compiler.
+# (Assuming your host default compilation matches standard Apple Silicon constraints)
+common --enable_platform_specific_config
+
+# If building for macOS architectures, safely enable thread safety parameters
+build:osx --cxxopt=-Wthread-safety
+
+# Clear out any conflicting default flags when explicitly targeting your custom RISC-V platform
+build://:riscv32_tensix --cxxopt=-nostdlib
+
+# Enforce modern platform-based toolchain resolution natively for all C++ builds
+build --incompatible_enable_cc_toolchain_resolution=true
+
+# =============================================================================
+# CONFIG-SPECIFIC PLUGINS & CONTROLS
+# =============================================================================
+# Tracy Profiler Configuration (Forces optimization + debug tracking stubs)
 build:tracy_profiler -c opt
-
-# Keep basic debug symbols so Tracy can resolve human-readable source code names
 build:tracy_profiler --//:tracy_profiler_enabled=True
 
-# Enable print logger — level 1: errors only, level 2: info + errors
+# Print Logger Level Settings
 build:log_error --//:print_logger_level=1
-build:log_all --//:print_logger_level=2
+build:log_all   --//:print_logger_level=2
 
+# Optimization Level Swapping Rules
 build:opt_l0 --//:optimization_level=0
 build:opt_l1 --//:optimization_level=1
 build:opt_l2 --//:optimization_level=2

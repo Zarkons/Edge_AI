@@ -10,3 +10,12 @@
 	path = onnxruntime
 	url = https://github.com/microsoft/onnxruntime.git
     ignore = dirty
+[submodule "tt-metal"]
+	path = tt-metal
+	url = https://github.com/tenstorrent/tt-metal.git
+[submodule "whisper"]
+	path = whisper
+	url = https://github.com/tenstorrent/whisper.git
+[submodule "ttsim"]
+	path = ttsim
+	url = https://github.com/tenstorrent/ttsim.git

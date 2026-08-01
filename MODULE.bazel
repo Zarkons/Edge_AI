@@ -10,10 +10,20 @@ bazel_dep(name = "rules_python", version = "1.8.5")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
-bazel_dep(name = "googletest", version = "1.15.2")
+bazel_dep(name = "googletest", version = "1.17.0")
 bazel_dep(name = "sphinxdocs", version = "2.0.2")
 bazel_dep(name = "rules_doxygen", version = "2.6.3")
 bazel_dep(name = "opencv", version = "4.13.0.bcr.5")
+bazel_dep(name = "boost.program_options", version = "1.89.0.bcr.2")
+bazel_dep(name = "boost.algorithm", version = "1.89.0.bcr.2")
+bazel_dep(name = "boost.format", version = "1.89.0.bcr.2")
+bazel_dep(name = "boost.circular_buffer", version = "1.89.0.bcr.2")
+bazel_dep(name = "boost.iostreams", version = "1.89.0.bcr.2")
+bazel_dep(name = "boost.io", version = "1.89.0.bcr.2")
+bazel_dep(name = "nlohmann_json", version = "3.11.3")
+bazel_dep(name = "lz4", version = "1.10.0.bcr.1")
+bazel_dep(name = "zlib", version = "1.3.1.bcr.8")
+bazel_dep(name = "pybind11_bazel", version = "2.11.1.bzl.3")
 
 doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
 use_repo(doxygen_extension, "doxygen")
@@ -23,6 +33,14 @@ bazel_dep(name = "tflm", version = "0.0.1")
 local_path_override(
     module_name = "tflm",
     path = "tflite-micro",
+)
+
+# MODULE.bazel
+
+bazel_dep(name = "whisper", version = "0.0.1")
+local_path_override(
+    module_name = "whisper",
+    path = "whisper",
 )
 
 # Configure an isolated, local Python toolchain
@@ -145,3 +163,6 @@ cc_library(
     strip_prefix = "tracy-0.13.1",
     urls = ["https://github.com/wolfpld/tracy/archive/refs/tags/v0.13.1.tar.gz"],
 )
+
+#RISC-V Toolchain
+register_toolchains("//:riscv_local_toolchain")

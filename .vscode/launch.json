@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Whisper Direct Pipe Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "targetArchitecture": "arm64",
+            "program": "${workspaceFolder}/bazel-bin/risc-v/tensix_vector_kernel",
+            "miDebuggerPath": "/opt/homebrew/bin/riscv64-elf-gdb",
+            "MIMode": "gdb",
+            "stopAtEntry": true,
+            "setupCommands": [
+                {
+                    "text": "set architecture riscv:rv32"
+                },
+                {
+                    "text": "target remote | ${workspaceFolder}/third_party/whisper/whisper --isa rv32imaf --gdb ${workspaceFolder}/bazel-bin/risc-v/tensix_vector_kernel"
+                }
+            ],
+            "launchCompleteCommand": "None"
+        }
+    ]
+}
