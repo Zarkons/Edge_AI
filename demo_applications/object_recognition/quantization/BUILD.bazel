@@ -14,7 +14,7 @@ onnxruntime_inspect_model_macro(
 
 onnxruntime_inspect_model_macro(
     name = "inspect_model_quantized",
-    model_target = ":_build_dir/models/yolov8n_int8.onnx",
+    model_target = ":_build_dir/models/yolov8n_mixed_precision.onnx",
     visibility = ["//visibility:public"],
 )
 
@@ -40,8 +40,8 @@ py_binary(
 )
 
 py_binary(
-    name = "onnxruntime_quantization",
-    srcs = ["onnxruntime_quantization.py"],
+    name = "full_int8_quantization",
+    srcs = ["full_int8_quantization.py"],
     args = [
         "--base_model=yolov8n_base_model/file/downloaded",
         "--calibration_images=coco_val2017/val2017/000000000139.jpg",
@@ -51,10 +51,36 @@ py_binary(
         "@yolov8n_base_model//file",
     ],
     imports = ["."],
-    main = "onnxruntime_quantization.py",
+    main = "full_int8_quantization.py",
     visibility = ["//visibility:public"],
     deps = [
         "@rules_python//python/runfiles",
+        requirement("absl-py"),
+        requirement("onnxruntime"),
+        requirement("onnx"),
+        requirement("numpy"),
+        requirement("opencv-python-headless"),
+        requirement("ultralytics"),
+    ],
+)
+
+py_binary(
+    name = "mixed_precision_quantization",
+    srcs = ["mixed_precision_quantization.py"],
+    args = [
+        "--base_model=yolov8n_base_model/file/downloaded",
+        "--calibration_images=coco_val2017/val2017/000000000139.jpg",
+    ],
+    data = [
+        "@coco_val2017//:saved_images_dir",
+        "@yolov8n_base_model//file",
+    ],
+    imports = ["."],
+    main = "mixed_precision_quantization.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@rules_python//python/runfiles",
+        requirement("absl-py"),
         requirement("onnxruntime"),
         requirement("onnx"),
         requirement("numpy"),
@@ -67,7 +93,7 @@ filegroup(
     name = "onnx_models",
     srcs = [
         "_build_dir/models/yolov8n_fp32.onnx",
-        "_build_dir/models/yolov8n_int8.onnx",
+        "_build_dir/models/yolov8n_mixed_precision.onnx",
     ],
     visibility = ["//visibility:public"],
 )

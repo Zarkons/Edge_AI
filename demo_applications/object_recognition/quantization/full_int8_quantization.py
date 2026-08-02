@@ -3,16 +3,10 @@ import shutil
 import pathlib
 import cv2
 import numpy as np
+import argparse  # Native package to bypass absl dependency mismatches
 from ultralytics import YOLO
 from onnxruntime.quantization import quantize_static, CalibrationDataReader, QuantType
 from python.runfiles import runfiles
-from absl import app, flags
-
-FLAGS = flags.FLAGS
-flags.DEFINE_string('base_model', None, 'Runfiles lookup key for the base .pt file.')
-flags.DEFINE_string('calibration_images', None, 'Runfiles space-separated list of image files.')
-flags.DEFINE_string('build_dir', 'demo_applications/object_recognition/_build_dir/models', 
-                    'Relative workspace path destination where all final models will be saved.')
 
 # 1. Custom Calibration Reader to stream data from your Bazel runfiles directory
 class BazelYOLOv8CalibrationReader(CalibrationDataReader):
@@ -48,19 +42,27 @@ class BazelYOLOv8CalibrationReader(CalibrationDataReader):
         # 'images' is the explicit input tensor node identifier for YOLOv8 graphs
         return {"images": img}
 
-def main(argv):
-    del argv
+def main():
+    # 2. Native Python Argument Parsing Configuration
+    parser = argparse.ArgumentParser(description="YOLOv8 Quantization & Delta mAP Evaluation Pipeline")
+    parser.add_argument('--base_model', required=True, help='Runfiles lookup key for the base .pt file.')
+    parser.add_argument('--calibration_images', required=True, help='Runfiles space-separated list of image files.')
+    parser.add_argument('--build_dir', default='demo_applications/object_recognition/_build_dir/models', 
+                        help='Relative workspace path destination where all final models will be saved.')
+    parser.add_argument('--validation_dataset_yaml', default='coco8.yaml', 
+                        help='Dataset YAML configuration name for tracking mAP metrics (e.g., coco8.yaml).')
+    
+    args = parser.parse_args()
     r = runfiles.Create()
     
-    # 1. Resolve absolute sandbox paths from Bazel runfiles
-    model_token = FLAGS.base_model.split()[0]
+    # 3. Resolve absolute sandbox paths from Bazel runfiles
+    model_token = args.base_model.split()[0]
     abs_model_path = r.Rlocation(model_token)
     
     if not abs_model_path:
         raise FileNotFoundError(f"Bazel runfiles could not find token: {model_token}")
     
-    # Extract the first image token to find where the validation folder lives
-    all_image_tokens = FLAGS.calibration_images.split()
+    all_image_tokens = args.calibration_images.split()
     if not all_image_tokens:
         raise ValueError("No calibration images found in the target build dependency list.")
     
@@ -76,15 +78,26 @@ def main(argv):
         shutil.copy(abs_model_path, pt_model_path)
     print(f"Aliased model path inside sandbox: {pt_model_path}")
     
-    # 2. Stage 1: Export PyTorch directly into standard FP32 ONNX
+    # 4. Stage 1: Load Base PyTorch Model and Run Validation Baseline
     model = YOLO(pt_model_path)
-    print("Exporting PyTorch weights to unquantized FP32 ONNX...")
     
-    # Generates a standard 'yolov8n.onnx' file right inside the local sandbox run directory
+    print("\n--- CRITICAL METRIC PROFILE: Evaluating Baseline FP32 Performance ---")
+    # Note: 'plots=False' avoids sandbox write errors during isolated Bazel runs
+    validation_results = model.val(data=args.validation_dataset_yaml, plots=False, verbose=False)
+    
+    baseline_map50 = validation_results.box.map50
+    baseline_map50_95 = validation_results.box.map  # This tracks standard mAP@0.5:0.95
+    
+    print(f"📊 BASELINE FP32 mAP@50:       {baseline_map50:.4f}")
+    print(f"📊 BASELINE FP32 mAP@50:95:    {baseline_map50_95:.4f}")
+    print("-------------------------------------------------------------------\n")
+    
+    # 5. Stage 2: Export PyTorch weights directly into standard FP32 ONNX
+    print("Exporting PyTorch weights to unquantized FP32 ONNX...")
     fp32_onnx_path = model.export(format="onnx", imgsz=640, dynamic=False)
     print(f"Generated target FP32 ONNX file: {fp32_onnx_path}")
     
-    # 3. Stage 2: Create calibration reader and execute static integer quantization
+    # 6. Stage 3: Create calibration reader and execute static integer quantization
     print("Initializing Calibration Data Stream Reader...")
     calib_reader = BazelYOLOv8CalibrationReader(calibration_dir=abs_calibration_dir)
     
@@ -98,11 +111,31 @@ def main(argv):
         quant_format=QuantType.QInt8 # Signed 8-bit integer processing pipeline
     )
     
-    # 4. Resolve destination path based on Bazel environment
+    # 7. Stage 4: Evaluate Quantized INT8 ONNX Accuracy to calculate performance degradation
+    print("\n--- CRITICAL METRIC PROFILE: Evaluating Quantized INT8 ONNX Performance ---")
+    try:
+        # Load the newly compiled INT8 ONNX model straight into the validation loop
+        int8_model = YOLO(int8_onnx_path, task="detect")
+        int8_results = int8_model.val(data=args.validation_dataset_yaml, plots=False, verbose=False)
+        
+        int8_map50 = int8_results.box.map50
+        int8_map50_95 = int8_results.box.map
+        
+        # Calculate the direct degradation delta for your thesis documentation
+        delta_map50 = int8_map50 - baseline_map50
+        delta_map50_95 = int8_map50_95 - baseline_map50_95
+        
+        print(f"📉 QUANTIZED INT8 mAP@50:    {int8_map50:.4f}  (Accuracy Delta: {delta_map50:+.4f})")
+        print(f"📉 QUANTIZED INT8 mAP@50:95: {int8_map50_95:.4f}  (Accuracy Delta: {delta_map50_95:+.4f})")
+    except Exception as e:
+        print(f"⚠️ Could not complete direct INT8 ONNX validation: {e}")
+    print("-------------------------------------------------------------------\n")
+    
+    # 8. Resolve destination path based on Bazel environment configurations
     workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
     if workspace_dir:
         # User executed via 'bazel run' -> Write out to persistent workspace directory
-        destination_dir = pathlib.Path(workspace_dir) / FLAGS.build_dir
+        destination_dir = pathlib.Path(workspace_dir) / args.build_dir
     else:
         # Fallback if executing as part of an isolated build rule target
         destination_dir = pathlib.Path(os.getcwd()) / "exported_models"
@@ -113,7 +146,7 @@ def main(argv):
     final_destination_fp32 = destination_dir / "yolov8n_fp32.onnx"
     final_destination_int8 = destination_dir / "yolov8n_int8.onnx"
     
-    print(f"\n>>> Streaming model outputs to targeting build directory: {destination_dir}")
+    print(f">>> Streaming model outputs to targeting build directory: {destination_dir}")
     
     # Save the original PyTorch model asset
     shutil.copy(pt_model_path, str(final_destination_pt))
@@ -134,4 +167,4 @@ def main(argv):
         print(f"Final Quantized Asset File Size: {int8_size / (1024 * 1024):.2f} MB")
 
 if __name__ == '__main__':
-    app.run(main)
+    main()

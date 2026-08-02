@@ -7,7 +7,7 @@ namespace obj_rec::app
 {
     std::string ResolveAbsModelPath(char *argv0)
     {
-        const std::string kModelToken = "_main/demo_applications/object_recognition/quantization/_build_dir/models/yolov8n_fp32.onnx";
+        const std::string kModelToken = "_main/demo_applications/object_recognition/quantization/_build_dir/models/yolov8n_mixed_precision.onnx";
 
         std::string runfiles_error;
         // Instantiate the Bazel Runfiles lookup library

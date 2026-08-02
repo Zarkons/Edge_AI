@@ -4,17 +4,26 @@ Performance Profiling
 .. note::
     The performance measurements currently are done on a MacBook Pro with Apple M5 chip, 32 GB RAM. The performance measurements may vary on different hardware and software configurations. Once the application is developed, it will be tested on Raspberry Pi 5.
 
+Initial Performance Measurement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Following figure shows initial performance measurement of the object recognition pipeline, which is not optimized and runs on a single thread. The inference and preprocessing are done sequentially, which results in lower throughput and higher latency.
 
 .. figure:: perf_initial_measurement.png
    :align: center
    :alt: First performance measurement of the object recognition pipeline.
 
+Single-Threaded Optimized Performance Measurement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Following figure shows optimized performance measurement of the object recognition pipeline, which runs on a single thread. The inference and preprocessing are done sequentially, but the code is optimized for better performance, minimal memory copies, and dynamic allocation in hot path. Still single-threaded execution with no specific hardware acceleration is used, which results in better throughput and lower latency compared to the initial measurement.
 
 .. figure:: perf_single_thread.png
    :align: center
    :alt: Single-threaded optimized inference and preprocessing performance measurement of the object recognition pipeline.
+
+Consumer-Producer Multi-Threaded Optimized Performance Measurement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Following figure shows optimized performance measurement of the object recognition pipeline, which runs on two threads. The inference and preprocessing are done in parallel with the reading the frames from the camera, which results in better throughput and lower latency compared to the single-threaded execution.
 
@@ -31,7 +40,10 @@ Following figure shows optimized performance measurement of the object recogniti
     There is no lagging in the output, i.e. the inference result is always related to the latest frame, but the output is late for a few milliseconds, which is acceptable in most cases. The multi-threaded execution is better than the single-threaded execution, but still not optimal.
 
 .. note::
-    If we take a closer look at the measurement, the worker thread that reads the frames from camera takes about ~37ms to pass new frame to main thread for inference. The Preprocessing, Inference, and Postprocessing, and Visualization take ~30ms, which is faster than camera frame rate, so the bottleneck is the reading of the frames from the camera and not the main thread processing. 
+    If we take a closer look at the measurement, the worker thread that reads the frames from camera takes about ~37ms to pass new frame to main thread for inference. The Preprocessing, Inference, and Postprocessing, and Visualization take ~30ms, which is faster than camera frame rate, so the bottleneck is the reading of the frames from the camera and not the main thread processing.
+
+Different Compiler Optimization Levels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Following figure shows performance with utilizing different compiler optimization levels.
 Optimization level useds are:
@@ -59,3 +71,12 @@ So far inference was done by configuring ONNX Runtime to use CPU execution provi
 
 .. note::
     Even though the inference time is reduced, the total time to process one frame is still ~37ms, because the bottleneck is still the reading of frames from the camera!
+
+Mixed Precision Quantization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bellow figure shows performance measurement of the object recognition pipeline with mixed precision quantization, which is a technique to reduce the model size and improve inference speed by using lower precision data types for some parts of the model. In this case, the model is quantized to use INT8 for most of the layers, while keeping the last few layers in FP32 for better accuracy. The result shows average inference time of ~10.7ms, which is significant improvement compared to the previous measurements.
+
+.. figure:: perf_quantized.png
+   :align: center
+   :alt:  Performance comparison of the object recognition pipeline with mixed precision quantization.
