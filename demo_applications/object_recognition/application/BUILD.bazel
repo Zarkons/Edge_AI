@@ -224,6 +224,61 @@ cc_binary(
     ],
 )
 
+cc_library(
+    name = "inference_pipeline",
+    srcs = ["src/inference_pipeline.cc"],
+    hdrs = [
+        "api/inference_pipeline.h",
+        "api/inference_pipeline_structures.h",
+    ],
+    copts = [
+        # "-O3",  # Maximize code loop unrolling optimizations
+        # "-std=c++17",  # Modern C++ memory specification standard
+        # "-arch",  # Target architecture flag for Apple Silicon
+        # "arm64",  # Target ARM64 architecture for Apple Silicon
+        # "-mcpu=apple-m1",  # Target Apple M1 architecture for optimal performance
+        # "-ffast-math",  # Enable aggressive SIMD vectorization math routines
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "custom_inference_engine_app",
+    srcs = [
+        "api/application_constants.h",
+        "src/main_custom_inference_engine.cc",
+    ],
+    copts = [
+        # Place any baseline, non-conditional compilation flags here
+    ],
+    data = [
+        "//demo_applications/object_recognition/quantization:compiled_engine_assets",
+    ],
+    includes = [
+        "api",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":camera_input_handler",
+        ":file_input_handler",
+        ":frame_handler",
+        ":inference_pipeline",
+        ":ml_model_resolver",
+        ":print_logger",
+        ":yolov8_post_processor",
+        ":yolov8_visualizer",
+        "//modules/digital_signal_processing/image:letterbox_preprocessor",
+        "//modules/digital_signal_processing/image:planar_scale_tensor_packer",
+        "//modules/digital_signal_processing/image:video_pipeline",
+        "//modules/tracy_profiler",
+        "@opencv",
+    ],
+)
+
 ############################ Documentation Definitions ###########################
 
 filegroup(

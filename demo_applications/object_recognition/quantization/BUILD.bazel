@@ -65,6 +65,32 @@ py_binary(
 )
 
 py_binary(
+    name = "compile_model",
+    srcs = ["compile_model.py"],
+    args = [
+        "--base_model=yolov8n_base_model/file/downloaded",
+        "--calibration_images=coco_val2017/val2017/000000000139.jpg",
+    ],
+    data = [
+        "@coco_val2017//:saved_images_dir",
+        "@yolov8n_base_model//file",
+    ],
+    imports = ["."],
+    main = "compile_model.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@rules_python//python/runfiles",
+        requirement("absl-py"),
+        requirement("onnxruntime"),
+        requirement("onnx"),
+        requirement("numpy"),
+        requirement("opencv-python-headless"),
+        requirement("ultralytics"),
+        ":inspect_model_quantized",
+    ],
+)
+
+py_binary(
     name = "mixed_precision_quantization",
     srcs = ["mixed_precision_quantization.py"],
     args = [
@@ -89,11 +115,40 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "analyze_manifest",
+    srcs = ["analyze_manifest.py"],
+    imports = ["."],
+    main = "analyze_manifest.py",
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)
+
+py_binary(
+    name = "validate_optimized_pipeline",
+    srcs = ["validate_optimized_pipeline.py"],
+    imports = ["."],
+    main = "validate_optimized_pipeline.py",
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)
+
 filegroup(
     name = "onnx_models",
     srcs = [
         "_build_dir/models/yolov8n_fp32.onnx",
         "_build_dir/models/yolov8n_mixed_precision.onnx",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "compiled_engine_assets",
+    srcs = [
+        "_build_dir/compiled_engine_assets/yolov8n_manifest.json",
+        "_build_dir/compiled_engine_assets/yolov8n_weights.bin",
     ],
     visibility = ["//visibility:public"],
 )

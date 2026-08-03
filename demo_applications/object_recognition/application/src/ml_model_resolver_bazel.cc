@@ -33,4 +33,58 @@ namespace obj_rec::app
         std::cout << "[PATH RESOLVER] Deployment asset located successfully at: " << abs_path << std::endl;
         return abs_path;
     }
+
+    std::string ResolveAbsWeightPath(char *argv0)
+    {
+        const std::string kWeightToken = "_main/demo_applications/object_recognition/quantization/_build_dir/compiled_engine_assets/yolov8n_weights.bin";
+
+        std::string runfiles_error;
+        std::unique_ptr<bazel::tools::cpp::runfiles::Runfiles> runfiles(
+            bazel::tools::cpp::runfiles::Runfiles::Create(argv0, &runfiles_error));
+
+        if (!runfiles)
+        {
+            std::cerr << "[PATH RESOLVER] Failed to initialize Bazel Runfiles helper context: "
+                      << runfiles_error << std::endl;
+            return "";
+        }
+
+        std::string abs_path = runfiles->Rlocation(kWeightToken);
+        if (abs_path.empty())
+        {
+            std::cerr << "[PATH RESOLVER] CRITICAL ERROR: Could not resolve physical filesystem location for token: "
+                      << kWeightToken << std::endl;
+            return "";
+        }
+
+        std::cout << "[PATH RESOLVER] Weight payload located successfully at: " << abs_path << std::endl;
+        return abs_path;
+    }
+
+    std::string ResolveAbsManifestPath(char *argv0)
+    {
+        const std::string kManifestToken = "_main/demo_applications/object_recognition/quantization/_build_dir/compiled_engine_assets/yolov8n_manifest.json";
+
+        std::string runfiles_error;
+        std::unique_ptr<bazel::tools::cpp::runfiles::Runfiles> runfiles(
+            bazel::tools::cpp::runfiles::Runfiles::Create(argv0, &runfiles_error));
+
+        if (!runfiles)
+        {
+            std::cerr << "[PATH RESOLVER] Failed to initialize Bazel Runfiles helper context: "
+                      << runfiles_error << std::endl;
+            return "";
+        }
+
+        std::string abs_path = runfiles->Rlocation(kManifestToken);
+        if (abs_path.empty())
+        {
+            std::cerr << "[PATH RESOLVER] CRITICAL ERROR: Could not resolve physical filesystem location for token: "
+                      << kManifestToken << std::endl;
+            return "";
+        }
+
+        std::cout << "[PATH RESOLVER] Manifest payload located successfully at: " << abs_path << std::endl;
+        return abs_path;
+    }
 } // namespace obj_rec::app

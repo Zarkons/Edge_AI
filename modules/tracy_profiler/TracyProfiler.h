@@ -37,6 +37,8 @@ namespace tracy_internal
     };
 }
 
+#define SetThreadName(name) tracy::SetThreadName(name)
+
 // Pass local compiler definitions safely into our structural wrapper constructor
 #define LockGuardType(mtx, name) \
     tracy_internal::ScopedLockProfile __tracy_lock_instance(mtx, name, __FUNCTION__, __FILE__, __LINE__)
@@ -49,6 +51,11 @@ namespace tracy_internal
 #else
 // Production fallback configuration block
 #define LockGuardType(mtx, name) std::lock_guard<std::mutex> __std_lock_instance(mtx)
+
+#define SetThreadName(name) \
+    do                      \
+    {                       \
+    } while (0)
 
 #define PROFILER_LOG(...) \
     do                    \

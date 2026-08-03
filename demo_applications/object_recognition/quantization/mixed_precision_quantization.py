@@ -40,7 +40,7 @@ def main():
     parser = argparse.ArgumentParser(description="YOLOv8 Selective Mixed-Precision Graph Surgery")
     parser.add_argument('--base_model', required=True, help='Runfiles lookup key for the base .pt file.')
     parser.add_argument('--calibration_images', required=True, help='Runfiles list of image files.')
-    parser.add_argument('--build_dir', default='demo_applications/object_recognition/_build_dir/models', 
+    parser.add_argument('--build_dir', default='demo_applications/object_recognition/quantization/_build_dir/models', 
                         help='Workspace path destination for final models.')
     parser.add_argument('--validation_dataset_yaml', default='coco8.yaml', 
                         help='Dataset YAML configuration name for tracking metrics.')

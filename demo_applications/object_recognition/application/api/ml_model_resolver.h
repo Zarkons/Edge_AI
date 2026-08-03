@@ -13,6 +13,20 @@ namespace obj_rec
          * @return The absolute filesystem path string to the target model file.
          */
         [[nodiscard]] std::string ResolveAbsModelPath(char *argv0);
+
+        /**
+         * @brief Resolves the compiled custom engine weight payload to an absolute path on disk.
+         * @param argv0 The application's entry point path pointer (argv[0]).
+         * @return The absolute filesystem path string to the weight payload file.
+         */
+        [[nodiscard]] std::string ResolveAbsWeightPath(char *argv0);
+
+        /**
+         * @brief Resolves the compiled custom engine manifest to an absolute path on disk.
+         * @param argv0 The application's entry point path pointer (argv[0]).
+         * @return The absolute filesystem path string to the manifest file.
+         */
+        [[nodiscard]] std::string ResolveAbsManifestPath(char *argv0);
     } // namespace app
 } // namespace obj_rec
 

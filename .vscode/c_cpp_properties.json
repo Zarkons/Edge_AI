@@ -3,12 +3,17 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                // Tells VS Code to look inside Bazel's output symlink for runfiles
+                "${workspaceFolder}/bazel-out/../../../external/**"
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang++",
             "cStandard": "c17",
-            "cppStandard": "c++20",
+            "cppStandard": "c++17",
             "intelliSenseMode": "macos-clang-arm64"
         }
     ],

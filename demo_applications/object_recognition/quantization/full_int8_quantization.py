@@ -47,7 +47,7 @@ def main():
     parser = argparse.ArgumentParser(description="YOLOv8 Quantization & Delta mAP Evaluation Pipeline")
     parser.add_argument('--base_model', required=True, help='Runfiles lookup key for the base .pt file.')
     parser.add_argument('--calibration_images', required=True, help='Runfiles space-separated list of image files.')
-    parser.add_argument('--build_dir', default='demo_applications/object_recognition/_build_dir/models', 
+    parser.add_argument('--build_dir', default='demo_applications/object_recognition/quantization/_build_dir/models', 
                         help='Relative workspace path destination where all final models will be saved.')
     parser.add_argument('--validation_dataset_yaml', default='coco8.yaml', 
                         help='Dataset YAML configuration name for tracking mAP metrics (e.g., coco8.yaml).')

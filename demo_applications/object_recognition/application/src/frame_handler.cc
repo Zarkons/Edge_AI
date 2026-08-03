@@ -39,7 +39,7 @@ namespace obj_rec::app
     void FrameHandler::WorkerLoop()
     {
         CameraFrame local_frame;
-        tracy::SetThreadName("FrameHandler Worker");
+        SetThreadName("FrameHandler Worker");
 
         while (is_running_.load())
         {

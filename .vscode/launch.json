@@ -20,6 +20,20 @@
                 }
             ],
             "launchCompleteCommand": "None"
+        },
+        {
+            "name": "Debug Existing App Binary (Direct Native)",
+            "type": "lldb", // Uses the CodeLLDB extension backend
+            "request": "launch",
+            "cwd": "/",
+            "program": "${workspaceFolder}/bazel-bin/demo_applications/object_recognition/application/custom_inference_engine_app",
+            "args": [],
+            "sourceMap": { // Key swap: CodeLLDB uses 'sourceMap'
+                "bazel-out/darwin_arm64-opt/bin/demo_applications/object_recognition/application/_virtual_includes/frame_handler": "${workspaceFolder}/demo_applications/object_recognition/application/api",
+                "demo_applications": "${workspaceFolder}/demo_applications",
+                "bazel-out": "${workspaceFolder}/bazel-out",
+                ".": "${workspaceFolder}"
+            }
         }
     ]
 }
