@@ -15,6 +15,7 @@
 #include "print_logger.h"
 #include "frame_handler.h"
 #include "inference_pipeline.h"
+#include "custom_inference_engine.h"
 
 #include <filesystem>
 #include <system_error>
@@ -33,10 +34,11 @@ int main(int argc, char *argv[])
     // PlanarScaleTensorPacker packer;
     // YOLOv8PostProcessor post_processor;
     // std::string abs_model_path;
-    // int64_t input_shape[] = {1, target_channels, target_height, target_width};
+    std::vector<int64_t> input_shape = {1, target_channels, target_height, target_width};
     // size_t shape_dims = 4;
     // size_t processed_counter = 0;
-    InferencePipeline edge_engine;
+    InferencePipeline custom_pipeline;
+    CustomInferenceEngine custom_engine(input_shape, "images");
     std::string weights_path = "demo_applications/object_recognition/quantization/_build_dir/compiled_engine_assets/yolov8n_weights.bin";
     std::string manifest_json_path = "demo_applications/object_recognition/quantization/_build_dir/compiled_engine_assets/yolov8n_manifest.json";
 
@@ -75,10 +77,10 @@ int main(int argc, char *argv[])
             manifest_json_path = resolved_manifest_path;
         }
 
-        if (edge_engine.initialize_weight_buffer(weights_path))
+        if (custom_pipeline.initialize_weight_buffer(weights_path))
         {
             PRINT_INFO("🟩 Custom Inference Engine initialized successfully with weight buffer size: "
-                       << edge_engine.get_buffer_size() << " bytes.");
+                       << custom_pipeline.get_buffer_size() << " bytes.");
         }
         else
         {
@@ -89,30 +91,30 @@ int main(int argc, char *argv[])
         std::vector<WeightTensorView> model_parameters_registry;
         std::vector<ExecutionStep> pruned_execution_graph;
         std::cout << "\n[Step 2/2] Parsing Topological Map & Applying Kernel Fusion...\n";
-        if (!edge_engine.load_and_optimize_manifest(manifest_json_path,
-                                                    model_parameters_registry,
-                                                    pruned_execution_graph))
+        if (!custom_pipeline.load_and_optimize_manifest(manifest_json_path,
+                                                        model_parameters_registry,
+                                                        pruned_execution_graph))
         {
             std::cerr << "🟥 CRITICAL COMPILER FAULT: Failed to decode or optimize JSON manifest.\n";
             return -1;
         }
-        edge_engine.export_optimized_pipeline("optimized_execution_graph.json", pruned_execution_graph);
 
         const std::filesystem::path manifest_output_path = std::filesystem::path(manifest_json_path).parent_path() / "optimized_execution_graph.json";
-        if (!edge_engine.export_optimized_pipeline(manifest_output_path.string(), pruned_execution_graph))
+        if (!custom_pipeline.export_optimized_pipeline(manifest_output_path.string(), pruned_execution_graph))
         {
             std::cerr << "🟥 Failed to export optimized execution graph beside manifest: "
                       << manifest_output_path << "\n";
             return -1;
         }
+        custom_engine.initialize_runtime_plan(pruned_execution_graph);
 
         // 4. Verification Check: Confirm your runtime state machine is fully loaded
         std::cout << "\n===================================================================\n";
         std::cout << "🟩 ENGINE INITIALIZATION VERIFICATION SUCCESSFUL\n";
         std::cout << "===================================================================\n";
-        std::cout << "   ↳ Memory Map Status:     " << (edge_engine.ready() ? "ACTIVE" : "INACTIVE") << "\n"
-                  << "   ↳ Total Mapped Weights:  " << (edge_engine.get_buffer_size() / (1024.0 * 1024.0)) << " MB\n"
-                  << "   ↳ Virtual Base Address:  " << edge_engine.get_base_address() << "\n"
+        std::cout << "   ↳ Memory Map Status:     " << (custom_pipeline.ready() ? "ACTIVE" : "INACTIVE") << "\n"
+                  << "   ↳ Total Mapped Weights:  " << (custom_pipeline.get_buffer_size() / (1024.0 * 1024.0)) << " MB\n"
+                  << "   ↳ Virtual Base Address:  " << custom_pipeline.get_base_address() << "\n"
                   << "   ↳ Tracked Weight Views:  " << model_parameters_registry.size() << " tensors linked\n"
                   << "   ↳ Optimized Graph Size:  " << pruned_execution_graph.size() << " math steps retained\n";
         std::cout << "-------------------------------------------------------------------\n\n";
@@ -129,7 +131,7 @@ int main(int argc, char *argv[])
                       << "   ↳ Fused Weight Scale:  " << first_step.weight_scale << "\n"
                       << "   ↳ Hardware Stride Jmp: " << first_step.custom_stride_step << " (Zero-Copy layout view)\n";
         }
-        edge_engine.verify_compiled_memory_bounds(pruned_execution_graph);
+        custom_pipeline.verify_compiled_memory_bounds(pruned_execution_graph);
 
         std::cout << "\n🚀 Engine is fully primed. System memory tracks are ready for kernel processing loops.\n";
         return 0;

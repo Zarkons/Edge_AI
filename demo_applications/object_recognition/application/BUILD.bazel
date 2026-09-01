@@ -246,6 +246,45 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "custom_kernels",
+    srcs = ["src/custom_kernels.cc"],
+    hdrs = [
+        "api/custom_kernels.h",
+        "api/inference_pipeline_structures.h",
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "custom_inference_engine",
+    srcs = ["src/custom_inference_engine.cc"],
+    hdrs = [
+        "api/custom_inference_engine.h",
+        "api/inference_pipeline_structures.h",
+    ],
+    copts = [
+        # "-O3",  # Maximize code loop unrolling optimizations
+        # "-std=c++17",  # Modern C++ memory specification standard
+        # "-arch",  # Target architecture flag for Apple Silicon
+        # "arm64",  # Target ARM64 architecture for Apple Silicon
+        # "-mcpu=apple-m1",  # Target Apple M1 architecture for optimal performance
+        # "-ffast-math",  # Enable aggressive SIMD vectorization math routines
+    ],
+    includes = [
+        "api",
+    ],
+    strip_include_prefix = "api",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":custom_kernels",
+    ],
+)
+
 cc_binary(
     name = "custom_inference_engine_app",
     srcs = [
@@ -264,6 +303,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":camera_input_handler",
+        ":custom_inference_engine",
         ":file_input_handler",
         ":frame_handler",
         ":inference_pipeline",

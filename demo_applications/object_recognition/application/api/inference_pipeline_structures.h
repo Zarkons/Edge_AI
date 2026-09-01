@@ -51,3 +51,14 @@ struct ExecutionStep
     size_t input_byte_offset = 0;
     size_t custom_stride_step = 1;
 };
+
+struct RuntimeNode
+{
+    std::string op_type;
+    std::vector<size_t> input_arena_offsets;
+    std::vector<size_t> output_arena_offsets;
+    std::vector<std::vector<int64_t>> input_shapes;
+    size_t primary_shape_idx = 0;
+    std::vector<int64_t> output_shape;
+    ExecutionStep blueprint;
+};
